@@ -27,7 +27,7 @@ public class MenuActivity extends Activity {
 	BluetoothAdapter mBluetoothAdapter;
 	ArrayAdapter<String> bondedDevices;
 	ArrayAdapter<String> foundedDevices; 
-    public static final String TAG = "debug";
+    public static final String TAG = "test";
 
     private static final int REQUEST_ENABLE_BT = 2;
     public static final String MyUUID = "00001101-0000-1000-8000-00805F9B34FB";
@@ -214,9 +214,9 @@ public class MenuActivity extends Activity {
             BluetoothSocket tmp = null;
             
             try {
-                tmp = device.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
+                tmp = device.createRfcommSocketToServiceRecord(UUID.fromString(MyUUID));
             } catch (IOException e) {
-            	Log.e(TAG,"socket creation failed" ,e);
+            	Log.d(TAG,"socket creation failed" ,e);
             }
             mmSocket = tmp;
         }
@@ -229,10 +229,10 @@ public class MenuActivity extends Activity {
             
             try {
                 mmSocket.connect();
-                Log.i(TAG, "connection success");
+                Log.d(TAG, "connection success");
             } catch (IOException e) {
                 connectionFailed();
-            	Log.e(TAG,"connection failed" ,e);
+            	Log.d(TAG,"connection failed" ,e);
                 try {
                     mmSocket.close();
                 } catch (IOException e1) {
@@ -277,15 +277,16 @@ public class MenuActivity extends Activity {
                 tmpIn = socket.getInputStream();
                 tmpOut = socket.getOutputStream();
             } catch (IOException e) {
-                Log.e(TAG, "temp sockets not created", e);
+                Log.d(TAG, "temp sockets not created", e);
             }
 
             mmInStream = tmpIn;
             mmOutStream = tmpOut;
         }
 
+        @Override
         public void run() {
-            Log.i(TAG, "run listening");
+            Log.d(TAG, "run listening");
             byte[] buffer = new byte[1024];
             int bytes;
 
@@ -294,10 +295,10 @@ public class MenuActivity extends Activity {
                 try {
                     // Read from the InputStream
                     bytes = mmInStream.read(buffer);
-                    Log.i(TAG, "listening.."+bytes);
+                    Log.d(TAG, "listening.."+bytes);
                 } catch (Exception e) {
-                    Log.e(TAG, "disconnected", e);
-                   // connectionLost();
+                    Log.d(TAG, "disconnected");
+                    connectionLost();
                     break;
                 }
             }
@@ -310,9 +311,9 @@ public class MenuActivity extends Activity {
         public void write(byte[] buffer) {
             try {
                 mmOutStream.write(buffer);
-                Log.e(TAG, "sending to device"+buffer.toString());
+                Log.d(TAG, "sending to device"+buffer.toString());
             } catch (IOException e) {
-                Log.e(TAG, "Exception during write", e);
+                Log.d(TAG, "Exception during write", e);
             }
         }
 
@@ -320,7 +321,7 @@ public class MenuActivity extends Activity {
             try {
                 mmSocket.close();
             } catch (IOException e) {
-                Log.e(TAG, "close() of connect socket failed", e);
+                Log.d(TAG, "close() of connect socket failed", e);
             }
         }
     }
