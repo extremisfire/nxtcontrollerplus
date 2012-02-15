@@ -34,7 +34,7 @@ public class MenuActivity extends Activity {
     private ConnectThread mConnectThread;
     private ConnectedThread mConnectedThread;
     TextView text; 
-    Button turnOnButton, showPairedDevicesButton, scanForDevicesButton,connectButton;
+    Button turnOnButton, showPairedDevicesButton, scanForDevicesButton,connectButton,moveButton,stopMoveButton;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -46,6 +46,8 @@ public class MenuActivity extends Activity {
         showPairedDevicesButton = (Button) findViewById(R.id.button2);
         scanForDevicesButton = (Button) findViewById(R.id.button3);
         connectButton = (Button) findViewById(R.id.button4);
+        moveButton = (Button) findViewById(R.id.button5);
+        stopMoveButton = (Button) findViewById(R.id.button6);
         
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mBluetoothAdapter != null) {
@@ -73,6 +75,18 @@ public class MenuActivity extends Activity {
         connectButton.setOnClickListener(new View.OnClickListener()  {
             public void onClick(View v) {
             	connectToDevice();
+            }
+        });
+        
+        moveButton.setOnClickListener(new View.OnClickListener()  {
+            public void onClick(View v) {
+            	move();
+            }
+        });
+        
+        stopMoveButton.setOnClickListener(new View.OnClickListener()  {
+            public void onClick(View v) {
+            	stopMove();
             }
         });
         
@@ -188,12 +202,31 @@ public class MenuActivity extends Activity {
         
       
         int motor = 0; 
+        byte speed = 0x20;
         if (motor == 0) {
             data[4] = 0x02;
         } else {
             data[4] = 0x01;
         }
-        data[5] = 0x20;
+        data[5] = speed;
+        if(mConnectedThread != null)
+        	mConnectedThread.write(data);
+        else
+        	Log.d(TAG,"mConnectedThread is NULL");
+    }
+    
+    public void stopMove() {
+        byte[] data = { 0x0c, 0x00, (byte) 0x80, 0x04, 0x02, 0x32, 0x07, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x00 };
+        
+      
+        int motor = 0; 
+        byte speed = 0x00;
+        if (motor == 0) {
+            data[4] = 0x02;
+        } else {
+            data[4] = 0x01;
+        }
+        data[5] = speed;
         if(mConnectedThread != null)
         	mConnectedThread.write(data);
         else
@@ -289,7 +322,6 @@ public class MenuActivity extends Activity {
             Log.d(TAG, "run listening");
             byte[] buffer = new byte[1024];
             int bytes;
-
             // Keep listening to the InputStream while connected
             while (true) {
                 try {
