@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="hello">Hello World, MenuActivity!</string>
+    <string name="app_name">NXTControllerPlus</string>
+    <string name="turnOn">Turn Bluetooth On</string>
+    <string name="findDevices">Show Paired devices</string>
+    <string name="scanForDevices">Scan for new devices</string>
+    <string name="connect">Connect to NXT</string>
+
+</resources>
