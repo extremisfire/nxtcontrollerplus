@@ -14,4 +14,5 @@
         <item >Connecting to: </item>  
         <item >Disconnected </item>  
     </string-array>
+    <color name="textBlack">#000</color>
 </resources>
