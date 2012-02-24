@@ -2,8 +2,5 @@
 <resources>
     <string name="app_name">NXT Controller Plus</string>
     <string name="connectNXT">Pripoj NXT</string>
-    <string name="connectedStatus">Pripojené k:</string>
-    <string name="connectingStatus">Pripája sa k:</string>
-    <string name="disconnectedStatus">Odpojené</string>
     <string name="disconnectNXT">Odpoj NXT</string>
 </resources>
