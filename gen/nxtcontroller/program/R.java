@@ -9,12 +9,14 @@ package nxtcontroller.program;
 
 public final class R {
     public static final class array {
+        public static final int connectionStatues=0x7f050002;
         public static final int errorsMsg=0x7f050000;
         public static final int infoMsg=0x7f050001;
     }
     public static final class attr {
     }
     public static final class color {
+        public static final int deepBlue=0x7f060001;
         public static final int textBlack=0x7f060000;
     }
     public static final class drawable {
@@ -24,6 +26,8 @@ public final class R {
     public static final class id {
         public static final int LinearLayout1=0x7f070000;
         public static final int connectButton=0x7f070002;
+        public static final int deviceName=0x7f070004;
+        public static final int labels=0x7f070003;
         public static final int statusLabel=0x7f070001;
     }
     public static final class layout {
@@ -31,7 +35,15 @@ public final class R {
     }
     public static final class string {
         public static final int app_name=0x7f040000;
+        public static final int closeLabel=0x7f040003;
         public static final int connectNXT=0x7f040001;
         public static final int disconnectNXT=0x7f040002;
+        public static final int newFoundedDevicesLabel=0x7f040006;
+        public static final int noFoundedDevicesLabel=0x7f040009;
+        public static final int pairedDevicesLabel=0x7f040005;
+        public static final int scanCompleteLabel=0x7f040007;
+        public static final int scanLabel=0x7f040004;
+        public static final int scanningLabel=0x7f040008;
+        public static final int selectDevice=0x7f04000a;
     }
 }

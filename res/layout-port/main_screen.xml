@@ -7,24 +7,40 @@
     android1:background="@drawable/background"
     android1:gravity="top"
     android1:padding="10dp" >
-
-    <TextView
-        android1:id="@+id/statusLabel"
+
+    <LinearLayout
+        android1:id="@+id/labels"
         android1:layout_width="wrap_content"
         android1:layout_height="wrap_content"
         android1:layout_alignParentLeft="true"
         android1:layout_alignParentTop="true"
-        android1:text="@string/app_name"
-        android1:textAppearance="?android:attr/textAppearanceMedium"
-        android1:textColor="@color/textBlack"
-        android1:textSize="20dp" />
+        android1:orientation="vertical" >
+
+        <TextView
+            android1:id="@+id/statusLabel"
+            android1:layout_width="wrap_content"
+            android1:layout_height="wrap_content"
+            android1:text="@string/app_name"
+            android1:textAppearance="?android:attr/textAppearanceMedium"
+            android1:textColor="@color/deepBlue"
+            android1:textSize="18dp" />
+
+        <TextView
+            android1:id="@+id/deviceName"
+            android1:layout_width="wrap_content"
+            android1:layout_height="wrap_content"
+            android1:text="@string/connectNXT"
+            android1:textAppearance="?android:attr/textAppearanceSmall"
+            android1:textColor="@color/textBlack" />
+
+    </LinearLayout>
 
     <Button
         android1:id="@+id/connectButton"
         android1:layout_width="wrap_content"
         android1:layout_height="wrap_content"
         android1:layout_alignParentRight="true"
-        android1:layout_alignTop="@+id/statusLabel"
+        android1:layout_alignTop="@+id/labels"
         android1:text="@string/connectNXT" />
 
 </RelativeLayout>
