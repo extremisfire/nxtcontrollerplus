@@ -21,6 +21,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name="nxtcontroller.activity.BluetoothDeviceManagerActivity" android:configChanges="keyboardHidden|orientation" android:theme="@android:style/Theme.Dialog" android:label="@string/selectDevice"></activity>
     </application>
 
 </manifest>
