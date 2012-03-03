@@ -32,4 +32,5 @@
     </string-array>
     <color name="textBlack">#000</color>
     <color name="deepBlue">#00008b</color>
+    <color name="touchPadColor">#c0c0c0</color>
 </resources>

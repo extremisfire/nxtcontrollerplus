@@ -21,7 +21,8 @@ public class NXTCommunicator {
 	/* private class properties declaration */
 	private ConnectThread mConnectThread;
     private ConnectedThread mConnectedThread;
-    private int state;
+    @SuppressWarnings("unused")
+	private int state;
     private Handler messageHandler;
     private BluetoothDevice NXTdevice = null;
     
@@ -40,13 +41,18 @@ public class NXTCommunicator {
 	}
 	
 	public void connectToNXT(BluetoothDevice remoteDevice){
+        synchronized (NXTCommunicator.this) {
+			setState(ConnectionStatus.CONNECTING);
+		}
 		this.NXTdevice = remoteDevice;
 		mConnectThread = new ConnectThread(this.NXTdevice);
 		mConnectThread.start();
 	}
 	
 	public void disconnectFromNXT(){
-		setState(ConnectionStatus.DISCONNECTED);
+        synchronized (NXTCommunicator.this) {
+			setState(ConnectionStatus.DISCONNECTED);
+		}
         // Cancel the thread that completed the connection
         if (mConnectThread != null) {mConnectThread.cancel(); mConnectThread = null;}
 
@@ -214,9 +220,6 @@ public class NXTCommunicator {
                 tmpOut = socket.getOutputStream();
             } catch (IOException e) {
                 Log.d(MainActivity.TAG, "temp sockets not created", e);
-                synchronized (NXTCommunicator.this) {
-                	NXTCommunicator.this.setState(ConnectionStatus.CONNECTION_ERROR);
-				}
             }
 
             mmInStream = tmpIn;
