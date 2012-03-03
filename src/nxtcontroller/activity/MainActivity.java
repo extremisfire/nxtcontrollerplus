@@ -4,9 +4,11 @@ import nxtcontroller.enums.ConnectionStatus;
 import nxtcontroller.enums.ErrorCodes;
 import nxtcontroller.enums.InfoCodes;
 import nxtcontroller.enums.TypeOfMessage;
+import nxtcontroller.program.NXTCommunicator;
 import nxtcontroller.program.R;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -31,6 +33,7 @@ public class MainActivity extends Activity {
     private TextView statusLabel,deviceNameLabel; 
     private Button connectButton;
     private int connectionStatus;
+    private NXTCommunicator nxtCommunicator;
     private String[] errors,infos,connectionStatuses; //message arrays
     
     
@@ -49,6 +52,10 @@ public class MainActivity extends Activity {
             	case(TypeOfMessage.STATUS_LABEL):
             		statusLabel.setText((String)msg.obj);
             	break;
+            	case(TypeOfMessage.CONNECTION_STATUS):
+            		setConnectionStatus((Integer) msg.obj);
+            	break;
+            	
             }
         	}catch (Exception e){
         		Log.e(TAG,"meesage handling error",e);
@@ -61,9 +68,11 @@ public class MainActivity extends Activity {
     public void setConnectionStatus(int connectionStatus) {
     	switch(connectionStatus){
     		case ConnectionStatus.CONNECTED:
-    			statusLabel.setTextColor(Color.GREEN);    			
+    			statusLabel.setTextColor(Color.GREEN);    	
+    			connectButton.setText(getResources().getString(R.string.disconnectNXT));
     		break;
     		case ConnectionStatus.DISCONNECTED:
+    			connectButton.setText(getResources().getString(R.string.connectNXT));
     		break;
     		case ConnectionStatus.CONNECTING:
     			statusLabel.setTextColor(Color.MAGENTA);
@@ -102,6 +111,7 @@ public class MainActivity extends Activity {
     
 
 	public void setupComponents(){
+		nxtCommunicator = new NXTCommunicator(messageHandler);
         statusLabel = (TextView) findViewById(R.id.statusLabel);
         deviceNameLabel = (TextView) findViewById(R.id.deviceName);
         connectButton = (Button) findViewById(R.id.connectButton);
@@ -112,7 +122,14 @@ public class MainActivity extends Activity {
     	try{
             connectButton.setOnClickListener(new View.OnClickListener()  {
                 public void onClick(View v) {
-                	startChooseDeviceActivity();
+                	if(connectButton.getText().equals(getResources().getString(R.string.connectNXT))){
+                		startChooseDeviceActivity();	
+                	}else{
+                		if(nxtCommunicator != null){
+                			nxtCommunicator.disconnectFromNXT();
+                		}
+                	}
+                	
                 }
             });
     	}catch(Exception e){
@@ -120,11 +137,23 @@ public class MainActivity extends Activity {
     	}
     }
     
-    public void connectNXT(){
-    	//TODO
+    public void connectNXT(String deviceName, String deviceAddress){
+       if(deviceName.length() < 1 || deviceAddress.length() < 1)
+    	   return;
+        setConnectionStatus(ConnectionStatus.READY_TO_CONNECT);
+        deviceNameLabel.setText(deviceName+"@"+deviceAddress);
+        if(connectionStatus == ConnectionStatus.READY_TO_CONNECT){
+        	BluetoothDevice remoteDevice = bluetoothAdapter.getRemoteDevice(deviceAddress);
+        	nxtCommunicator.connectToNXT(remoteDevice);
+        }
     }
     
     public void startChooseDeviceActivity(){
+    	if(!bluetoothAdapter.isEnabled()){
+    		turnOnBluetooth();
+    		setConnectionStatus(ConnectionStatus.DISCONNECTED);
+    		return;
+    	}
         Intent intent = new Intent(this, BluetoothDeviceManagerActivity.class);
         startActivityForResult(intent, REQUEST_CONNECT_DEVICE);
     }
@@ -141,10 +170,9 @@ public class MainActivity extends Activity {
         switch (requestCode) {
     	case REQUEST_CONNECT_DEVICE:
             if (resultCode == Activity.RESULT_OK) {
-                String deviceName = data.getExtras().getString(BluetoothDeviceManagerActivity.NAME_OF_DEVICE);
+            	String deviceName = data.getExtras().getString(BluetoothDeviceManagerActivity.NAME_OF_DEVICE);
                 String deviceAddress = data.getExtras().getString(BluetoothDeviceManagerActivity.ADDRESS_OF_DEVICE);
-                deviceNameLabel.setText(deviceName+":"+deviceAddress);
-                //TODO 
+            	connectNXT(deviceName, deviceAddress);
             }
     	case REQUEST_ENABLE_BT:
     		if(bluetoothAdapter.isEnabled())

@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import nxtcontroller.activity.MainActivity;
 import nxtcontroller.enums.ConnectionStatus;
+import nxtcontroller.enums.TypeOfMessage;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.os.Handler;
@@ -20,40 +21,48 @@ public class NXTCommunicator {
 	/* private class properties declaration */
 	private ConnectThread mConnectThread;
     private ConnectedThread mConnectedThread;
-    private ConnectionStatus state;
+    private int state;
     private Handler messageHandler;
+    private BluetoothDevice NXTdevice = null;
     
     /* public class properties declaration */
-	
     
 	/* Getters and Setter declaration */
-    public ConnectionStatus getState() {
-		return state;
-	}
-
-
-	public void setState(ConnectionStatus state) {
+	public void setState(int state) {
 		this.state = state;
+		messageHandler.obtainMessage(TypeOfMessage.CONNECTION_STATUS, state).sendToTarget();
 	}
-	
 	
 	/* Methods and Constructors declaration */
 	public NXTCommunicator(Handler handler){
-		messageHandler = handler;
+		this.messageHandler = handler;
+		state = ConnectionStatus.DISCONNECTED;
 	}
 	
+	public void connectToNXT(BluetoothDevice remoteDevice){
+		this.NXTdevice = remoteDevice;
+		mConnectThread = new ConnectThread(this.NXTdevice);
+		mConnectThread.start();
+	}
 	
+	public void disconnectFromNXT(){
+		setState(ConnectionStatus.DISCONNECTED);
+        // Cancel the thread that completed the connection
+        if (mConnectThread != null) {mConnectThread.cancel(); mConnectThread = null;}
 
-
-
+        // Cancel any thread currently running a connection
+        if (mConnectedThread != null) {mConnectedThread.cancel(); mConnectedThread = null;}
+	}
+	
 	/**
      * Start the ConnectedThread to begin managing a Bluetooth connection
      * @param socket  The BluetoothSocket on which the connection was made
      * @param device  The BluetoothDevice that has been connected
      */
-    public synchronized void connected(BluetoothSocket socket, BluetoothDevice device) {
-
-    	
+    public synchronized void connectToSocket(BluetoothSocket socket, BluetoothDevice device) {
+        synchronized (NXTCommunicator.this) {
+			setState(ConnectionStatus.CONNECTED);
+		}
         // Cancel the thread that completed the connection
         if (mConnectThread != null) {mConnectThread.cancel(); mConnectThread = null;}
 
@@ -111,7 +120,11 @@ public class NXTCommunicator {
      */
     private void connectionLost() {
         // Start the service over to restart listening mode
-        //NXTCommunicator.this.connectToDevice();
+        synchronized (NXTCommunicator.this) {
+        	NXTCommunicator.this.setState(ConnectionStatus.CONNECTION_ERROR);
+		}
+    	if(this.NXTdevice != null)
+    		NXTCommunicator.this.connectToNXT(this.NXTdevice);
     }
     
     /**
@@ -140,20 +153,21 @@ public class NXTCommunicator {
             	Log.e(MainActivity.TAG,"socket creation failed" ,e);
             }
             mmSocket = tmp;
+    		
         }
         
         @Override
         public void run() {
             setName("ConnectThread");
             Log.d(MainActivity.TAG,"running connected thread");
-            //mBluetoothAdapter.cancelDiscovery();
             
             try {
                 mmSocket.connect();
                 Log.d(MainActivity.TAG, "connection success");
+
   
             } catch (IOException e) {
-                //connectionFailed();
+                connectionFailed();
             	Log.d(MainActivity.TAG,"connection failed" ,e);
                 try {
                     mmSocket.close();
@@ -167,7 +181,7 @@ public class NXTCommunicator {
                 mConnectThread = null;
             }
             
-            //connected(mmSocket, mmDevice);
+            connectToSocket(mmSocket, mmDevice);
         }
         
         public void cancel() {
@@ -200,6 +214,9 @@ public class NXTCommunicator {
                 tmpOut = socket.getOutputStream();
             } catch (IOException e) {
                 Log.d(MainActivity.TAG, "temp sockets not created", e);
+                synchronized (NXTCommunicator.this) {
+                	NXTCommunicator.this.setState(ConnectionStatus.CONNECTION_ERROR);
+				}
             }
 
             mmInStream = tmpIn;
@@ -219,7 +236,7 @@ public class NXTCommunicator {
                     Log.d(MainActivity.TAG, "listening.."+bytes);
                 } catch (Exception e) {
                     Log.d(MainActivity.TAG, "disconnected");
-                    //connectionLost();
+                    connectionLost();
                     break;
                 }
             }

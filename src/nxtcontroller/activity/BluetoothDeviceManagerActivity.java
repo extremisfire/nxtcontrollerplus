@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import nxtcontroller.enums.ErrorCodes;
-import nxtcontroller.enums.InfoCodes;
 import nxtcontroller.program.NXTCommunicator;
 import nxtcontroller.program.R;
 import android.app.Activity;
@@ -38,8 +36,7 @@ public class BluetoothDeviceManagerActivity extends ExpandableListActivity{
     public static final String NAME_OF_DEVICE = "name";
     public static final String GROUP_NAME = "group_name";
     public static final String ADDRESS_OF_DEVICE = "address";
-	private String[] errors,infos; //message arrays
-	
+    
 	/* private class properties declaration */
 	private BluetoothAdapter bluetoothAdapter;
 	private List<Map<String, String>> groupData; 
@@ -56,16 +53,7 @@ public class BluetoothDeviceManagerActivity extends ExpandableListActivity{
             if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 if ((device.getBondState() != BluetoothDevice.BOND_BONDED) && (device.getBluetoothClass().getDeviceClass() == BluetoothClass.Device.TOY_ROBOT)) {
-                  	foundedDevices.clear();
-					Map<String,String> tempDev = new HashMap<String, String>();
-					tempDev.put(NAME_OF_DEVICE,device.getName());
-					tempDev.put(ADDRESS_OF_DEVICE,device.getAddress());
-					foundedDevices.add(tempDev);
-	                String title = "";
-	                title += " "+Integer.toString(foundedDevices.size());
-	                title += " "+getResources().getString(R.string.newFoundedDevicesLabel);
-	                BluetoothDeviceManagerActivity.this.setTitle(title);
-					refreshExpListViewAdapter();
+                	addFoundedDevice(device);
                 }
             } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
             	BluetoothDeviceManagerActivity.this.setProgressBarIndeterminateVisibility(false);
@@ -126,21 +114,18 @@ public class BluetoothDeviceManagerActivity extends ExpandableListActivity{
     public void onCreate(Bundle savedInstanceState) {
     	//getting needed resources
     	Resources res = getResources();
-    	infos = res.getStringArray(R.array.infoMsg);
-    	errors = res.getStringArray(R.array.errorsMsg);
+    	res.getStringArray(R.array.infoMsg);
+    	res.getStringArray(R.array.errorsMsg);
     	requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-    	setTitle(R.string.selectDevice);
     	bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-
-        setResult(Activity.RESULT_CANCELED);
+    	setTitle(R.string.selectDevice);
+        setResult(Activity.RESULT_CANCELED);    
         
-        if(!bluetoothAdapter.isEnabled())
-        	turnOnBluetooth();
-     
     	setUpComponents();
     	loadBondedDevicesToExpList();
     	loadFoundedDevicesToExpList();
     	refreshExpListViewAdapter();
+    	
     	getExpandableListView().expandGroup(0);
     	getExpandableListView().setOnChildClickListener(myOnChildClickListener);
     	getExpandableListView().setOnGroupClickListener(myOnGroupClickListener);
@@ -210,21 +195,11 @@ public class BluetoothDeviceManagerActivity extends ExpandableListActivity{
         setListAdapter(listAdapter);   
         getExpandableListView().expandGroup(1);
     }
-    
-	public void turnOnBluetooth(){
-    	if (! bluetoothAdapter.isEnabled()) {
-    	    Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-    	    startActivityForResult(enableBtIntent, MainActivity.REQUEST_ENABLE_BT);
-    	}
-    }
 
- 
     public void startScanningForDevices(){
     	BluetoothDeviceManagerActivity.this.setProgressBarIndeterminateVisibility(true);
-    	if(!bluetoothAdapter.isEnabled()){
-    		turnOnBluetooth();
-    	}
-        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+       
+    	IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         registerReceiver(mReceiver, filter); 
         if(bluetoothAdapter.isDiscovering())
         	return;
@@ -236,21 +211,17 @@ public class BluetoothDeviceManagerActivity extends ExpandableListActivity{
         bluetoothAdapter.startDiscovery();
     }
     
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-	    	case MainActivity.REQUEST_ENABLE_BT:
-	    		if(bluetoothAdapter.isEnabled())
-	    			return;
-	    		if(resultCode == Activity.RESULT_OK){
-	    			String msg = infos[InfoCodes.BLUETOOTH_ACTIVATED];
-	    			Toast.makeText(getApplicationContext(),msg,Toast.LENGTH_LONG).show();
-	    		}else if (resultCode == Activity.RESULT_CANCELED ){
-	    			String msg = errors[ErrorCodes.BLUETOOTH_CANT_BE_ACTIVATED];
-	    			Toast.makeText(getApplicationContext(),msg,2).show();
-	    		}
-	        break;
-        }
+    public void addFoundedDevice(BluetoothDevice device){
+      	foundedDevices.clear();
+		Map<String,String> tempDev = new HashMap<String, String>();
+		tempDev.put(NAME_OF_DEVICE,device.getName());
+		tempDev.put(ADDRESS_OF_DEVICE,device.getAddress());
+		foundedDevices.add(tempDev);
+        String title = "";
+        title += " "+Integer.toString(foundedDevices.size());
+        title += " "+getResources().getString(R.string.newFoundedDevicesLabel);
+        BluetoothDeviceManagerActivity.this.setTitle(title);
+		refreshExpListViewAdapter();
     }
     
 	@Override

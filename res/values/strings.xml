@@ -26,6 +26,9 @@
         <item >Connected to:</item>
         <item >Connecting to:</item>
         <item >Connection Error</item>
+        <item >Ready to Connect</item>
+        <item >Reconnecting</item>
+        <item >Connection Lost</item>
     </string-array>
     <color name="textBlack">#000</color>
     <color name="deepBlue">#00008b</color>
