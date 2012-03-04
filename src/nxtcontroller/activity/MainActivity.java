@@ -31,7 +31,7 @@ public class MainActivity extends Activity {
 	/* private class properties declaration */
     private BluetoothAdapter bluetoothAdapter;
     private TextView statusLabel,deviceNameLabel; 
-    private Button connectButton;
+    private Button connectButton,disconnectButton;
     private int connectionStatus;
     private NXTCommunicator nxtCommunicator;
     private String nxtDeviceName,nxtDeviceAddress = null;
@@ -70,16 +70,18 @@ public class MainActivity extends Activity {
     	switch(connectionStatus){
     		case ConnectionStatus.CONNECTED:
     			statusLabel.setTextColor(Color.GREEN);    	
-    			
     		break;
     		case ConnectionStatus.DISCONNECTED:
+    			statusLabel.setTextColor(Color.BLACK);
     			connectButton.setText(getResources().getString(R.string.connectNXT));
     		break;
     		case ConnectionStatus.CONNECTING:
     			statusLabel.setTextColor(Color.MAGENTA);
     		break;
-    		case ConnectionStatus.CONNECTION_ERROR:
+    		case ConnectionStatus.CONNECTION_FAILED:
     			statusLabel.setTextColor(Color.RED);
+    			disconnectNXT();
+    			Toast.makeText(getApplicationContext(), infos[InfoCodes.CONNECTION_FAILED_HINT],Toast.LENGTH_LONG).show();
     		break;
     	}
     	statusLabel.setText(connectionStatuses[connectionStatus]);
@@ -116,6 +118,8 @@ public class MainActivity extends Activity {
         statusLabel = (TextView) findViewById(R.id.statusLabel);
         deviceNameLabel = (TextView) findViewById(R.id.deviceName);
         connectButton = (Button) findViewById(R.id.connectButton);
+        disconnectButton = (Button) findViewById(R.id.disconnectButton);
+        disconnectButton.setVisibility(View.GONE); 
         setUpListeners();
     }
     
@@ -123,16 +127,16 @@ public class MainActivity extends Activity {
     	try{
             connectButton.setOnClickListener(new View.OnClickListener()  {
                 public void onClick(View v) {
-                	if(connectButton.getText().equals(getResources().getString(R.string.connectNXT))){
-                		if(connectionStatus == ConnectionStatus.READY_TO_CONNECT){
-                			connectNXT();
-                		}else{
-                			startChooseDeviceActivity();
-                		}	
-                	}else{
-                		disconnectNXT();
-                	}
-                	
+	                if(connectionStatus == ConnectionStatus.READY_TO_CONNECT){
+	                	connectNXT();
+	                }else{
+	                	startChooseDeviceActivity();
+	                }	
+                }
+            });
+            disconnectButton.setOnClickListener(new View.OnClickListener()  {
+                public void onClick(View v) {
+                	disconnectNXT();
                 }
             });
     	}catch(Exception e){
@@ -143,19 +147,25 @@ public class MainActivity extends Activity {
     public void connectNXT(){
     	if(nxtDeviceAddress == null|| nxtDeviceName == null)
     	   return;
-    	
-        if(connectionStatus == ConnectionStatus.READY_TO_CONNECT){
-        	BluetoothDevice remoteDevice = bluetoothAdapter.getRemoteDevice(nxtDeviceAddress);
-        	nxtCommunicator.connectToNXT(remoteDevice);
-        	connectButton.setText(getResources().getString(R.string.disconnectNXT));
-        }
+    	synchronized (nxtCommunicator) {
+            if(connectionStatus == ConnectionStatus.READY_TO_CONNECT){
+            	BluetoothDevice remoteDevice = bluetoothAdapter.getRemoteDevice(nxtDeviceAddress);
+            	nxtCommunicator.connectToNXT(remoteDevice);
+            }
+		}
+    	connectButton.setVisibility(View.GONE);
+    	disconnectButton.setVisibility(View.VISIBLE);
     }
     
     public void disconnectNXT(){
-		if(nxtCommunicator != null){
-			nxtCommunicator.disconnectFromNXT();
-	    	connectButton.setText(getResources().getString(R.string.connectNXT));
+    	synchronized (nxtCommunicator) {
+    		if(nxtCommunicator != null){
+    			nxtCommunicator.disconnectFromNXT();	
+    			
+    		}
 		}
+    	connectButton.setVisibility(View.VISIBLE);
+    	disconnectButton.setVisibility(View.GONE);
      }
     
     public void startChooseDeviceActivity(){
@@ -188,14 +198,13 @@ public class MainActivity extends Activity {
             	setConnectionStatus(ConnectionStatus.READY_TO_CONNECT);
             	connectNXT();
             }
+            break;
     	case REQUEST_ENABLE_BT:
-    		if(bluetoothAdapter.isEnabled())
-    			return;
     		if(resultCode == Activity.RESULT_OK){
     			String msg = infos[InfoCodes.BLUETOOTH_ACTIVATED];
     			Toast.makeText(getApplicationContext(),msg,Toast.LENGTH_LONG).show();
     		}else if (resultCode == Activity.RESULT_CANCELED ){
-    			String msg = errors[ErrorCodes.BLUETOOTH_CANT_BE_ACTIVATED];
+    			String msg = errors[ErrorCodes.BLUETOOTH_NOT_ACTIVATED];
     			Toast.makeText(getApplicationContext(),msg,2).show();
     		}
         break;

@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.UUID;
-
 import nxtcontroller.activity.MainActivity;
 import nxtcontroller.enums.ConnectionStatus;
 import nxtcontroller.enums.TypeOfMessage;
@@ -21,7 +20,6 @@ public class NXTCommunicator {
 	/* private class properties declaration */
 	private ConnectThread mConnectThread;
     private ConnectedThread mConnectedThread;
-    @SuppressWarnings("unused")
 	private int state;
     private Handler messageHandler;
     private BluetoothDevice NXTdevice = null;
@@ -29,35 +27,42 @@ public class NXTCommunicator {
     /* public class properties declaration */
     
 	/* Getters and Setter declaration */
-	public void setState(int state) {
+	public synchronized void setState(int state) {
 		this.state = state;
 		messageHandler.obtainMessage(TypeOfMessage.CONNECTION_STATUS, state).sendToTarget();
+	}
+	
+	public synchronized int getState(){
+		return  this.state;
 	}
 	
 	/* Methods and Constructors declaration */
 	public NXTCommunicator(Handler handler){
 		this.messageHandler = handler;
-		state = ConnectionStatus.DISCONNECTED;
+		setState(ConnectionStatus.DISCONNECTED);
+		disconnectFromNXT();
 	}
 	
-	public void connectToNXT(BluetoothDevice remoteDevice){
-        synchronized (NXTCommunicator.this) {
-			setState(ConnectionStatus.CONNECTING);
-		}
+	public synchronized void connectToNXT(BluetoothDevice remoteDevice){
+		if(this.getState() != ConnectionStatus.DISCONNECTED)
+			return;
 		this.NXTdevice = remoteDevice;
 		mConnectThread = new ConnectThread(this.NXTdevice);
 		mConnectThread.start();
+		setState(ConnectionStatus.CONNECTING);
 	}
 	
-	public void disconnectFromNXT(){
-        synchronized (NXTCommunicator.this) {
-			setState(ConnectionStatus.DISCONNECTED);
-		}
-        // Cancel the thread that completed the connection
-        if (mConnectThread != null) {mConnectThread.cancel(); mConnectThread = null;}
-
-        // Cancel any thread currently running a connection
-        if (mConnectedThread != null) {mConnectedThread.cancel(); mConnectedThread = null;}
+	public synchronized void disconnectFromNXT(){
+		setState(ConnectionStatus.DISCONNECTED);
+        if (mConnectThread != null) {
+        	mConnectThread.cancel(); 
+        	mConnectThread = null;
+        }
+        if (mConnectedThread != null) {
+        	mConnectedThread.cancel();
+        	mConnectedThread = null;
+        }
+       
 	}
 	
 	/**
@@ -66,20 +71,20 @@ public class NXTCommunicator {
      * @param device  The BluetoothDevice that has been connected
      */
     public synchronized void connectToSocket(BluetoothSocket socket, BluetoothDevice device) {
-        synchronized (NXTCommunicator.this) {
-			setState(ConnectionStatus.CONNECTED);
-		}
-        // Cancel the thread that completed the connection
-        if (mConnectThread != null) {mConnectThread.cancel(); mConnectThread = null;}
-
-        // Cancel any thread currently running a connection
-        if (mConnectedThread != null) {mConnectedThread.cancel(); mConnectedThread = null;}
-
+        if (mConnectThread != null) {
+        	mConnectThread.cancel(); 
+        	mConnectThread = null;
+        }
+        if (mConnectedThread != null) {
+        	mConnectedThread.cancel();
+        	mConnectedThread = null;
+        }
 
         Log.d(MainActivity.TAG,"starting connecting to device");
         mConnectedThread = new ConnectedThread(socket);
         mConnectedThread.start();
-
+        
+		setState(ConnectionStatus.CONNECTED);
     }
 
     
@@ -96,7 +101,7 @@ public class NXTCommunicator {
         }
         data[5] = speed;
         if(mConnectedThread != null)
-        	mConnectedThread.write(data);
+        	write(data);
         else
         	Log.d(MainActivity.TAG,"mConnectedThread is NULL");
     }
@@ -114,30 +119,44 @@ public class NXTCommunicator {
         }
         data[5] = speed;
         if(mConnectedThread != null)
-        	mConnectedThread.write(data);
+        	write(data);
         else
         	Log.d(MainActivity.TAG,"mConnectedThread is NULL");
     }
     
-    
+    /**
+     * Write to the ConnectedThread in an unsynchronized manner
+     * @param out The bytes to write
+     * @see ConnectedThread#write(byte[])
+     */
+    public void write(byte[] out) {
+        // Create temporary object
+        ConnectedThread r;
+        // Synchronize a copy of the ConnectedThread
+        synchronized (this) {
+            if (getState() != ConnectionStatus.CONNECTED) return;
+            r = mConnectedThread;
+        }
+        // Perform the write unsynchronized
+        r.write(out);
+    }
     
     /**
      * Indicate that the connection was lost and notify the UI Activity.
      */
-    private void connectionLost() {
+    private synchronized void connectionLost() {
         // Start the service over to restart listening mode
-        synchronized (NXTCommunicator.this) {
-        	NXTCommunicator.this.setState(ConnectionStatus.CONNECTION_ERROR);
-		}
-    	if(this.NXTdevice != null)
-    		NXTCommunicator.this.connectToNXT(this.NXTdevice);
+    	if(this.NXTdevice != null){
+    		if(getState() != ConnectionStatus.DISCONNECTED)
+    			NXTCommunicator.this.connectToNXT(this.NXTdevice);
+    	}
     }
     
     /**
      * Indicate that the connection attempt failed and notify the UI Activity.
      */
     private void connectionFailed() {
-        connectionLost();
+        setState(ConnectionStatus.CONNECTION_FAILED);
     }
 	
 	
