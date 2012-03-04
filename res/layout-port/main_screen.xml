@@ -6,7 +6,7 @@
     android1:layout_height="fill_parent"
     android1:background="@drawable/background"
     android1:orientation="vertical" >
-
+
     <RelativeLayout
         android:id="@+id/LinearLayout1"
         android:layout_width="fill_parent"
@@ -47,11 +47,71 @@
             android1:layout_alignParentRight="true"
             android1:layout_alignTop="@+id/labels"
             android1:text="@string/connectNXT" />
+
+        <Button
+            android1:id="@+id/disconnectButton"
+            android1:layout_width="wrap_content"
+            android1:layout_height="wrap_content"
+            android1:layout_alignBaseline="@+id/connectButton"
+            android1:layout_alignBottom="@+id/connectButton"
+            android1:layout_alignParentRight="true"
+            android1:text="@string/disconnectNXT"
+            android1:visibility="gone" />
     </RelativeLayout>
-
-    <nxtcontroller.program.ControlPad
-        android1:id="@+id/controlPadView"
+
+    <LinearLayout
+        android1:id="@+id/sensors"
         android1:layout_width="wrap_content"
-        android1:layout_height="wrap_content" />
+        android1:layout_height="90dp">
+
+        <Button
+            android1:id="@+id/button1"
+            android1:layout_width="wrap_content"
+            android1:layout_height="wrap_content"
+            android1:text="Sensor 1" />
+
+        <Button
+            android1:id="@+id/button2"
+            android1:layout_width="wrap_content"
+            android1:layout_height="wrap_content"
+            android1:text="Sensor 2" />
+
+        <Button
+            android1:id="@+id/button3"
+            android1:layout_width="wrap_content"
+            android1:layout_height="wrap_content"
+            android1:text="Sensor 3" />
+
+        <Button
+            android1:id="@+id/button4"
+            android1:layout_width="wrap_content"
+            android1:layout_height="wrap_content"
+            android1:text="Sensor 4" />
+    </LinearLayout>
+
+    <LinearLayout
+        android1:id="@+id/touchPadWrapper"
+        android1:layout_width="wrap_content"
+        android1:layout_height="wrap_content"
+        android1:layout_gravity="bottom"
+        android1:orientation="vertical"
+        android1:paddingLeft="30dp" android1:paddingRight="30dp" android1:paddingTop="30dp">
+
+        <TextView
+            android1:id="@+id/textView1"
+            android1:layout_width="wrap_content"
+            android1:layout_height="wrap_content"
+            android1:layout_gravity="center"
+            android1:text="TouchPad Control"
+            android1:textAppearance="?android:attr/textAppearanceMedium"
+            android1:textColor="@color/deepBlue" android1:paddingBottom="5dp"/>
+
+        <nxtcontroller.program.ControlPad
+            android1:id="@+id/controlPadView"
+            android1:layout_width="wrap_content"
+            android1:layout_height="wrap_content"
+            android1:layout_gravity="center" />
+
+    </LinearLayout>
 
 </LinearLayout>

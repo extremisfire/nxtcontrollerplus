@@ -16,21 +16,18 @@
         <item >BlueTooh cannot be activated. Try again or activate it manually.</item>
         <item >Cannot connect to your NXT robot.Try again or restart your NXT robot. </item>  
         <item >BlueTooth is not activated. Turning on BlueTooth.</item> 
-        <item >Connection Error</item>   
     </string-array>
     <string-array name="infoMsg">
         <item >BlueTooth successfully activated. Now you can connect your NXT robot by clicking on the "Connect NXT" button.</item>
+        <item >Please check if your NXT device is turned on or is it in range.</item>  
     </string-array>
     <string-array name="connectionStatues">
         <item >Disconnected</item>
         <item >Connected to:</item>
         <item >Connecting to:</item>
-        <item >Connection Error</item>
+        <item >Connection Failed</item>
         <item >Ready to Connect</item>
-        <item >Reconnecting</item>
-        <item >Connection Lost</item>
     </string-array>
     <color name="textBlack">#000</color>
     <color name="deepBlue">#00008b</color>
-    <color name="touchPadColor">#c0c0c0</color>
 </resources>
