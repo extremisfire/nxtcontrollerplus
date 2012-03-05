@@ -56,7 +56,6 @@ public class MainActivity extends Activity {
             	case(TypeOfMessage.CONNECTION_STATUS):
             		setConnectionStatus((Integer) msg.obj);
             	break;
-            	
             }
         	}catch (Exception e){
         		Log.e(TAG,"meesage handling error",e);
@@ -69,7 +68,8 @@ public class MainActivity extends Activity {
     public void setConnectionStatus(int connectionStatus) {
     	switch(connectionStatus){
     		case ConnectionStatus.CONNECTED:
-    			statusLabel.setTextColor(Color.GREEN);    	
+    			statusLabel.setTextColor(Color.GREEN); 
+    			nxtCommunicator.move2Motors((byte)0, (byte)30, (byte)1,(byte)-30);
     		break;
     		case ConnectionStatus.DISCONNECTED:
     			statusLabel.setTextColor(Color.BLACK);

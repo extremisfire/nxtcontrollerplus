@@ -12,6 +12,20 @@ import android.bluetooth.BluetoothSocket;
 import android.os.Handler;
 import android.util.Log;
 
+/**
+ * This class provides communication with NXT brick,
+ * create socket for communication with NXT
+ * send to commands to NXT 
+ * receive messages from NXT
+ * change connection statutes in UI activity
+ * BlueTooth Messages for NXT protocol: 
+ * 0.byte - command length LSB, !the length of the packages is counted without two length bytes
+ * 1.byte - command length MSB
+ * 2.byte - command type, 
+ * 3.byte-(command.length-1) - command 
+  * @author Lukas Dilik
+ *
+ */
 public class NXTCommunicator {
 	
 	/* declaration constant values */
@@ -53,6 +67,7 @@ public class NXTCommunicator {
 	}
 	
 	public synchronized void disconnectFromNXT(){
+		stopMove();
 		setState(ConnectionStatus.DISCONNECTED);
         if (mConnectThread != null) {
         	mConnectThread.cancel(); 
@@ -88,40 +103,84 @@ public class NXTCommunicator {
     }
 
     
-    public void move() {
-        byte[] data = { 0x0c, 0x00, (byte) 0x80, 0x04, 0x02, 0x32, 0x07, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x00 };
-        
-      
-        int motor = 0; 
-        byte speed = 0x20;
-        if (motor == 0) {
-            data[4] = 0x02;
-        } else {
-            data[4] = 0x01;
-        }
-        data[5] = speed;
+    /**
+     * send a command array of bytes via BT to NXT to move 2 motors
+     * @param motor1 - index of motor1 HINT:A:0,B:1,C:2
+     * @param motor1speed - speed of first motor range:[-100-100]
+     * @param motor2 - index of motor2 HINT:A:0,B:1,C:2
+     * @param motor2speed - speed of second motor range:[-100-100]
+     */
+    public void move2Motors(byte motor1, byte motor1speed,byte motor2, byte motor2speed) {
+    	byte[] data1 = generateMoveMotorCommand((byte)motor1, (byte)motor1speed); //command for 1.motor
+    	byte[] data2 = generateMoveMotorCommand((byte)motor2, (byte)motor2speed); //command for 2.motor
+    	
+    	//need send this command at once must merge this arrays
+    	byte[] command = new byte[data1.length+data2.length];
+    	System.arraycopy(data1, 0, command, 0, data1.length);
+    	System.arraycopy(data2, 0, command, data1.length, data1.length);
+    	
         if(mConnectedThread != null)
-        	write(data);
+        	write(command);
         else
         	Log.d(MainActivity.TAG,"mConnectedThread is NULL");
     }
     
-    public void stopMove() {
-        byte[] data = { 0x0c, 0x00, (byte) 0x80, 0x04, 0x02, 0x32, 0x07, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x00 };
-        
-      
-        int motor = 0; 
-        byte speed = 0x00;
-        if (motor == 0) {
-            data[4] = 0x02;
-        } else {
-            data[4] = 0x01;
-        }
-        data[5] = speed;
+    /**
+     * send a command array of bytes via BT to NXT to move 3 motors
+     * @param motor1 - index of motor1 HINT:A:0,B:1,C:2
+     * @param motor1speed - speed of first motor range:[-100-100]
+     * @param motor2 - index of motor2 HINT:A:0,B:1,C:2
+     * @param motor2speed - speed of second motor range:[-100-100]
+     * @param motor3 - index of motor2 HINT:A:0,B:1,C:2
+     * @param motor3speed - speed of third motor range:[-100-100]
+     */
+    public void move3Motors(byte motor1, byte motor1speed,byte motor2, byte motor2speed,byte motor3, byte motor3speed) {
+    	byte[] data1 = generateMoveMotorCommand((byte)motor1, (byte)motor1speed); //command for 1.motor
+    	byte[] data2 = generateMoveMotorCommand((byte)motor2, (byte)motor2speed); //command for 2.motor
+    	byte[] data3 = generateMoveMotorCommand((byte)motor3, (byte)motor3speed); //command for 3.motor
+    	
+    	//need send this command at once must merge this arrays
+    	byte[] command = new byte[data1.length+data2.length+data3.length];
+    	System.arraycopy(data1, 0, command, 0, data1.length);
+    	System.arraycopy(data2, 0, command, data1.length, data2.length);
+    	System.arraycopy(data2, 0, command, (data1.length+data2.length), data3.length);
+    	
         if(mConnectedThread != null)
-        	write(data);
+        	write(command);
         else
         	Log.d(MainActivity.TAG,"mConnectedThread is NULL");
+    }
+    
+    /**
+     * generate a byte array command for NXT
+     * @param indexOfMotor - index of motor1 HINT:A:0,B:1,C:2
+     * @param motorSpeed - speed of second motor range:[-100-100]
+     * @return generated array of bytes, see protocol
+     */
+    public byte[] generateMoveMotorCommand(byte indexOfMotor, byte motorSpeed) {
+        /*
+		 * first see Communication protocol above
+    	 * Command name:  SETOUTPUTSTATE (in data[2..13])
+    	 * Byte 0: 0x80 means direct command telegram, no response required
+    	 * Byte 1: 0x04
+    	 * Byte 2: Output port (range 0-2;0xFF is special value meaning 'all' for simple control purposes)
+    	 * Byte 3: Power set point alias SPEED (range:-100 to 100) negative sing means counter-clockwise
+    	 * Byte 4: Mode byte (bit-field)
+    	 * Byte 5: Regulation mode (UBYTE;enumerated)
+    	 * Byte 6: Turn ratio (SBYTE;-100 to 100)
+    	 * Byte 7: RunState (UBYTE;enumerated)
+    	 * Byte 8-12: TachoLmit (ULONG;0:run forever) in ms (how long may be turned on motors)
+    	*/
+    	byte[] data = { 0x0c, 0x00, (byte) 0x80, 0x04, 0x00, 0x00, 0x07, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x00 };
+    	
+        data[4] = indexOfMotor; // motors: A:0,B:1,C:2
+        data[5] = motorSpeed; //speed [-100-100]
+   
+        return data;
+    }
+    
+    public void stopMove() {
+    	this.move2Motors((byte)0, (byte)0, (byte)1,(byte)0);
     }
     
     /**
