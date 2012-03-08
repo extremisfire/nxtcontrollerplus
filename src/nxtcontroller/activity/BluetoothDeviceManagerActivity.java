@@ -212,7 +212,6 @@ public class BluetoothDeviceManagerActivity extends ExpandableListActivity{
     }
     
     public void addFoundedDevice(BluetoothDevice device){
-      	foundedDevices.clear();
 		Map<String,String> tempDev = new HashMap<String, String>();
 		tempDev.put(NAME_OF_DEVICE,device.getName());
 		tempDev.put(ADDRESS_OF_DEVICE,device.getAddress());
