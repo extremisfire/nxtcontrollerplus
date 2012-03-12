@@ -10,6 +10,8 @@ import android.util.AttributeSet;
 import android.view.*;
 
 public class ControlPad extends View {
+	
+	public static final int degreesCount = 50;
 
 	/* private class properties declaration */
 	private int width,radius;
@@ -18,6 +20,7 @@ public class ControlPad extends View {
 	private final int circleOffSet = 2;
 	private Paint paint;
 	private ControlPoint controlPoint;
+	private double oneDegree;
 	private NXTCommunicator nxtCommnunicator = null;
 	
 	/* Getters and Setter declaration */
@@ -53,8 +56,7 @@ public class ControlPad extends View {
 		paint.setStrokeWidth(2.0f);
 		canvas.drawLine(center.x-radius, center.y, center.x+radius, center.y, paint);
 		canvas.drawLine(center.x, center.y-radius, center.x, center.y+radius, paint);
-		controlPoint.setCenter(center.x,center.y);
-		controlPoint.draw(canvas);
+		controlPoint.onDraw(canvas);
 	}
 	
     @Override
@@ -64,8 +66,17 @@ public class ControlPad extends View {
         this.radius = this.width/2;
         this.center.x = width / 2;
         this.center.y = height / 2;
+        controlPoint.setCenter( this.center.x, this.center.y);
+        this.oneDegree = (double)radius / (double)degreesCount;
     }
     
+    public double distanceFromCenter(){
+    	double result = 0;
+    	int dx = (controlPoint.getCenter().x - center.x);
+    	int dy = (controlPoint.getCenter().y - center.y);
+    	result = Math.sqrt(dx*dx + dy*dy);
+    	return result;
+    }
     
 	public OnTouchListener TouchPadControlOnTouchListener = new OnTouchListener() {
 		@Override
@@ -75,8 +86,17 @@ public class ControlPad extends View {
             int y = (int) event.getY();
             if ((action == MotionEvent.ACTION_DOWN) || (action == MotionEvent.ACTION_MOVE)) {
             	controlPoint.setCenter(x,y);
+            	if(distanceFromCenter() > radius) return false;
+            	double temp = distanceFromCenter()/oneDegree;
+            	byte speed = (byte) ((byte) Math.round(temp)*2);
+            	nxtCommnunicator.move2Motors((byte)0, (byte) speed, (byte) 1, speed);
             	invalidate();
+            }else if(action == MotionEvent.ACTION_UP){
+            	controlPoint.setCenter(center.x,center.y);
+            	byte speed=0;
+            	nxtCommnunicator.move2Motors((byte)0, (byte) speed, (byte) 1, speed);
             }
+            ControlPad.this.postInvalidate();
 			return true;
 		}
     };
