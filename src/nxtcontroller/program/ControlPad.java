@@ -9,7 +9,7 @@ import android.graphics.Point;
 import android.util.AttributeSet;
 import android.view.*;
 
-public class ControlPad extends View{
+public class ControlPad extends View {
 
 	/* private class properties declaration */
 	private int width,radius;
@@ -18,13 +18,27 @@ public class ControlPad extends View{
 	private final int circleOffSet = 2;
 	private Paint paint;
 	private ControlPoint controlPoint;
+	private NXTCommunicator nxtCommnunicator = null;
 	
-    public ControlPad(Context context, AttributeSet attrs) {
+	/* Getters and Setter declaration */
+    public void setNxtCommnunicator(NXTCommunicator nxtCommnunicator) {
+		this.nxtCommnunicator = nxtCommnunicator;
+	}
+
+	public ControlPad(Context context, AttributeSet attrs) {
         super(context, attrs);
         center = new Point();
         paint = new Paint();
         controlPoint = new ControlPoint(context, center.x, center.y);
     }
+	
+	public void turnOnListener(){
+		this.setOnTouchListener(TouchPadControlOnTouchListener);
+	}
+	
+	public void turnOffListener(){
+		this.setOnTouchListener(null);
+	}
 
 	@Override
 	protected void onDraw (Canvas canvas){
@@ -52,12 +66,17 @@ public class ControlPad extends View{
         this.center.y = height / 2;
     }
     
- 
-    @SuppressWarnings("unused")
-	private OnTouchListener myOnTouchListener = new OnTouchListener() {
+    
+	public OnTouchListener TouchPadControlOnTouchListener = new OnTouchListener() {
 		@Override
 		public boolean onTouch(View v, MotionEvent event) {
-
+            int action = event.getAction();
+            int x = (int) event.getX();
+            int y = (int) event.getY();
+            if ((action == MotionEvent.ACTION_DOWN) || (action == MotionEvent.ACTION_MOVE)) {
+            	controlPoint.setCenter(x,y);
+            	invalidate();
+            }
 			return true;
 		}
     };

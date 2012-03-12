@@ -29,14 +29,15 @@
                 android1:textAppearance="?android:attr/textAppearanceMedium"
                 android1:textColor="@color/deepBlue"
                 android1:textSize="18dp" />
-
+
             <TextView
                 android1:id="@+id/deviceName"
                 android1:layout_width="wrap_content"
                 android1:layout_height="wrap_content"
-                android1:text="@string/connectNXT"
+                android1:text="@string/selectDevice"
                 android1:textAppearance="?android:attr/textAppearanceSmall"
                 android1:textColor="@color/textBlack" />
+
         </LinearLayout>
 
         <Button
@@ -64,12 +65,12 @@
         android1:layout_height="match_parent"
         android1:layout_gravity="right"
         android1:gravity="right" >
-
+
         <TextView
-            android1:id="@+id/textView1"
+            android1:id="@+id/controlModeLabel"
             android1:layout_width="wrap_content"
             android1:layout_height="wrap_content"
-            android1:text="TouchPad mode ON"
+            android1:text="@string/touchModeLabel"
             android1:textAppearance="?android:attr/textAppearanceSmall"
             android1:textColor="@color/deepBlue" />
 
@@ -86,7 +87,7 @@
                 android1:layout_width="wrap_content"
                 android1:layout_height="wrap_content"
                 android1:orientation="horizontal" >
-
+
                 <Button
                     android1:id="@+id/button1"
                     android1:layout_width="wrap_content"

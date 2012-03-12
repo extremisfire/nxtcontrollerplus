@@ -31,6 +31,7 @@ public final class R {
         public static final int button3=0x7f07000e;
         public static final int button4=0x7f07000f;
         public static final int connectButton=0x7f070005;
+        public static final int controlModeLabel=0x7f070008;
         public static final int controlPadView=0x7f070011;
         public static final int controls=0x7f070010;
         public static final int deviceName=0x7f070004;
@@ -39,13 +40,13 @@ public final class R {
         public static final int labels=0x7f070002;
         public static final int main=0x7f070000;
         public static final int second1=0x7f07000d;
-        public static final int seekBar1=0x7f070013;
+        public static final int seekBar1=0x7f070014;
         public static final int sensors=0x7f070007;
         public static final int sensors1=0x7f070009;
         public static final int statusLabel=0x7f070003;
-        public static final int textView1=0x7f070008;
-        public static final int textView2=0x7f070012;
-        public static final int touchPadWrapper=0x7f070014;
+        public static final int textView1=0x7f070012;
+        public static final int textView2=0x7f070013;
+        public static final int touchPadWrapper=0x7f070015;
     }
     public static final class layout {
         public static final int main_screen=0x7f030000;
@@ -56,11 +57,14 @@ public final class R {
         public static final int connectNXT=0x7f040001;
         public static final int disconnectNXT=0x7f040002;
         public static final int newFoundedDevicesLabel=0x7f040006;
-        public static final int noFoundedDevicesLabel=0x7f040009;
+        public static final int noFoundedDevicesLabel=0x7f04000b;
+        public static final int off=0x7f04000a;
+        public static final int on=0x7f040009;
         public static final int pairedDevicesLabel=0x7f040005;
         public static final int scanCompleteLabel=0x7f040007;
         public static final int scanLabel=0x7f040004;
         public static final int scanningLabel=0x7f040008;
-        public static final int selectDevice=0x7f04000a;
+        public static final int selectDevice=0x7f04000c;
+        public static final int touchModeLabel=0x7f04000d;
     }
 }

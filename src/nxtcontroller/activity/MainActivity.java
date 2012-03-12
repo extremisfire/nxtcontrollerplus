@@ -4,6 +4,7 @@ import nxtcontroller.enums.ConnectionStatus;
 import nxtcontroller.enums.ErrorCodes;
 import nxtcontroller.enums.InfoCodes;
 import nxtcontroller.enums.TypeOfMessage;
+import nxtcontroller.program.ControlPad;
 import nxtcontroller.program.NXTCommunicator;
 import nxtcontroller.program.R;
 import android.app.Activity;
@@ -30,10 +31,11 @@ public class MainActivity extends Activity {
 	
 	/* private class properties declaration */
     private BluetoothAdapter bluetoothAdapter;
-    private TextView statusLabel,deviceNameLabel; 
+    private TextView statusLabel,deviceNameLabel,controlMode; 
     private Button connectButton,disconnectButton;
     private int connectionStatus;
     private NXTCommunicator nxtCommunicator;
+    private ControlPad controlPad;
     private String nxtDeviceName,nxtDeviceAddress = null;
     private String[] errors,infos,connectionStatuses; //message arrays
     
@@ -69,11 +71,12 @@ public class MainActivity extends Activity {
     	switch(connectionStatus){
     		case ConnectionStatus.CONNECTED:
     			statusLabel.setTextColor(Color.GREEN); 
-    			nxtCommunicator.move2Motors((byte)0, (byte)30, (byte)1,(byte)-30);
+    			setUpController();
     		break;
     		case ConnectionStatus.DISCONNECTED:
     			statusLabel.setTextColor(Color.BLACK);
     			connectButton.setText(getResources().getString(R.string.connectNXT));
+    			unregisterController();
     		break;
     		case ConnectionStatus.CONNECTING:
     			statusLabel.setTextColor(Color.MAGENTA);
@@ -117,9 +120,11 @@ public class MainActivity extends Activity {
 		nxtCommunicator = new NXTCommunicator(messageHandler);
         statusLabel = (TextView) findViewById(R.id.statusLabel);
         deviceNameLabel = (TextView) findViewById(R.id.deviceName);
+        controlMode = (TextView) findViewById(R.id.controlModeLabel);
         connectButton = (Button) findViewById(R.id.connectButton);
         disconnectButton = (Button) findViewById(R.id.disconnectButton);
         disconnectButton.setVisibility(View.GONE); 
+        controlPad = (ControlPad) findViewById(R.id.controlPadView);
         setUpListeners();
     }
     
@@ -209,6 +214,27 @@ public class MainActivity extends Activity {
     		}
         break;
         }
+    }
+    
+    private void setUpController(){
+    	try{
+    		controlPad.turnOnListener();
+    		controlPad.setNxtCommnunicator(nxtCommunicator);
+        	String text = getResources().getString(R.string.touchModeLabel);
+        	text += " "+getResources().getString(R.string.on);
+        	controlMode.setText(text);
+    		
+    	}catch(Exception e){
+    		//TODO
+    	}
+    }
+    
+    private void unregisterController(){
+    	controlPad.turnOffListener();
+    	String text = getResources().getString(R.string.touchModeLabel);
+    	text += " "+getResources().getString(R.string.off);
+    	controlMode.setText(text);
+    	//TODO
     }
     
 	@Override

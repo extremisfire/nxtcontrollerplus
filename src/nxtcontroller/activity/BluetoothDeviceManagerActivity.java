@@ -44,50 +44,55 @@ public class BluetoothDeviceManagerActivity extends ExpandableListActivity{
 	private List<Map<String, String>> foundedDevices; 
     private ExpandableListAdapter listAdapter;
 	
-	/* 
-	 * this receiver is used for scanning new BT devices
+	/** 
+	 * this receiver class is used for scanning new BT devices 
 	 */
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                //filtering only NXT like devices and not paired devices
                 if ((device.getBondState() != BluetoothDevice.BOND_BONDED) && (device.getBluetoothClass().getDeviceClass() == BluetoothClass.Device.TOY_ROBOT)) {
                 	addFoundedDevice(device);
                 }
             } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
-            	BluetoothDeviceManagerActivity.this.setProgressBarIndeterminateVisibility(false);
-                String title = getResources().getString(R.string.scanCompleteLabel);
-                title += " "+Integer.toString(foundedDevices.size());
-                title += " "+getResources().getString(R.string.newFoundedDevicesLabel);
-                BluetoothDeviceManagerActivity.this.setTitle(title);
+            		scanningFinished();
             }
             
         }
     };
     
+    
+    /**
+     * this listener is used to handle onClick to child element action 
+     * in expandable list where devices are shown
+     */
     private OnChildClickListener myOnChildClickListener = new OnChildClickListener() {
 		@Override
 		public boolean onChildClick(ExpandableListView parent, View v,int groupPosition, int childPosition, long id) {
            
 			if(bluetoothAdapter.isDiscovering())
             	bluetoothAdapter.cancelDiscovery();
+			
 			String deviceName = childData.get(groupPosition).get(childPosition).get(NAME_OF_DEVICE);
 			String deviceAddress = childData.get(groupPosition).get(childPosition).get(ADDRESS_OF_DEVICE);
+			
 			if( deviceName.equals( getResources().getString(R.string.noFoundedDevicesLabel) )){
 					return false;
 			}
-            Intent intent = new Intent();
-            intent.putExtra(NAME_OF_DEVICE, deviceName);
-            intent.putExtra(ADDRESS_OF_DEVICE, deviceAddress);
-            setResult(Activity.RESULT_OK, intent);
-            finish();
+			
+            sendFoundedDeviceBackToActivity(deviceName, deviceAddress);
 			return false;
 		}
     };
     
+    
+    /**
+     * This listener handle action groupClick
+     * when click on group "scan for new devices" scanning begin 
+     */
     private OnGroupClickListener myOnGroupClickListener = new OnGroupClickListener(){
-
 		@Override
 		public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
 			try{
@@ -196,6 +201,10 @@ public class BluetoothDeviceManagerActivity extends ExpandableListActivity{
         getExpandableListView().expandGroup(1);
     }
 
+    /**
+     * starts scanning for BlueTooth devices like NXT
+     * change the label and show progress on activity
+     */
     public void startScanningForDevices(){
     	BluetoothDeviceManagerActivity.this.setProgressBarIndeterminateVisibility(true);
        
@@ -205,43 +214,42 @@ public class BluetoothDeviceManagerActivity extends ExpandableListActivity{
         	return;
         
         String title = getResources().getString(R.string.scanningLabel);
-        title += " "+Integer.toString(foundedDevices.size());
+        title += ", "+Integer.toString(foundedDevices.size());
         title += " "+getResources().getString(R.string.newFoundedDevicesLabel);
         setTitle(title);
+        
         bluetoothAdapter.startDiscovery();
     }
     
-    public void addFoundedDevice(BluetoothDevice device){
+    private void sendFoundedDeviceBackToActivity(String deviceName, String deviceAddress){
+		Intent intent = new Intent();
+        intent.putExtra(NAME_OF_DEVICE, deviceName);
+        intent.putExtra(ADDRESS_OF_DEVICE, deviceAddress);
+        setResult(Activity.RESULT_OK, intent);
+        finish();
+        return;
+    }
+    
+    private void addFoundedDevice(BluetoothDevice device){
 		Map<String,String> tempDev = new HashMap<String, String>();
 		tempDev.put(NAME_OF_DEVICE,device.getName());
 		tempDev.put(ADDRESS_OF_DEVICE,device.getAddress());
 		foundedDevices.add(tempDev);
-        String title = "";
-        title += " "+Integer.toString(foundedDevices.size());
+		String title = getResources().getString(R.string.scanningLabel);
+        title += ", "+Integer.toString(foundedDevices.size());
         title += " "+getResources().getString(R.string.newFoundedDevicesLabel);
         BluetoothDeviceManagerActivity.this.setTitle(title);
 		refreshExpListViewAdapter();
     }
     
-	@Override
-	protected void onStart() {
-		super.onStart();
-	}
-
-	@Override
-	protected void onResume() {
-		super.onResume();
-	}
-
-	@Override
-	protected void onPause() {
-		super.onPause();
-	}
-
-	@Override
-	protected void onStop() {
-		super.onStop();
-	}
+    private void scanningFinished(){
+    	BluetoothDeviceManagerActivity.this.setProgressBarIndeterminateVisibility(false);
+        String title = getResources().getString(R.string.scanCompleteLabel);
+        title += ", "+Integer.toString(foundedDevices.size());
+        title += " "+getResources().getString(R.string.newFoundedDevicesLabel);
+        BluetoothDeviceManagerActivity.this.setTitle(title);
+    }
+    
 
 	@Override
 	protected void onDestroy() {

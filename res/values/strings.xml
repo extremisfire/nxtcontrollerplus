@@ -4,21 +4,23 @@
     <string name="connectNXT">Connect NXT</string>
     <string name="disconnectNXT">Disconnect NXT</string>
     <string name="closeLabel">Close</string>
-    <string name="scanLabel">Scan for NXT</string>
+    <string name="scanLabel">Click to scan</string>
     <string name="pairedDevicesLabel">Paired NXT devices:</string>
     <string name="newFoundedDevicesLabel"> NXT found</string>
-    <string name="scanCompleteLabel">Scanning finished. </string>
-     <string name="scanningLabel">Scanning</string>
+    <string name="scanCompleteLabel">Scanning finished</string>
+    <string name="scanningLabel">Scanning</string> 
+    <string name="on">ON</string>
+    <string name="off">OFF</string>
     <string name="noFoundedDevicesLabel">No new NXT devices</string>
-    <string name="selectDevice">Select NXT device or scan for new</string>
+    <string name="selectDevice">Select NXT device</string>
     <string-array name="errorsMsg">
         <item >BlueTooth not found on this device. You cannot use this program without BlueTooth. You can now close this application.</item>
         <item >BlueTooh cannot be activated. Try again or activate it manually.</item>
         <item >Cannot connect to your NXT robot.Try again or restart your NXT robot. </item>  
-        <item >BlueTooth is not activated. Turning on BlueTooth.</item> 
+        <item >BlueTooth is not activated</item> 
     </string-array>
     <string-array name="infoMsg">
-        <item >BlueTooth successfully activated. Now you can connect your NXT robot by clicking on the "Connect NXT" button.</item>
+        <item >BlueTooth successfully activated. Now you can connect your NXT robot by clicking on the "Connect NXT"</item>
         <item >Please check if your NXT device is turned on or is it in range.</item>  
     </string-array>
     <string-array name="connectionStatues">
@@ -30,4 +32,5 @@
     </string-array>
     <color name="textBlack">#000</color>
     <color name="deepBlue">#00008b</color>
+    <string name="touchModeLabel">Touch Mode</string>
 </resources>

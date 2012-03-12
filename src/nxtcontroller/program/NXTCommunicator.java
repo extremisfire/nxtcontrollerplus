@@ -57,6 +57,11 @@ public class NXTCommunicator {
 		disconnectFromNXT();
 	}
 	
+	/**
+	 * creates new Thread which try to connect to NXT if fails reconnection
+	 * will be started automatically
+	 * @param remoteDevice - BT device NXT which you want to connect 
+	 */
 	public synchronized void connectToNXT(BluetoothDevice remoteDevice){
 		if(this.getState() != ConnectionStatus.DISCONNECTED)
 			return;
