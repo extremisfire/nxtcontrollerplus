@@ -37,15 +37,50 @@ public class NXTCommunicator {
 	private int state;
     private Handler messageHandler;
     private BluetoothDevice NXTdevice = null;
+    //index of motors HINT:A:0,B:1,C:2
+    private byte leftMotor = 0;
+    private byte rightMotor = 1;
+    private byte thirdMotor = 2;
     
     /* public class properties declaration */
     
 	/* Getters and Setter declaration */
+    
 	public synchronized void setState(int state) {
 		this.state = state;
 		messageHandler.obtainMessage(TypeOfMessage.CONNECTION_STATUS, state).sendToTarget();
 	}
 	
+	public synchronized byte getLeftMotor() {
+		return leftMotor;
+	}
+
+	public void setLeftMotor(byte leftMotor) {
+		if(leftMotor > 2 || leftMotor < 0)
+			return;
+		this.leftMotor = leftMotor;
+	}
+
+	public synchronized byte getRightMotor() {
+		return rightMotor;
+	}
+
+	public void setRightMotor(byte rightMotor) {
+		if(rightMotor > 2 || rightMotor < 0)
+			return;
+		this.rightMotor = rightMotor;
+	}
+
+	public synchronized byte getThirdMotor() {
+		return thirdMotor;
+	}
+
+	public void setThirdMotor(byte thirdMotor) {
+		if(thirdMotor > 2 || thirdMotor < 0)
+			return;
+		this.thirdMotor = thirdMotor;
+	}
+
 	public synchronized int getState(){
 		return  this.state;
 	}
@@ -110,14 +145,12 @@ public class NXTCommunicator {
     
     /**
      * send a command array of bytes via BT to NXT to move 2 motors
-     * @param motor1 - index of motor1 HINT:A:0,B:1,C:2
-     * @param motor1speed - speed of first motor range:[-100-100]
-     * @param motor2 - index of motor2 HINT:A:0,B:1,C:2
-     * @param motor2speed - speed of second motor range:[-100-100]
+     * @param leftMotorSpeed - speed of first motor range:[-100-100]
+     * @param rightMotorSpeed - speed of second motor range:[-100-100]
      */
-    public void move2Motors(byte motor1, byte motor1speed,byte motor2, byte motor2speed) {
-    	byte[] data1 = generateMoveMotorCommand((byte)motor1, (byte)motor1speed); //command for 1.motor
-    	byte[] data2 = generateMoveMotorCommand((byte)motor2, (byte)motor2speed); //command for 2.motor
+    public void  move2Motors(byte leftMotorSpeed, byte rightMotorSpeed) {
+    	byte[] data1 = generateMoveMotorCommand((byte)getLeftMotor(), (byte)leftMotorSpeed); //command for 1.motor
+    	byte[] data2 = generateMoveMotorCommand((byte)getRightMotor(), (byte)rightMotorSpeed); //command for 2.motor
     	
     	//need send this command at once must merge this arrays
     	byte[] command = new byte[data1.length+data2.length];
@@ -132,17 +165,14 @@ public class NXTCommunicator {
     
     /**
      * send a command array of bytes via BT to NXT to move 3 motors
-     * @param motor1 - index of motor1 HINT:A:0,B:1,C:2
-     * @param motor1speed - speed of first motor range:[-100-100]
-     * @param motor2 - index of motor2 HINT:A:0,B:1,C:2
-     * @param motor2speed - speed of second motor range:[-100-100]
-     * @param motor3 - index of motor2 HINT:A:0,B:1,C:2
-     * @param motor3speed - speed of third motor range:[-100-100]
+     * @param leftMotorSpeed - speed of first motor range:[-100-100]
+     * @param rightMotorSpeed - speed of second motor range:[-100-100]
+     * @param thirdMotorSpeed - speed of third motor range:[-100-100]
      */
-    public void move3Motors(byte motor1, byte motor1speed,byte motor2, byte motor2speed,byte motor3, byte motor3speed) {
-    	byte[] data1 = generateMoveMotorCommand((byte)motor1, (byte)motor1speed); //command for 1.motor
-    	byte[] data2 = generateMoveMotorCommand((byte)motor2, (byte)motor2speed); //command for 2.motor
-    	byte[] data3 = generateMoveMotorCommand((byte)motor3, (byte)motor3speed); //command for 3.motor
+    public void move3Motors(byte leftMotorSpeed, byte rightMotorSpeed, byte thirdMotorSpeed) {
+    	byte[] data1 = generateMoveMotorCommand((byte)getLeftMotor(), (byte)leftMotorSpeed); //command for 1.motor
+    	byte[] data2 = generateMoveMotorCommand((byte)getRightMotor(), (byte)rightMotorSpeed); //command for 2.motor
+    	byte[] data3 = generateMoveMotorCommand((byte)getThirdMotor(), (byte)thirdMotorSpeed); //command for 3.motor
     	
     	//need send this command at once must merge this arrays
     	byte[] command = new byte[data1.length+data2.length+data3.length];
@@ -185,7 +215,7 @@ public class NXTCommunicator {
     }
     
     public void stopMove() {
-    	this.move2Motors((byte)0, (byte)0, (byte)1,(byte)0);
+    	this.move2Motors((byte)0, (byte)0);
     }
     
     /**
@@ -335,7 +365,7 @@ public class NXTCommunicator {
         public void write(byte[] buffer) {
             try {
                 mmOutStream.write(buffer);
-                Log.d(MainActivity.TAG, "sending to device:"+buffer.toString());
+                //TODO Log.d(MainActivity.TAG, "sending to device:"+buffer.toString());
             } catch (IOException e) {
                 Log.d(MainActivity.TAG, "Exception during write", e);
             }

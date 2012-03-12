@@ -1,5 +1,6 @@
 package nxtcontroller.program;
 
+import nxtcontroller.activity.MainActivity;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -7,6 +8,7 @@ import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.Point;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.*;
 
 public class ControlPad extends View {
@@ -62,7 +64,7 @@ public class ControlPad extends View {
     @Override
     protected void onSizeChanged(int width, int height, int oldw, int oldh) {
         super.onSizeChanged(width, height, oldw, oldh);
-        this.width = width;
+        this.width = width-controlPoint.radius;
         this.radius = this.width/2;
         this.center.x = width / 2;
         this.center.y = height / 2;
@@ -78,6 +80,19 @@ public class ControlPad extends View {
     	return result;
     }
     
+    public double angle(Point touchPoint){
+    	Point v1 = new Point();
+    	Point v2 = new Point();
+    	Point end = new Point(center.x+radius,center.y);
+    	v1.x = end.x - center.x;
+    	v1.y = end.y - center.y;
+    	v2.x = touchPoint.x - center.x;
+    	v2.y = touchPoint.y - center.y;
+    	double cosa = (v1.x*v2.x + v1.y*v2.y)/(Math.sqrt(v1.x*v1.x + v1.y*v1.y) * Math.sqrt(v2.x*v2.x + v2.y*v2.y));
+    	//return Math.acos(cosa);
+    	return Math.round(cosa*100)/2;
+    }
+    
 	public OnTouchListener TouchPadControlOnTouchListener = new OnTouchListener() {
 		@Override
 		public boolean onTouch(View v, MotionEvent event) {
@@ -89,12 +104,19 @@ public class ControlPad extends View {
             	if(distanceFromCenter() > radius) return false;
             	double temp = distanceFromCenter()/oneDegree;
             	byte speed = (byte) ((byte) Math.round(temp)*2);
-            	nxtCommnunicator.move2Motors((byte)0, (byte) speed, (byte) 1, speed);
+            	if(y>center.y){
+            		speed *= -1;
+            	}
+            	
+            	double angle = angle(new Point(x,y));
+            	Log.d(MainActivity.TAG,"uhol:"+Double.toString(angle));
+            	//Log.d(MainActivity.TAG,Byte.toString(speed));
+            	
+            	nxtCommnunicator.move2Motors(speed, (byte) (speed-angle));
             	invalidate();
             }else if(action == MotionEvent.ACTION_UP){
             	controlPoint.setCenter(center.x,center.y);
-            	byte speed=0;
-            	nxtCommnunicator.move2Motors((byte)0, (byte) speed, (byte) 1, speed);
+            	nxtCommnunicator.stopMove();
             }
             ControlPad.this.postInvalidate();
 			return true;

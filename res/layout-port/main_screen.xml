@@ -12,7 +12,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android1:gravity="top"
-        android1:padding="10dp" >
+        android1:padding="5dp" >
 
         <LinearLayout
             android1:id="@+id/labels"
@@ -96,7 +96,7 @@
         android1:layout_height="wrap_content"
         android1:layout_gravity="bottom"
         android1:orientation="vertical"
-        android1:paddingLeft="30dp" android1:paddingRight="30dp" android1:paddingTop="30dp">
+        android1:paddingLeft="20dp" android1:paddingRight="20dp">
 
         <TextView
             android1:id="@+id/controlModeLabel"

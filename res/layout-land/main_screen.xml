@@ -11,7 +11,7 @@
         android:id="@+id/LinearLayout1"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android1:gravity="top" android1:padding="5dp">
+        android1:gravity="top">
 
         <LinearLayout
             android1:id="@+id/labels"
@@ -137,7 +137,7 @@
             android1:layout_width="200dp"
             android1:layout_height="wrap_content"
             android1:layout_alignParentRight="true"
-            android1:orientation="vertical" >
+            android1:orientation="vertical" android1:padding="5dp">
 
             <nxtcontroller.program.ControlPad
                 android1:id="@+id/controlPadView"

@@ -237,6 +237,7 @@ public class MainActivity extends Activity {
     	//TODO
     }
     
+    
 	@Override
 	protected void onStart() {
 		setConnectionStatus(ConnectionStatus.DISCONNECTED);
