@@ -8,9 +8,7 @@
     <string name="pairedDevicesLabel">Paired NXT devices:</string>
     <string name="newFoundedDevicesLabel"> NXT found</string>
     <string name="scanCompleteLabel">Scanning finished</string>
-    <string name="scanningLabel">Scanning</string> 
-    <string name="on">ON</string>
-    <string name="off">OFF</string>
+    <string name="scanningLabel">Scanning</string>
     <string name="noFoundedDevicesLabel">No new NXT devices</string>
     <string name="selectDevice">Select NXT device</string>
     <string-array name="errorsMsg">
@@ -29,8 +27,12 @@
         <item >Connecting to:</item>
         <item >Connection Failed</item>
         <item >Ready to Connect</item>
+    </string-array> 
+    <string-array name="controlModes">
+      <item>Touch Mode</item>
+      <item>Tilt Mode</item>
+      <item>Follower Mode</item> 
     </string-array>
     <color name="textBlack">#000</color>
     <color name="deepBlue">#00008b</color>
-    <string name="touchModeLabel">Touch Mode</string>
 </resources>

@@ -97,14 +97,14 @@
         android1:layout_gravity="bottom"
         android1:orientation="vertical"
         android1:paddingLeft="20dp" android1:paddingRight="20dp">
-
+
         <TextView
             android1:id="@+id/controlModeLabel"
             android1:layout_width="wrap_content"
             android1:layout_height="wrap_content"
             android1:layout_gravity="center"
             android1:paddingBottom="5dp"
-            android1:text="@string/touchModeLabel"
+            android1:text="@android:string/untitled"
             android1:textAppearance="?android:attr/textAppearanceMedium"
             android1:textColor="@color/deepBlue" />
 

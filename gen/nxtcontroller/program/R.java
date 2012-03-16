@@ -10,6 +10,7 @@ package nxtcontroller.program;
 public final class R {
     public static final class array {
         public static final int connectionStatues=0x7f050002;
+        public static final int controlModes=0x7f050003;
         public static final int errorsMsg=0x7f050000;
         public static final int infoMsg=0x7f050001;
     }
@@ -57,14 +58,11 @@ public final class R {
         public static final int connectNXT=0x7f040001;
         public static final int disconnectNXT=0x7f040002;
         public static final int newFoundedDevicesLabel=0x7f040006;
-        public static final int noFoundedDevicesLabel=0x7f04000b;
-        public static final int off=0x7f04000a;
-        public static final int on=0x7f040009;
+        public static final int noFoundedDevicesLabel=0x7f040009;
         public static final int pairedDevicesLabel=0x7f040005;
         public static final int scanCompleteLabel=0x7f040007;
         public static final int scanLabel=0x7f040004;
         public static final int scanningLabel=0x7f040008;
-        public static final int selectDevice=0x7f04000c;
-        public static final int touchModeLabel=0x7f04000d;
+        public static final int selectDevice=0x7f04000a;
     }
 }
