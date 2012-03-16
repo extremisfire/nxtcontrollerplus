@@ -72,25 +72,17 @@ public class ControlPad extends View {
         this.oneDegree = (double)radius / (double)degreesCount;
     }
     
-    public double distanceFromCenter(){
+    public double distanceBetweenTwoPoints(Point a, Point b){
     	double result = 0;
-    	int dx = (controlPoint.getCenter().x - center.x);
-    	int dy = (controlPoint.getCenter().y - center.y);
+    	int dx = (b.x - a.x);
+    	int dy = (b.y - a.y);
     	result = Math.sqrt(dx*dx + dy*dy);
     	return result;
     }
     
-    public double angle(Point touchPoint){
-    	Point v1 = new Point();
-    	Point v2 = new Point();
-    	Point end = new Point(center.x+radius,center.y);
-    	v1.x = end.x - center.x;
-    	v1.y = end.y - center.y;
-    	v2.x = touchPoint.x - center.x;
-    	v2.y = touchPoint.y - center.y;
-    	double cosa = (v1.x*v2.x + v1.y*v2.y)/(Math.sqrt(v1.x*v1.x + v1.y*v1.y) * Math.sqrt(v2.x*v2.x + v2.y*v2.y));
-    	//return Math.acos(cosa);
-    	return Math.round(cosa*100)/2;
+    public double hypotenuse(Point touchPoint){
+    	Point a = new Point(center.x,touchPoint.y);
+    	return distanceBetweenTwoPoints(a, center);
     }
     
 	public OnTouchListener TouchPadControlOnTouchListener = new OnTouchListener() {
@@ -101,20 +93,31 @@ public class ControlPad extends View {
             int y = (int) event.getY();
             if ((action == MotionEvent.ACTION_DOWN) || (action == MotionEvent.ACTION_MOVE)) {
             	controlPoint.setCenter(x,y);
-            	if(distanceFromCenter() > radius) return false;
-            	double temp = distanceFromCenter()/oneDegree;
+            	double distFromCenter = distanceBetweenTwoPoints(new Point(center.x,center.y),new Point(x,y));
+            	if(distFromCenter > radius) return false;
+            	
+            	double temp = distFromCenter/oneDegree;
             	byte speed = (byte) ((byte) Math.round(temp)*2);
+            	
             	if(y>center.y){
             		speed *= -1;
             	}
             	
-            	double angle = angle(new Point(x,y));
-            	Log.d(MainActivity.TAG,"uhol:"+Double.toString(angle));
-            	//Log.d(MainActivity.TAG,Byte.toString(speed));
+            	double angle = hypotenuse(new Point(x,y));
+            	double sinangle = (angle/distFromCenter);
             	
-            	nxtCommnunicator.move2Motors(speed, (byte) (speed-angle));
+            	Log.d(MainActivity.TAG,Byte.toString(speed));
+            	if(x < center.x){
+            		byte leftSpeed = (byte) (speed*sinangle);
+            		Log.d(MainActivity.TAG,"Lspeed:"+Byte.toString(leftSpeed));
+            		nxtCommnunicator.move2Motors(leftSpeed, (byte) (speed));
+            	}else if(x >= center.x){
+            		byte rightSpeed = (byte) (speed*sinangle);
+            		Log.d(MainActivity.TAG,"Rspeed:"+Byte.toString(rightSpeed));
+            		nxtCommnunicator.move2Motors((byte) (speed), rightSpeed);
+            	}
             	invalidate();
-            }else if(action == MotionEvent.ACTION_UP){
+            }else if((action == MotionEvent.ACTION_UP) || (action == MotionEvent.ACTION_CANCEL)){
             	controlPoint.setCenter(center.x,center.y);
             	nxtCommnunicator.stopMove();
             }

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import nxtcontroller.enums.Keys;
 import nxtcontroller.program.NXTCommunicator;
 import nxtcontroller.program.R;
 import android.app.Activity;
@@ -33,9 +34,6 @@ import android.widget.ExpandableListView.OnGroupClickListener;
 public class BluetoothDeviceManagerActivity extends ExpandableListActivity{
 	
 	/* declaration constant values */
-    public static final String NAME_OF_DEVICE = "name";
-    public static final String GROUP_NAME = "group_name";
-    public static final String ADDRESS_OF_DEVICE = "address";
     
 	/* private class properties declaration */
 	private BluetoothAdapter bluetoothAdapter;
@@ -75,8 +73,8 @@ public class BluetoothDeviceManagerActivity extends ExpandableListActivity{
 			if(bluetoothAdapter.isDiscovering())
             	bluetoothAdapter.cancelDiscovery();
 			
-			String deviceName = childData.get(groupPosition).get(childPosition).get(NAME_OF_DEVICE);
-			String deviceAddress = childData.get(groupPosition).get(childPosition).get(ADDRESS_OF_DEVICE);
+			String deviceName = childData.get(groupPosition).get(childPosition).get(Keys.DEVICE_NAME);
+			String deviceAddress = childData.get(groupPosition).get(childPosition).get(Keys.DEVICE_ADDRESS);
 			
 			if( deviceName.equals( getResources().getString(R.string.noFoundedDevicesLabel) )){
 					return false;
@@ -98,7 +96,7 @@ public class BluetoothDeviceManagerActivity extends ExpandableListActivity{
 			try{
 				Map<String,String> temp = groupData.get(groupPosition);
 				getResources().getString(R.string.scanLabel);
-				String gName = temp.get(GROUP_NAME);
+				String gName = temp.get(Keys.GROUP_NAME);
 				if(gName.equals(getResources().getString(R.string.scanLabel))){
 					startScanningForDevices();
 				}
@@ -142,10 +140,10 @@ public class BluetoothDeviceManagerActivity extends ExpandableListActivity{
         groupData = new ArrayList<Map<String, String>>();
         childData = new ArrayList<List<Map<String, String>>>();
         Map<String, String> pairedDevs = new HashMap<String, String>();
-        pairedDevs.put(GROUP_NAME, getResources().getString(R.string.pairedDevicesLabel));
+        pairedDevs.put(Keys.GROUP_NAME, getResources().getString(R.string.pairedDevicesLabel));
         groupData.add(pairedDevs);
         Map<String, String> newDevs = new HashMap<String, String>();
-        newDevs.put(GROUP_NAME, getResources().getString(R.string.scanLabel));
+        newDevs.put(Keys.GROUP_NAME, getResources().getString(R.string.scanLabel));
         groupData.add(newDevs);
         
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
@@ -162,8 +160,8 @@ public class BluetoothDeviceManagerActivity extends ExpandableListActivity{
     		if(d.getBluetoothClass().getDeviceClass() == BluetoothClass.Device.TOY_ROBOT){ // show only NXT like devices
 	    		Map<String, String> curChildMap = new HashMap<String, String>();
 	            children.add(curChildMap);
-	            curChildMap.put(NAME_OF_DEVICE,d.getName());
-	            curChildMap.put(ADDRESS_OF_DEVICE,d.getAddress());
+	            curChildMap.put(Keys.DEVICE_NAME,d.getName());
+	            curChildMap.put(Keys.DEVICE_ADDRESS,d.getAddress());
     		}
     	} 
     	childData.add(children);
@@ -174,8 +172,8 @@ public class BluetoothDeviceManagerActivity extends ExpandableListActivity{
     		childData.add(foundedDevices);
     	}else{
     		Map<String, String> temp = new HashMap<String, String>();
-    		temp.put(NAME_OF_DEVICE,getResources().getString(R.string.noFoundedDevicesLabel));
-    		temp.put(ADDRESS_OF_DEVICE,"");
+    		temp.put(Keys.DEVICE_NAME,getResources().getString(R.string.noFoundedDevicesLabel));
+    		temp.put(Keys.DEVICE_ADDRESS,"");
     		List<Map<String, String>> tempChild = new ArrayList<Map<String,String>>();
     		tempChild.add(temp);
             childData.add(tempChild);
@@ -190,11 +188,11 @@ public class BluetoothDeviceManagerActivity extends ExpandableListActivity{
                 this,
                 groupData,
                 android.R.layout.simple_expandable_list_item_1,
-                new String[] {GROUP_NAME },
+                new String[] {Keys.GROUP_NAME },
                 new int[] { android.R.id.text1},
                 childData,
                 android.R.layout.simple_expandable_list_item_2,
-                new String[] { NAME_OF_DEVICE, ADDRESS_OF_DEVICE },
+                new String[] { Keys.DEVICE_NAME, Keys.DEVICE_ADDRESS, },
                 new int[] { android.R.id.text1, android.R.id.text2 }
                 );
         setListAdapter(listAdapter);   
@@ -223,8 +221,8 @@ public class BluetoothDeviceManagerActivity extends ExpandableListActivity{
     
     private void sendFoundedDeviceBackToActivity(String deviceName, String deviceAddress){
 		Intent intent = new Intent();
-        intent.putExtra(NAME_OF_DEVICE, deviceName);
-        intent.putExtra(ADDRESS_OF_DEVICE, deviceAddress);
+        intent.putExtra(Keys.DEVICE_NAME, deviceName);
+        intent.putExtra(Keys.DEVICE_ADDRESS,deviceAddress);
         setResult(Activity.RESULT_OK, intent);
         finish();
         return;
@@ -232,8 +230,8 @@ public class BluetoothDeviceManagerActivity extends ExpandableListActivity{
     
     private void addFoundedDevice(BluetoothDevice device){
 		Map<String,String> tempDev = new HashMap<String, String>();
-		tempDev.put(NAME_OF_DEVICE,device.getName());
-		tempDev.put(ADDRESS_OF_DEVICE,device.getAddress());
+		tempDev.put(Keys.DEVICE_NAME,device.getName());
+		tempDev.put(Keys.DEVICE_ADDRESS,device.getAddress());
 		foundedDevices.add(tempDev);
 		String title = getResources().getString(R.string.scanningLabel);
         title += ", "+Integer.toString(foundedDevices.size());

@@ -86,6 +86,16 @@ public class NXTCommunicator {
 	}
 	
 	/* Methods and Constructors declaration */
+	
+	public String bytesToString(byte[] bytes){
+		String temp="[";
+		for(Byte b:bytes){
+			temp+=Byte.toString(b);
+			temp+=", ";
+		}
+		return temp+"]";
+	}
+	
 	public NXTCommunicator(Handler handler){
 		this.messageHandler = handler;
 		setState(ConnectionStatus.DISCONNECTED);
@@ -165,9 +175,9 @@ public class NXTCommunicator {
     
     /**
      * send a command array of bytes via BT to NXT to move 3 motors
-     * @param leftMotorSpeed - speed of first motor range:[-100-100]
-     * @param rightMotorSpeed - speed of second motor range:[-100-100]
-     * @param thirdMotorSpeed - speed of third motor range:[-100-100]
+     * @param leftMotorSpeed - speed of  motor range:[-100-100]
+     * @param rightMotorSpeed - speed of motor range:[-100-100]
+     * @param thirdMotorSpeed - speed of motor range:[-100-100]
      */
     public void move3Motors(byte leftMotorSpeed, byte rightMotorSpeed, byte thirdMotorSpeed) {
     	byte[] data1 = generateMoveMotorCommand((byte)getLeftMotor(), (byte)leftMotorSpeed); //command for 1.motor
@@ -349,7 +359,7 @@ public class NXTCommunicator {
                 try {
                     // Read from the InputStream
                     bytes = mmInStream.read(buffer);
-                    Log.d(MainActivity.TAG, "listening.."+bytes);
+                    Log.d(MainActivity.TAG, "listening: "+"bytes: "+bytes+" buffer: "+bytesToString(buffer));
                 } catch (Exception e) {
                     Log.d(MainActivity.TAG, "disconnected");
                     connectionLost();
@@ -365,7 +375,7 @@ public class NXTCommunicator {
         public void write(byte[] buffer) {
             try {
                 mmOutStream.write(buffer);
-                //TODO Log.d(MainActivity.TAG, "sending to device:"+buffer.toString());
+                Log.d(MainActivity.TAG, "sending to device: "+ bytesToString(buffer));
             } catch (IOException e) {
                 Log.d(MainActivity.TAG, "Exception during write", e);
             }
