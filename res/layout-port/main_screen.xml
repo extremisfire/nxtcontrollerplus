@@ -11,8 +11,7 @@
         android:id="@+id/LinearLayout1"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android1:gravity="top"
-        android1:padding="5dp" >
+        android1:gravity="top" android1:padding="2dp">
 
         <LinearLayout
             android1:id="@+id/labels"
@@ -63,7 +62,7 @@
     <LinearLayout
         android1:id="@+id/sensors"
         android1:layout_width="wrap_content"
-        android1:layout_height="90dp">
+        android1:layout_height="120dp">
 
         <Button
             android1:id="@+id/button1"
@@ -96,7 +95,7 @@
         android1:layout_height="wrap_content"
         android1:layout_gravity="bottom"
         android1:orientation="vertical"
-        android1:paddingLeft="20dp" android1:paddingRight="20dp">
+        android1:paddingLeft="10dp" android1:paddingRight="10dp">
 
         <TextView
             android1:id="@+id/controlModeLabel"

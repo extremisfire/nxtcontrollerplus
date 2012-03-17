@@ -19,7 +19,6 @@ public class ControlPoint extends View{
 	public void setCenter(int cx, int cy) {
 		this.center.x = cx;
 		this.center.y = cy;
-		this.postInvalidate();
 	}
 
 	public ControlPoint(Context context,int cx, int cy){

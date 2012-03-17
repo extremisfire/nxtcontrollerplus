@@ -12,12 +12,14 @@ import nxtcontroller.program.R;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.PowerManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -34,14 +36,19 @@ public class MainActivity extends Activity{
 	
 	/* private class properties declaration */
     private BluetoothAdapter bluetoothAdapter;
+    private PowerManager powerManager;
+    private PowerManager.WakeLock wakeLock;
+    
     private TextView statusLabel,deviceNameLabel,controlModeLabel; 
     private Button connectButton,disconnectButton;
+    private String[] errors,infos,connectionStatuses,controlModes; //message arrays
+    
     private int connectionStatus;
     private int controlMode;
     private NXTCommunicator nxtCommunicator;
     private ControlPad controlPad;
     private String nxtDeviceName,nxtDeviceAddress;
-    private String[] errors,infos,connectionStatuses,controlModes; //message arrays
+  
     
     /* The Handler that gets information back from NXTCommunicator */
     private final Handler messageHandler = new Handler() {
@@ -75,9 +82,12 @@ public class MainActivity extends Activity{
     	switch(connectionStatus){
     		case ConnectionStatus.CONNECTED:
     			statusLabel.setTextColor(Color.GREEN);
+    			wakeLock.acquire();
     		break;
     		case ConnectionStatus.DISCONNECTED:
     			statusLabel.setTextColor(Color.BLACK);
+       			if(wakeLock.isHeld())
+    				wakeLock.release();
     		break;
     		case ConnectionStatus.CONNECTING:
     			statusLabel.setTextColor(Color.MAGENTA);
@@ -281,6 +291,8 @@ public class MainActivity extends Activity{
 	@Override
 	protected void onStop() {
 		super.onStop();
+		if(wakeLock.isHeld())
+			wakeLock.release();
 	}
 
 	@Override
@@ -310,6 +322,9 @@ public class MainActivity extends Activity{
     		finish();
     		return;
     	}
+    	
+    	powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        wakeLock = powerManager.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE, TAG);
     	
         setContentView(R.layout.main_screen);
      
