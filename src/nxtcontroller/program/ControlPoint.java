@@ -10,22 +10,72 @@ import android.view.View;
 public class ControlPoint extends View{
 	public final int radius = 32;
 	private Point center;
+	private byte leftMotorSpeed,rightMotorSpeed;
 	private Bitmap bitmap;
+	private ControlPad controlPad;
+	private double oneDegree;
 	
 	public Point getCenter() {
 		return center;
 	}
 
+	public void setOneDegree(double oneDegree) {
+		this.oneDegree = oneDegree;
+	}
+
+	public byte getLeftMotorSpeed() {
+		return leftMotorSpeed;
+	}
+
+	public byte getRightMotorSpeed() {
+		return rightMotorSpeed;
+	}
+
 	public void setCenter(int cx, int cy) {
 		this.center.x = cx;
 		this.center.y = cy;
+		
+		double distFromCenter = distanceBetweenTwoPoints(controlPad.getCenter(),this.center);
+    	double temp = distFromCenter/this.oneDegree;
+    	byte speed = (byte) ((byte) Math.round(temp)*2);
+    	
+    	if(center.y > controlPad.getCenter().y){
+    		speed *= -1;
+    	}
+    	
+    	double angle = hypotenuse(center);
+    	double sinangle = (angle/distFromCenter);
+    	
+    	//Log.d(MainActivity.TAG,Byte.toString(speed));
+    	if(center.x < controlPad.getCenter().x){
+    		leftMotorSpeed = (byte) (speed*sinangle);
+    		rightMotorSpeed = speed;
+    	}else if(center.x >= controlPad.getCenter().x){
+    		rightMotorSpeed = (byte) (speed*sinangle);
+    		leftMotorSpeed = speed;
+    	}
 	}
+	
+    public double distanceBetweenTwoPoints(Point a, Point b){
+    	double result = 0;
+    	int dx = (b.x - a.x);
+    	int dy = (b.y - a.y);
+    	result = Math.sqrt(dx*dx + dy*dy);
+    	return result;
+    }
+    
+    private double hypotenuse(Point touchPoint){
+    	Point a = new Point(controlPad.getCenter().x,touchPoint.y);
+    	return distanceBetweenTwoPoints(a, controlPad.getCenter());
+    }
 
-	public ControlPoint(Context context,int cx, int cy){
+	public ControlPoint(Context context,int cx, int cy, ControlPad controlPad){
 		super(context);
+		this.controlPad = controlPad;
 		Bitmap temp =  BitmapFactory.decodeResource(context.getResources(), R.drawable.walle);
 		this.bitmap = Bitmap.createScaledBitmap(temp, radius*2, radius*2, true);
 		center = new Point(cx,cy);
+		leftMotorSpeed = rightMotorSpeed = 0;
 	}
 	
 	@Override
