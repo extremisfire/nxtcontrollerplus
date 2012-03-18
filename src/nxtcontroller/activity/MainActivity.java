@@ -22,6 +22,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.PowerManager;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -106,9 +108,31 @@ public class MainActivity extends Activity{
 		this.connectionStatus = connectionStatus;
 	}
     
-	/* Methods and Constructors declaration */
+    public void setControlMode(int controlMode) {
+    	try{
+	    	switch (controlMode) {
+			case ControlModes.TOUCHPAD_MODE:
+	    		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
+				controlPad.turnOffTiltControl();
+				controlPad.turnOnTouchControl();
+				break;
+			case ControlModes.TILT_MODE:
+				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+				controlPad.turnOffTouchControl();
+				controlPad.turnOnTiltControl();
+				break;
+			}
+	    	this.controlMode = controlMode;
+	    	controlModeLabel.setText(controlModes[this.controlMode]);
+    	}catch(Exception e){
+    		Log.e(TAG,"set control error",e);
+    	}
+	}
+
     
-    private void loadDefaults(){
+	/* Methods and Constructors declaration */
+
+	private void loadDefaults(){
     	setConnectionStatus(ConnectionStatus.DISCONNECTED);
     	controlMode = ControlModes.TOUCHPAD_MODE;
     	nxtDeviceAddress = null;
@@ -224,10 +248,8 @@ public class MainActivity extends Activity{
     
     private void registerController(){
     	try{
-    		//controlPad.turnOnTouchControl();
+    		controlPad.turnOnTouchControl();
     		controlPad.setNxtCommnunicator(nxtCommunicator);  
-    		controlPad.turnOnTiltControl();
-    		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
     	}catch(Exception e){
     		Log.e(TAG,"control pad setting up",e);
     	}
@@ -235,12 +257,33 @@ public class MainActivity extends Activity{
     
     private void unregisterController(){
     	try{
-    		controlPad.turnOffTouchControl(); 		
+    		controlPad.turnOffTouchControl(); 	
+    		controlPad.turnOffTiltControl();
     	}catch(Exception e){
     		Log.e(TAG,"control pad unregistering",e);
     	}
     	
     }
+    
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+		menu.add(0, 0, 0, controlModes[0]);
+		menu.add(0, 1, 1, controlModes[1]);
+		return true;
+	}
+    
+    @Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case 0:
+			setControlMode(ControlModes.TOUCHPAD_MODE);
+			break;
+		case 1:
+			setControlMode(ControlModes.TILT_MODE);
+			break;
+		}
+		return true;
+	}
     
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

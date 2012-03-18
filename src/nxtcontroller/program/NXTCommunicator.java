@@ -179,16 +179,8 @@ public class NXTCommunicator {
      * @param rightMotorSpeed - speed of motor range:[-100-100]
      * @param thirdMotorSpeed - speed of motor range:[-100-100]
      */
-    public void move3Motors(byte leftMotorSpeed, byte rightMotorSpeed, byte thirdMotorSpeed) {
-    	byte[] data1 = generateMoveMotorCommand((byte)getLeftMotor(), (byte)leftMotorSpeed); //command for 1.motor
-    	byte[] data2 = generateMoveMotorCommand((byte)getRightMotor(), (byte)rightMotorSpeed); //command for 2.motor
-    	byte[] data3 = generateMoveMotorCommand((byte)getThirdMotor(), (byte)thirdMotorSpeed); //command for 3.motor
-    	
-    	//need send this command at once must merge this arrays
-    	byte[] command = new byte[data1.length+data2.length+data3.length];
-    	System.arraycopy(data1, 0, command, 0, data1.length);
-    	System.arraycopy(data2, 0, command, data1.length, data2.length);
-    	System.arraycopy(data2, 0, command, (data1.length+data2.length), data3.length);
+    public void move3Motor( byte thirdMotorSpeed) {
+    	byte[] command = generateMoveMotorCommand((byte)getThirdMotor(), (byte)thirdMotorSpeed); //command for 3.motor
     	
         if(mConnectedThread != null)
         	write(command);

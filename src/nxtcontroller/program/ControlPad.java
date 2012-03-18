@@ -28,6 +28,7 @@ public class ControlPad extends View implements SensorEventListener{
 	private Paint paint;
 	private ControlPoint controlPoint;
 	private NXTCommunicator nxtCommnunicator = null;
+	@SuppressWarnings("unused")
 	private Display display;
 	
 	private float[] tilt_data = {0, 0, 0}, gravity = {0, 0, 0}, magnet = {0, 0, 0};
@@ -129,34 +130,36 @@ public class ControlPad extends View implements SensorEventListener{
         target = (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) ? gravity : magnet;
 
         System.arraycopy(vals, 0, target, 0, 3);   
-        Log.d(MainActivity.TAG,"X: "+Math.round(getTiltValues()[0]*100)/(float)100);
+        /*Log.d(MainActivity.TAG,"X: "+Math.round(getTiltValues()[0]*100)/(float)100);
         Log.d(MainActivity.TAG,"Y: "+Math.round(getTiltValues()[1]*100)/(float)100);
         Log.d(MainActivity.TAG,"Z: "+Math.round(getTiltValues()[2]*100)/(float)100);
+    	*/
+        tiltMoves(getTiltValues()[1], getTiltValues()[2]);
+	}
+    
+    public void tiltMoves(float axisY, float axisZ){
+        axisY = Math.round(getTiltValues()[1]*100)/(float)100;
+    	axisZ = Math.round(getTiltValues()[2]*100)/(float)100;
     	
-        float ay = Math.round(getTiltValues()[1]*100)/(float)100;
-    	float az = Math.round(getTiltValues()[2]*100)/(float)100;
-    	
-    	if(ay > 1) ay = 1;
-    	if(az > 1) az = 1;
-    	if(ay < -1) ay = -1;
-    	if(az < -1) az = -1;
+    	if(axisY > 1) axisY = 1;
+    	if(axisZ > 1) axisZ = 1;
+    	if(axisY < -1) axisY = -1;
+    	if(axisZ < -1) axisZ = -1;
     	
     	byte leftSpeed = 0,rightSpeed = 0;
-    	if(ay < 0){//tilt right	
-    		leftSpeed = (byte) (az*100);
-    		rightSpeed = (byte) ((az*100) - Math.abs((ay*100)));
-    	}else if(ay >= 0){ //tilt left
-    		leftSpeed = (byte) ((az*100) - Math.abs((ay*100)));
-    		rightSpeed = (byte) (az*100);
+    	if(axisY < 0){//tilt right	
+    		leftSpeed = (byte) (axisZ*100);
+    		rightSpeed = (byte) ((axisZ*100) - Math.abs((axisY*100)));
+    	}else if(axisY >= 0){ //tilt left
+    		leftSpeed = (byte) ((axisZ*100) - Math.abs((axisY*100)));
+    		rightSpeed = (byte) (axisZ*100);
     	}
-    
-    	
-    	
+   
     	Log.d(MainActivity.TAG,"Lspeed:"+Byte.toString(leftSpeed));
     	Log.d(MainActivity.TAG,"Rspeed:"+Byte.toString(rightSpeed));
     	
     	nxtCommnunicator.move2Motors(leftSpeed, rightSpeed);
-	}
+    }
 
     
 	public OnTouchListener TouchPadControlOnTouchListener = new OnTouchListener() {
