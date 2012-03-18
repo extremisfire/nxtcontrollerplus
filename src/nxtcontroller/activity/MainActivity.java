@@ -14,6 +14,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -223,8 +224,10 @@ public class MainActivity extends Activity{
     
     private void registerController(){
     	try{
-    		controlPad.turnOnListener();
-    		controlPad.setNxtCommnunicator(nxtCommunicator);    		
+    		//controlPad.turnOnTouchControl();
+    		controlPad.setNxtCommnunicator(nxtCommunicator);  
+    		controlPad.turnOnTiltControl();
+    		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
     	}catch(Exception e){
     		Log.e(TAG,"control pad setting up",e);
     	}
@@ -232,7 +235,7 @@ public class MainActivity extends Activity{
     
     private void unregisterController(){
     	try{
-    		controlPad.turnOffListener(); 		
+    		controlPad.turnOffTouchControl(); 		
     	}catch(Exception e){
     		Log.e(TAG,"control pad unregistering",e);
     	}

@@ -10,6 +10,7 @@ import android.graphics.Point;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.*;
@@ -17,6 +18,7 @@ import android.view.*;
 public class ControlPad extends View implements SensorEventListener{
 	
 	public static final int degreesCount = 50;
+	private static final int delay = SensorManager.SENSOR_DELAY_UI;
 
 	/* private class properties declaration */
 	private int width,radius;
@@ -27,6 +29,10 @@ public class ControlPad extends View implements SensorEventListener{
 	private ControlPoint controlPoint;
 	private NXTCommunicator nxtCommnunicator = null;
 	private Display display;
+	
+	private float[] tilt_data = {0, 0, 0}, gravity = {0, 0, 0}, magnet = {0, 0, 0};
+	private SensorManager manager;
+	private Sensor magnetic,accelerometer;
 	
 	/* Getters and Setter declaration */
     public void setNxtCommnunicator(NXTCommunicator nxtCommnunicator) {
@@ -44,13 +50,40 @@ public class ControlPad extends View implements SensorEventListener{
         controlPoint = new ControlPoint(context, center.x, center.y,this);
         WindowManager windowManager = (WindowManager) context.getSystemService(MainActivity.WINDOW_SERVICE);
         display = windowManager.getDefaultDisplay();
+        
+        manager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
+        magnetic = manager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        accelerometer = manager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
     }
 	
-	public void turnOnListener(){
+	private float[] getTiltValues() {
+		float[] R={0,0,0,0,0,0,0,0,0};
+		if(SensorManager.getRotationMatrix(R, null, gravity, magnet)){
+			SensorManager.getOrientation(R, tilt_data);
+		}
+		float[] values = new float[3];
+	    System.arraycopy(tilt_data, 0, values, 0, 3);
+	    return values;
+	}
+	
+	public void turnOnTiltControl(){
+	    if( manager.registerListener(this, magnetic, ControlPad.delay) && manager.registerListener(this, accelerometer, ControlPad.delay) ) {
+	           Log.d(MainActivity.TAG, "accelerometer+magnetic successfully register");
+	    }else {
+	      Log.d("TiltCalc", "No acceptable hardware found.");
+	      manager.unregisterListener(this);
+	   }
+	}
+	
+	public void turnOffTiltControl(){
+		manager.unregisterListener(this);
+	}
+	
+	public void turnOnTouchControl(){
 		this.setOnTouchListener(TouchPadControlOnTouchListener);
 	}
 	
-	public void turnOffListener(){
+	public void turnOffTouchControl(){
 		this.setOnTouchListener(null);
 	}
 
@@ -89,26 +122,40 @@ public class ControlPad extends View implements SensorEventListener{
 
     @Override
 	public void onSensorChanged(SensorEvent event) {
-		if (event.sensor.getType() != Sensor.TYPE_ACCELEROMETER)
-			return;
-		switch (display.getRotation()) {
-		case Surface.ROTATION_0:
-			//setAxisX(-event.values[0]);
-			//setAxisY(event.values[1]);
-			break;
-		case Surface.ROTATION_90:
-			//setAxisX(event.values[1]);
-			//setAxisY(event.values[0]);
-			break;
-		case Surface.ROTATION_180:
-			//setAxisX(event.values[0]);
-			//setAxisY(-event.values[1]);
-			break;
-		case Surface.ROTATION_270:
-			//setAxisX(-event.values[1]);
-			//setAxisY(-event.values[0]);
-			break;
-		}
+        
+		final float[] vals = event.values; 
+        final float[] target;
+        
+        target = (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) ? gravity : magnet;
+
+        System.arraycopy(vals, 0, target, 0, 3);   
+        Log.d(MainActivity.TAG,"X: "+Math.round(getTiltValues()[0]*100)/(float)100);
+        Log.d(MainActivity.TAG,"Y: "+Math.round(getTiltValues()[1]*100)/(float)100);
+        Log.d(MainActivity.TAG,"Z: "+Math.round(getTiltValues()[2]*100)/(float)100);
+    	
+        float ay = Math.round(getTiltValues()[1]*100)/(float)100;
+    	float az = Math.round(getTiltValues()[2]*100)/(float)100;
+    	
+    	if(ay > 1) ay = 1;
+    	if(az > 1) az = 1;
+    	if(ay < -1) ay = -1;
+    	if(az < -1) az = -1;
+    	
+    	byte leftSpeed = 0,rightSpeed = 0;
+    	if(ay < 0){//tilt right	
+    		leftSpeed = (byte) (az*100);
+    		rightSpeed = (byte) ((az*100) - Math.abs((ay*100)));
+    	}else if(ay >= 0){ //tilt left
+    		leftSpeed = (byte) ((az*100) - Math.abs((ay*100)));
+    		rightSpeed = (byte) (az*100);
+    	}
+    
+    	
+    	
+    	Log.d(MainActivity.TAG,"Lspeed:"+Byte.toString(leftSpeed));
+    	Log.d(MainActivity.TAG,"Rspeed:"+Byte.toString(rightSpeed));
+    	
+    	nxtCommnunicator.move2Motors(leftSpeed, rightSpeed);
 	}
 
     
