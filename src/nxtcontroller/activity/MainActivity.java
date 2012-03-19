@@ -92,7 +92,7 @@ public class MainActivity extends Activity{
     				wakeLock.release();
     		break;
     		case ConnectionStatus.CONNECTING:
-    			statusLabel.setTextColor(Color.MAGENTA);
+    			statusLabel.setTextColor(Color.YELLOW);
     		break;
     		case ConnectionStatus.CONNECTION_FAILED:
     			statusLabel.setTextColor(Color.RED);

@@ -35,5 +35,5 @@
     </string-array>
     <color name="textBlack">#000</color>
     <color name="deepBlue">#00008b</color>
-    <color name="bgColor">#fff</color>
+    <color name="bgColor">#808080</color>
 </resources>

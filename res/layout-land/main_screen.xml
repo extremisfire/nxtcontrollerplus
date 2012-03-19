@@ -4,7 +4,7 @@
     android1:id="@+id/main"
     android1:layout_width="fill_parent"
     android1:layout_height="fill_parent"
-    android1:background="@drawable/background"
+    android1:background="@color/bgColor"
     android1:baselineAligned="false"
     android1:gravity="left"
     android1:orientation="horizontal"
