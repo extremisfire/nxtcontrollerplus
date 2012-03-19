@@ -31,13 +31,13 @@ public class ControlPoint extends View{
 		return rightMotorSpeed;
 	}
 
-	public void setCenter(int cx, int cy) {
+	public void setCenter(int cx, int cy) {		
+		double distFromCenter = distanceBetweenTwoPoints(controlPad.getCenter(),new Point(cx,cy));
+		if(distFromCenter > controlPad.getRadius()) return;
 		this.center.x = cx;
 		this.center.y = cy;
 		
-		double distFromCenter = distanceBetweenTwoPoints(controlPad.getCenter(),this.center);
-		if(distFromCenter > controlPad.getRadius()) return;
-    	double temp = distFromCenter/this.oneDegree;
+		double temp = distFromCenter/this.oneDegree;
     	byte speed = (byte) ((byte) Math.round(temp)*2);
     	
     	if(center.y > controlPad.getCenter().y){
@@ -47,7 +47,6 @@ public class ControlPoint extends View{
     	double angle = hypotenuse(center);
     	double sinangle = (angle/distFromCenter);
     	
-    	//Log.d(MainActivity.TAG,Byte.toString(speed));
     	if(center.x < controlPad.getCenter().x){
     		leftMotorSpeed = (byte) (speed*sinangle);
     		rightMotorSpeed = speed;
