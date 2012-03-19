@@ -5,166 +5,120 @@
     android1:layout_width="fill_parent"
     android1:layout_height="fill_parent"
     android1:background="@drawable/background"
-    android1:orientation="vertical" android1:padding="5dp">
+    android1:baselineAligned="false"
+    android1:gravity="left"
+    android1:orientation="horizontal"
+    android1:padding="5dp" >
 
-    <RelativeLayout
-        android:id="@+id/LinearLayout1"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android1:gravity="top">
+    <LinearLayout
+        android1:id="@+id/sensors"
+        android1:layout_width="0dp"
+        android1:layout_height="match_parent"
+        android1:layout_gravity="left"
+        android1:layout_weight="1"
+        android1:gravity="right"
+        android1:orientation="vertical" >
+
+        <LinearLayout
+            android1:id="@+id/buttons"
+            android1:layout_width="match_parent"
+            android1:layout_height="wrap_content"
+            android1:gravity="left|right"
+            android1:orientation="horizontal" >
+
+            <LinearLayout
+                android1:id="@+id/labels"
+                android1:layout_width="wrap_content"
+                android1:layout_height="wrap_content"
+                android1:orientation="vertical" >
+
+                <TextView
+                    android1:id="@+id/statusLabel"
+                    android1:layout_width="wrap_content"
+                    android1:layout_height="wrap_content"
+                    android1:text="@string/app_name"
+                    android1:textColor="@color/deepBlue"
+                    android1:textSize="15dp" />
+
+                <TextView
+                    android1:id="@+id/deviceName"
+                    android1:layout_width="wrap_content"
+                    android1:layout_height="wrap_content"
+                    android1:text="@string/selectDevice"
+                    android1:textColor="@color/textBlack"
+                    android1:textSize="12dp" />
+            </LinearLayout>
+
+            <Button
+                android1:id="@+id/connectButton"
+                android1:layout_width="wrap_content"
+                android1:layout_height="wrap_content"
+                android1:text="@string/connectNXT" />
+
+            <Button
+                android1:id="@+id/disconnectButton"
+                android1:layout_width="wrap_content"
+                android1:layout_height="wrap_content"
+                android1:text="@string/disconnectNXT"
+                android1:visibility="gone" />
+        </LinearLayout>
 
         <LinearLayout
-            android1:id="@+id/labels"
-            android1:layout_width="wrap_content"
-            android1:layout_height="wrap_content"
-            android1:layout_alignParentLeft="true"
-            android1:layout_alignParentTop="true"
+            android1:id="@+id/controls"
+            android1:layout_width="250dp"
+            android1:layout_height="match_parent"
+            android1:layout_gravity="bottom"
+            android1:gravity="bottom"
             android1:orientation="vertical" >
 
             <TextView
-                android1:id="@+id/statusLabel"
+                android1:id="@+id/textView2"
                 android1:layout_width="wrap_content"
                 android1:layout_height="wrap_content"
-                android1:text="@string/app_name"
-                android1:textAppearance="?android:attr/textAppearanceMedium"
-                android1:textColor="@color/deepBlue"
-                android1:textSize="18dp" />
-
-            <TextView
-                android1:id="@+id/deviceName"
-                android1:layout_width="wrap_content"
-                android1:layout_height="wrap_content"
-                android1:text="@string/selectDevice"
+                android1:text="3. motor"
                 android1:textAppearance="?android:attr/textAppearanceSmall"
                 android1:textColor="@color/textBlack" />
 
+            <SeekBar
+                android1:id="@+id/seekBar1"
+                android1:layout_width="166dp"
+                android1:layout_height="wrap_content" />
+
         </LinearLayout>
-
-        <Button
-            android1:id="@+id/connectButton"
-            android1:layout_width="wrap_content"
-            android1:layout_height="wrap_content"
-            android1:layout_alignParentRight="true"
-            android1:layout_alignTop="@+id/labels"
-            android1:text="@string/connectNXT" />
-
-        <Button
-            android1:id="@+id/disconnectButton"
-            android1:layout_width="wrap_content"
-            android1:layout_height="wrap_content"
-            android1:layout_alignBaseline="@+id/connectButton"
-            android1:layout_alignBottom="@+id/connectButton"
-            android1:layout_alignParentRight="true"
-            android1:text="@string/disconnectNXT"
-            android1:visibility="gone" />
-    </RelativeLayout>
-
-    <RelativeLayout
-        android1:id="@+id/sensors"
-        android1:layout_width="match_parent"
-        android1:layout_height="match_parent"
+    </LinearLayout>
+
+    <LinearLayout
+        android1:id="@+id/rightPanel"
+        android1:layout_width="200dp"
+        android1:layout_height="wrap_content"
         android1:layout_gravity="right"
-        android1:gravity="right" >
-
+        android1:layout_weight="0.18"
+        android1:gravity="center|right"
+        android1:orientation="vertical" >
+
         <TextView
             android1:id="@+id/controlModeLabel"
             android1:layout_width="wrap_content"
             android1:layout_height="wrap_content"
+            android1:layout_gravity="center_horizontal"
+            android1:padding="2dp"
             android1:text="@android:string/untitled"
             android1:textAppearance="?android:attr/textAppearanceSmall"
             android1:textColor="@color/deepBlue" />
 
         <LinearLayout
-            android1:id="@+id/sensors1"
+            android1:id="@+id/controlPadContainer"
             android1:layout_width="wrap_content"
             android1:layout_height="wrap_content"
-            android1:layout_alignParentLeft="true"
-            android1:layout_centerVertical="true"
-            android1:orientation="vertical" >
-
-            <LinearLayout
-                android1:id="@+id/fisrt"
-                android1:layout_width="wrap_content"
-                android1:layout_height="wrap_content"
-                android1:orientation="horizontal" >
-
-                <Button
-                    android1:id="@+id/button1"
-                    android1:layout_width="wrap_content"
-                    android1:layout_height="wrap_content"
-                    android1:layout_alignParentLeft="true"
-                    android1:layout_alignParentTop="true"
-                    android1:text="Sensor 1" />
-
-                <Button
-                    android1:id="@+id/button2"
-                    android1:layout_width="wrap_content"
-                    android1:layout_height="wrap_content"
-                    android1:layout_alignBaseline="@+id/button1"
-                    android1:layout_alignParentTop="true"
-                    android1:layout_toRightOf="@+id/button1"
-                    android1:text="Sensor 2" />
-            </LinearLayout>
-
-            <LinearLayout
-                android1:id="@+id/second1"
-                android1:layout_width="wrap_content"
-                android1:layout_height="wrap_content"
-                android1:orientation="horizontal" >
-
-                <Button
-                    android1:id="@+id/button3"
-                    android1:layout_width="wrap_content"
-                    android1:layout_height="wrap_content"
-                    android1:layout_alignParentLeft="true"
-                    android1:layout_below="@+id/button1"
-                    android1:text="Sensor 3" />
-
-                <Button
-                    android1:id="@+id/button4"
-                    android1:layout_width="wrap_content"
-                    android1:layout_height="wrap_content"
-                    android1:layout_alignBaseline="@+id/button3"
-                    android1:layout_alignTop="@+id/button3"
-                    android1:layout_toRightOf="@+id/button3"
-                    android1:text="Sensor 4" />
-            </LinearLayout>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android1:id="@+id/controls"
-            android1:layout_width="200dp"
-            android1:layout_height="wrap_content"
-            android1:layout_alignParentRight="true"
-            android1:orientation="vertical">
+            android1:gravity="center_horizontal|left"
+            android1:orientation="vertical"
+            android1:paddingTop="2dp" >
 
             <nxtcontroller.program.ControlPad
                 android1:id="@+id/controlPadView"
                 android1:layout_width="wrap_content"
-                android1:layout_height="wrap_content"
-                android1:layout_below="@+id/textView1"
-                android1:layout_gravity="center"
-                android1:layout_toRightOf="@+id/button2" />
+                android1:layout_height="wrap_content" />
         </LinearLayout>
-
-        <TextView
-            android1:id="@+id/textView2"
-            android1:layout_width="wrap_content"
-            android1:layout_height="wrap_content"
-            android1:layout_below="@+id/sensors1"
-            android1:text="3. motor"
-            android1:textAppearance="?android:attr/textAppearanceSmall"
-            android1:textColor="@color/textBlack" />
-
-        <SeekBar
-            android1:id="@+id/seekBar1"
-            android1:layout_width="50dp"
-            android1:layout_height="wrap_content"
-            android1:layout_alignParentLeft="true"
-            android1:layout_alignRight="@+id/sensors1"
-            android1:layout_below="@+id/textView2" />
-
-    </RelativeLayout>
+    </LinearLayout>
 
 </LinearLayout>

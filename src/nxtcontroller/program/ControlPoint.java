@@ -36,6 +36,7 @@ public class ControlPoint extends View{
 		this.center.y = cy;
 		
 		double distFromCenter = distanceBetweenTwoPoints(controlPad.getCenter(),this.center);
+		if(distFromCenter > controlPad.getRadius()) return;
     	double temp = distFromCenter/this.oneDegree;
     	byte speed = (byte) ((byte) Math.round(temp)*2);
     	

@@ -30,7 +30,7 @@ public class ControlPad extends View implements SensorEventListener{
 	private NXTCommunicator nxtCommnunicator = null;
 	@SuppressWarnings("unused")
 	private Display display;
-	
+
 	private float[] tilt_data = {0, 0, 0}, gravity = {0, 0, 0}, magnet = {0, 0, 0};
 	private SensorManager manager;
 	private Sensor magnetic,accelerometer;
@@ -42,6 +42,10 @@ public class ControlPad extends View implements SensorEventListener{
 
 	public Point getCenter() {
 		return center;
+	}
+
+	public int getRadius() {
+		return radius;
 	}
 
 	public ControlPad(Context context, AttributeSet attrs) {
@@ -148,13 +152,22 @@ public class ControlPad extends View implements SensorEventListener{
     	
     	byte leftSpeed = 0,rightSpeed = 0;
     	if(axisY < 0){//tilt right	
-    		leftSpeed = (byte) (axisZ*100);
-    		rightSpeed = (byte) ((axisZ*100) - Math.abs((axisY*100)));
+        	if(axisZ < 0){ //backward
+        		leftSpeed = (byte) ((axisZ*100) - Math.abs((axisY*100)));
+        		rightSpeed = (byte) (axisZ*100);
+        	}else{ //forward
+        		leftSpeed = (byte) (axisZ*100);
+        		rightSpeed = (byte) ((axisZ*100) - Math.abs((axisY*100)));
+        	}
     	}else if(axisY >= 0){ //tilt left
-    		leftSpeed = (byte) ((axisZ*100) - Math.abs((axisY*100)));
-    		rightSpeed = (byte) (axisZ*100);
+        	if(axisZ < 0){ //backward
+        		leftSpeed = (byte) (axisZ*100);
+        		rightSpeed = (byte) ((axisZ*100) - Math.abs((axisY*100)));
+        	}else{ //forward
+        		leftSpeed = (byte) ((axisZ*100) - Math.abs((axisY*100)));
+        		rightSpeed = (byte) (axisZ*100);
+        	}
     	}
-   
     	Log.d(MainActivity.TAG,"Lspeed:"+Byte.toString(leftSpeed));
     	Log.d(MainActivity.TAG,"Rspeed:"+Byte.toString(rightSpeed));
     	

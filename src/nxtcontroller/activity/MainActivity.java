@@ -14,7 +14,6 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -112,14 +111,16 @@ public class MainActivity extends Activity{
     	try{
 	    	switch (controlMode) {
 			case ControlModes.TOUCHPAD_MODE:
-	    		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
 				controlPad.turnOffTiltControl();
 				controlPad.turnOnTouchControl();
+				wakeLock.acquire();
 				break;
 			case ControlModes.TILT_MODE:
-				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 				controlPad.turnOffTouchControl();
 				controlPad.turnOnTiltControl();
+				if(wakeLock.isHeld()){
+					wakeLock.release();
+				}
 				break;
 			}
 	    	this.controlMode = controlMode;
