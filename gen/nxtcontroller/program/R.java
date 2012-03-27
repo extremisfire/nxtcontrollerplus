@@ -22,31 +22,22 @@ public final class R {
         public static final int textBlack=0x7f060000;
     }
     public static final class drawable {
-        public static final int ic_launcher=0x7f020000;
-        public static final int walle=0x7f020001;
+        public static final int bg=0x7f020000;
+        public static final int ic_launcher=0x7f020001;
+        public static final int walle=0x7f020002;
     }
     public static final class id {
-        public static final int LinearLayout1=0x7f07000f;
-        public static final int button1=0x7f070010;
-        public static final int button2=0x7f070011;
-        public static final int button3=0x7f070012;
-        public static final int button4=0x7f070013;
-        public static final int buttons=0x7f070002;
-        public static final int connectButton=0x7f070006;
-        public static final int controlModeLabel=0x7f07000c;
-        public static final int controlPadContainer=0x7f07000d;
-        public static final int controlPadView=0x7f07000e;
-        public static final int controls=0x7f070008;
-        public static final int deviceName=0x7f070005;
-        public static final int disconnectButton=0x7f070007;
-        public static final int labels=0x7f070003;
+        public static final int connectButton=0x7f070009;
+        public static final int controlModeLabel=0x7f070007;
+        public static final int controlPadView=0x7f07000a;
+        public static final int controls=0x7f070004;
+        public static final int controlsWrap=0x7f070003;
+        public static final int deviceName=0x7f070006;
+        public static final int disconnectButton=0x7f070008;
+        public static final int leftPanel=0x7f070001;
         public static final int main=0x7f070000;
-        public static final int rightPanel=0x7f07000b;
-        public static final int seekBar1=0x7f07000a;
-        public static final int sensors=0x7f070001;
-        public static final int statusLabel=0x7f070004;
-        public static final int textView2=0x7f070009;
-        public static final int touchPadWrapper=0x7f070014;
+        public static final int rightPanel=0x7f070002;
+        public static final int statusLabel=0x7f070005;
     }
     public static final class layout {
         public static final int main_screen=0x7f030000;

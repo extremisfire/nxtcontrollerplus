@@ -134,7 +134,8 @@ public class ControlPad extends View implements SensorEventListener{
         target = (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) ? gravity : magnet;
 
         System.arraycopy(vals, 0, target, 0, 3);   
-        /*Log.d(MainActivity.TAG,"X: "+Math.round(getTiltValues()[0]*100)/(float)100);
+        /*
+        Log.d(MainActivity.TAG,"X: "+Math.round(getTiltValues()[0]*100)/(float)100);
         Log.d(MainActivity.TAG,"Y: "+Math.round(getTiltValues()[1]*100)/(float)100);
         Log.d(MainActivity.TAG,"Z: "+Math.round(getTiltValues()[2]*100)/(float)100);
     	*/

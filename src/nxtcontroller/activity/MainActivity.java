@@ -24,6 +24,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -84,12 +86,9 @@ public class MainActivity extends Activity{
     	switch(connectionStatus){
     		case ConnectionStatus.CONNECTED:
     			statusLabel.setTextColor(Color.GREEN);
-    			wakeLock.acquire();
     		break;
     		case ConnectionStatus.DISCONNECTED:
     			statusLabel.setTextColor(Color.BLACK);
-       			if(wakeLock.isHeld())
-    				wakeLock.release();
     		break;
     		case ConnectionStatus.CONNECTING:
     			statusLabel.setTextColor(Color.YELLOW);
@@ -113,14 +112,10 @@ public class MainActivity extends Activity{
 			case ControlModes.TOUCHPAD_MODE:
 				controlPad.turnOffTiltControl();
 				controlPad.turnOnTouchControl();
-				wakeLock.acquire();
 				break;
 			case ControlModes.TILT_MODE:
 				controlPad.turnOffTouchControl();
 				controlPad.turnOnTiltControl();
-				if(wakeLock.isHeld()){
-					wakeLock.release();
-				}
 				break;
 			}
 	    	this.controlMode = controlMode;
@@ -135,7 +130,7 @@ public class MainActivity extends Activity{
 
 	private void loadDefaults(){
     	setConnectionStatus(ConnectionStatus.DISCONNECTED);
-    	controlMode = ControlModes.TOUCHPAD_MODE;
+    	setControlMode(ControlModes.TOUCHPAD_MODE);
     	nxtDeviceAddress = null;
     	nxtDeviceName = null;
     	deviceNameLabel.setText(getResources().getString(R.string.selectDevice));
@@ -206,6 +201,7 @@ public class MainActivity extends Activity{
 		    	registerController();
 		    	connectButton.setVisibility(View.GONE);
 		    	disconnectButton.setVisibility(View.VISIBLE);
+    			wakeLock.acquire();
 	    	}
     	}catch(Exception e){
     		setConnectionStatus(ConnectionStatus.CONNECTION_FAILED);
@@ -225,6 +221,8 @@ public class MainActivity extends Activity{
 			}
 	    	connectButton.setVisibility(View.VISIBLE);
 	    	disconnectButton.setVisibility(View.GONE);
+   			if(wakeLock.isHeld())
+				wakeLock.release();
     	}catch(Exception e){
     		Log.e(TAG,"disconnectNXT error",e);
     	}
@@ -361,7 +359,9 @@ public class MainActivity extends Activity{
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-    	
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     	if(bluetoothAdapter == null){
     		String msg = errors[ErrorCodes.BLUETOOTH_NOT_FOUND];
@@ -381,7 +381,7 @@ public class MainActivity extends Activity{
     		turnOnBluetooth();
     	
     	setUpComponents();
-    	
+    	registerController();
     	Log.d(TAG,"loading prev: "+savedInstanceState);
     	
     	if(savedInstanceState == null){
