@@ -8,6 +8,7 @@ import nxtcontroller.enums.Keys;
 import nxtcontroller.enums.TypeOfMessage;
 import nxtcontroller.program.ControlPad;
 import nxtcontroller.program.NXTCommunicator;
+import nxtcontroller.program.NXTDevice;
 import nxtcontroller.program.R;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -51,7 +52,7 @@ public class MainActivity extends Activity{
     private int controlMode;
     private NXTCommunicator nxtCommunicator;
     private ControlPad controlPad;
-    private String nxtDeviceName,nxtDeviceAddress;
+    private NXTDevice nxtDevice = null;
   
     
     /* The Handler that gets information back from NXTCommunicator */
@@ -82,13 +83,17 @@ public class MainActivity extends Activity{
     
     /* Getters and Setter declaration */
     
-    public void setConnectionStatus(int connectionStatus) {
+    public  void setConnectionStatus(int connectionStatus) {
     	switch(connectionStatus){
     		case ConnectionStatus.CONNECTED:
     			statusLabel.setTextColor(Color.GREEN);
+		    	registerController();
+    			wakeLock.acquire();
     		break;
     		case ConnectionStatus.DISCONNECTED:
     			statusLabel.setTextColor(Color.BLACK);
+       			if(wakeLock.isHeld())
+    				wakeLock.release();
     		break;
     		case ConnectionStatus.CONNECTING:
     			statusLabel.setTextColor(Color.YELLOW);
@@ -98,24 +103,33 @@ public class MainActivity extends Activity{
     			disconnectNXT();
     			Toast.makeText(getApplicationContext(), infos[InfoCodes.CONNECTION_FAILED_HINT],Toast.LENGTH_LONG).show();
     		break;
-    		case ConnectionStatus.READY_TO_CONNECT:
-    			statusLabel.setTextColor(Color.YELLOW);
+    		case ConnectionStatus.CONNECTION_LOST:
+    			statusLabel.setTextColor(Color.RED);
+    			Toast.makeText(getApplicationContext(), infos[InfoCodes.CONNECTION_LOST_HINT],Toast.LENGTH_LONG).show();
     		break;
     	}
     	statusLabel.setText(connectionStatuses[connectionStatus]);
 		this.connectionStatus = connectionStatus;
 	}
     
-    public void setControlMode(int controlMode) {
+    public synchronized int getConnectionStatus() {
+		return connectionStatus;
+	}
+
+	public void setControlMode(int controlMode) {
     	try{
 	    	switch (controlMode) {
 			case ControlModes.TOUCHPAD_MODE:
-				controlPad.turnOffTiltControl();
-				controlPad.turnOnTouchControl();
+				if(getConnectionStatus() == ConnectionStatus.CONNECTED){
+					controlPad.turnOffTiltControl();
+					controlPad.turnOnTouchControl();
+				}
 				break;
 			case ControlModes.TILT_MODE:
-				controlPad.turnOffTouchControl();
-				controlPad.turnOnTiltControl();
+				if(getConnectionStatus() == ConnectionStatus.CONNECTED){
+					controlPad.turnOffTouchControl();
+					controlPad.turnOnTiltControl();
+				}
 				break;
 			}
 	    	this.controlMode = controlMode;
@@ -124,41 +138,41 @@ public class MainActivity extends Activity{
     		Log.e(TAG,"set control error",e);
     	}
 	}
+    
+	public NXTDevice getNxtDevice() {
+		return nxtDevice;
+	}
 
+	public void setNxtDevice(NXTDevice nxtDevice) {
+		this.nxtDevice = nxtDevice;
+		deviceNameLabel.setText(nxtDevice.toString());
+	}
     
 	/* Methods and Constructors declaration */
-
 	private void loadDefaults(){
     	setConnectionStatus(ConnectionStatus.DISCONNECTED);
     	setControlMode(ControlModes.TOUCHPAD_MODE);
-    	nxtDeviceAddress = null;
-    	nxtDeviceName = null;
+    	nxtDevice = null;
     	deviceNameLabel.setText(getResources().getString(R.string.selectDevice));
        	connectButton.setVisibility(View.VISIBLE);
     	disconnectButton.setVisibility(View.GONE);
-    	refreshUI();
-    }
-
-    private void refreshUI(){
-    	if(nxtDeviceName==null || nxtDeviceAddress == null){
-    		deviceNameLabel.setText(getResources().getString(R.string.selectDevice));
-    	}else{
-    		deviceNameLabel.setText(nxtDeviceName+"@"+nxtDeviceAddress);
-    	}
-    	controlModeLabel.setText(controlModes[controlMode]);
     }
     
     private void gettingResources(){
-    	Resources res = getResources();
-    	errors = res.getStringArray(R.array.errorsMsg);
-    	infos = res.getStringArray(R.array.infoMsg);
-    	connectionStatuses = res.getStringArray(R.array.connectionStatues);
-    	controlModes = res.getStringArray(R.array.controlModes);
+    	try{
+    		Resources res = getResources();
+    		errors = res.getStringArray(R.array.errorsMsg);
+    		infos = res.getStringArray(R.array.infoMsg);
+    		connectionStatuses = res.getStringArray(R.array.connectionStatues);
+    		controlModes = res.getStringArray(R.array.controlModes);
+    	}catch(Exception e){
+    		Log.e(TAG,"resources error: ",e);
+    	}
     }
 
 	private void setUpComponents(){
 		try{
-			nxtCommunicator = new NXTCommunicator(messageHandler);
+			nxtCommunicator = new NXTCommunicator(messageHandler,this);
 	        statusLabel = (TextView) findViewById(R.id.statusLabel);
 	        deviceNameLabel = (TextView) findViewById(R.id.deviceName);
 	        controlModeLabel = (TextView) findViewById(R.id.controlModeLabel);
@@ -176,11 +190,7 @@ public class MainActivity extends Activity{
     	try{
             connectButton.setOnClickListener(new View.OnClickListener()  {
                 public void onClick(View v) {
-	                if(connectionStatus == ConnectionStatus.READY_TO_CONNECT){
-	                	connectNXT();
-	                }else{
-	                	startChooseDeviceActivity();
-	                }	
+	                startChooseDeviceActivity();
                 }
             });
             disconnectButton.setOnClickListener(new View.OnClickListener()  {
@@ -195,34 +205,27 @@ public class MainActivity extends Activity{
     
     private void connectNXT(){
     	try{
-	    	synchronized (nxtCommunicator) {
-		        BluetoothDevice remoteDevice = bluetoothAdapter.getRemoteDevice(nxtDeviceAddress);
-		        nxtCommunicator.connectToNXT(remoteDevice);
-		    	registerController();
-		    	connectButton.setVisibility(View.GONE);
-		    	disconnectButton.setVisibility(View.VISIBLE);
-    			wakeLock.acquire();
-	    	}
+		     BluetoothDevice remoteDevice = bluetoothAdapter.getRemoteDevice(nxtDevice.getAddress());
+		     nxtCommunicator.connectToNXT(remoteDevice);
+		     setConnectionStatus(ConnectionStatus.CONNECTING);
+		     connectButton.setVisibility(View.GONE);
+		    disconnectButton.setVisibility(View.VISIBLE);
     	}catch(Exception e){
     		setConnectionStatus(ConnectionStatus.CONNECTION_FAILED);
-    		disconnectNXT();
     		Log.e(TAG,"connectNXT error",e);
     	}
     }
     
     private void disconnectNXT(){
     	try{
-	    	unregisterController();
-	    	synchronized (nxtCommunicator) {
-	    		if(nxtCommunicator != null){
-	    			nxtCommunicator.disconnectFromNXT();	
-	    			
-	    		}
+	    	if(nxtCommunicator != null){
+	    		nxtCommunicator.stopMove();
+	    		nxtCommunicator.disconnectFromNXT();	
 			}
+    		Log.d(TAG,"disconnecting:"+getNxtDevice());
+    		unregisterController();
 	    	connectButton.setVisibility(View.VISIBLE);
 	    	disconnectButton.setVisibility(View.GONE);
-   			if(wakeLock.isHeld())
-				wakeLock.release();
     	}catch(Exception e){
     		Log.e(TAG,"disconnectNXT error",e);
     	}
@@ -291,13 +294,10 @@ public class MainActivity extends Activity{
 	            if (resultCode == Activity.RESULT_OK) {
 	            	String deviceName = data.getExtras().getString(Keys.DEVICE_NAME);
 	                String deviceAddress = data.getExtras().getString(Keys.DEVICE_ADDRESS);
-	            	this.nxtDeviceAddress = deviceAddress;
-	            	this.nxtDeviceName = deviceName;
-	            	refreshUI();
-	            	setConnectionStatus(ConnectionStatus.READY_TO_CONNECT);
+	                setNxtDevice(new NXTDevice(deviceName,deviceAddress));
 	            	connectNXT();
 	            }
-	            break;
+	        break;
 	    	case REQUEST_ENABLE_BT:
 	    		if(resultCode == Activity.RESULT_OK){
 	    			String msg = infos[InfoCodes.BLUETOOTH_ACTIVATED];
@@ -312,10 +312,11 @@ public class MainActivity extends Activity{
     
     private void loadPreviousState(Bundle savedInstanceState){
     	this.connectionStatus = savedInstanceState.getInt(Keys.CONNECTION_STATUS);
-    	this.controlMode = savedInstanceState.getInt(Keys.CONTROL_MODE);
-    	this.nxtDeviceName = savedInstanceState.getString(Keys.DEVICE_NAME);
-    	this.nxtDeviceAddress = savedInstanceState.getString(Keys.DEVICE_ADDRESS);
-    	refreshUI();
+    	setControlMode(savedInstanceState.getInt(Keys.CONTROL_MODE));
+    	NXTDevice temp = new NXTDevice();
+    	temp.setName(savedInstanceState.getString(Keys.DEVICE_NAME));
+    	temp.setAddress(savedInstanceState.getString(Keys.DEVICE_ADDRESS));
+    	setNxtDevice(temp);
     }
     
 	@Override
@@ -351,8 +352,10 @@ public class MainActivity extends Activity{
         super.onSaveInstanceState(savedInstanceState);
         savedInstanceState.putInt(Keys.CONNECTION_STATUS, this.connectionStatus);
         savedInstanceState.putInt(Keys.CONTROL_MODE, this.controlMode);
-        savedInstanceState.putString(Keys.DEVICE_NAME, this.nxtDeviceName);
-        savedInstanceState.putString(Keys.DEVICE_ADDRESS, this.nxtDeviceAddress);
+        if(nxtDevice != null){
+        	savedInstanceState.putString(Keys.DEVICE_NAME, nxtDevice.getName());
+        	savedInstanceState.putString(Keys.DEVICE_ADDRESS, nxtDevice.getAddress());
+        }
         Log.d(TAG,"saving state: "+savedInstanceState);
     }
 	
@@ -381,22 +384,19 @@ public class MainActivity extends Activity{
     		turnOnBluetooth();
     	
     	setUpComponents();
-    	registerController();
-    	Log.d(TAG,"loading prev: "+savedInstanceState);
-    	
+
     	if(savedInstanceState == null){
     		loadDefaults();
     	}else{
     		loadPreviousState(savedInstanceState);
+        	Log.d(TAG,"loading previous state: "+savedInstanceState);
     	}
     	
-    	Log.d(TAG,"cstatus: "+this.connectionStatus);
     	if(this.connectionStatus == ConnectionStatus.CONNECTED){
     		connectNXT();
     	}else{
     		setConnectionStatus(connectionStatus);
     	}
-    	
     	
     }
 }

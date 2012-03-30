@@ -34,8 +34,8 @@ public class NXTCommunicator {
 	/* private class properties declaration */
 	private ConnectThread mConnectThread;
     private ConnectedThread mConnectedThread;
-	private int state;
     private Handler messageHandler;
+    private MainActivity mainActivity;
     private BluetoothDevice NXTdevice = null;
     //index of motors HINT:A:0,B:1,C:2
     private byte leftMotor = 0;
@@ -47,11 +47,14 @@ public class NXTCommunicator {
 	/* Getters and Setter declaration */
     
 	public synchronized void setState(int state) {
-		this.state = state;
 		messageHandler.obtainMessage(TypeOfMessage.CONNECTION_STATUS, state).sendToTarget();
 	}
+
+	public synchronized int getState(){
+		return  mainActivity.getConnectionStatus();
+	}
 	
-	public synchronized byte getLeftMotor() {
+	public byte getLeftMotor() {
 		return leftMotor;
 	}
 
@@ -61,7 +64,7 @@ public class NXTCommunicator {
 		this.leftMotor = leftMotor;
 	}
 
-	public synchronized byte getRightMotor() {
+	public byte getRightMotor() {
 		return rightMotor;
 	}
 
@@ -71,7 +74,7 @@ public class NXTCommunicator {
 		this.rightMotor = rightMotor;
 	}
 
-	public synchronized byte getThirdMotor() {
+	public byte getThirdMotor() {
 		return thirdMotor;
 	}
 
@@ -81,9 +84,6 @@ public class NXTCommunicator {
 		this.thirdMotor = thirdMotor;
 	}
 
-	public synchronized int getState(){
-		return  this.state;
-	}
 	
 	/* Methods and Constructors declaration */
 	
@@ -96,10 +96,9 @@ public class NXTCommunicator {
 		return temp+"]";
 	}
 	
-	public NXTCommunicator(Handler handler){
+	public NXTCommunicator(Handler handler, MainActivity mainActivity){
 		this.messageHandler = handler;
-		setState(ConnectionStatus.DISCONNECTED);
-		disconnectFromNXT();
+		this.mainActivity = mainActivity;
 	}
 	
 	/**
@@ -108,17 +107,22 @@ public class NXTCommunicator {
 	 * @param remoteDevice - BT device NXT which you want to connect 
 	 */
 	public synchronized void connectToNXT(BluetoothDevice remoteDevice){
-		if(this.getState() != ConnectionStatus.DISCONNECTED)
-			return;
+        if (getState() == ConnectionStatus.CONNECTING) {
+            if (mConnectThread != null){
+            	mConnectThread.cancel(); 
+            	mConnectThread = null;
+            	}
+        }
+        if (mConnectedThread != null){
+        		mConnectedThread.cancel(); 
+        		mConnectedThread = null;
+        }
 		this.NXTdevice = remoteDevice;
 		mConnectThread = new ConnectThread(this.NXTdevice);
 		mConnectThread.start();
-		setState(ConnectionStatus.CONNECTING);
 	}
 	
 	public synchronized void disconnectFromNXT(){
-		stopMove();
-		setState(ConnectionStatus.DISCONNECTED);
         if (mConnectThread != null) {
         	mConnectThread.cancel(); 
         	mConnectThread = null;
@@ -127,7 +131,7 @@ public class NXTCommunicator {
         	mConnectedThread.cancel();
         	mConnectedThread = null;
         }
-       
+        setState(ConnectionStatus.DISCONNECTED);
 	}
 	
 	/**
@@ -136,13 +140,13 @@ public class NXTCommunicator {
      * @param device  The BluetoothDevice that has been connected
      */
     public synchronized void connectToSocket(BluetoothSocket socket, BluetoothDevice device) {
-        if (mConnectThread != null) {
+        if (mConnectThread != null){
         	mConnectThread.cancel(); 
         	mConnectThread = null;
         }
-        if (mConnectedThread != null) {
-        	mConnectedThread.cancel();
-        	mConnectedThread = null;
+        if (mConnectedThread != null){
+    		mConnectedThread.cancel(); 
+    		mConnectedThread = null;
         }
 
         Log.d(MainActivity.TAG,"starting connecting to device");
@@ -242,16 +246,17 @@ public class NXTCommunicator {
      */
     private synchronized void connectionLost() {
         // Start the service over to restart listening mode
-    	if(this.NXTdevice != null){
-    		if(getState() != ConnectionStatus.DISCONNECTED)
-    			NXTCommunicator.this.connectToNXT(this.NXTdevice);
-    	}
+        if(getState() == ConnectionStatus.DISCONNECTED) return;
+    	setState(ConnectionStatus.CONNECTION_LOST);
+    	
+		if(NXTdevice != null)
+    		this.connectToNXT(NXTdevice);
     }
     
     /**
      * Indicate that the connection attempt failed and notify the UI Activity.
      */
-    private void connectionFailed() {
+    private synchronized void connectionFailed() {
         setState(ConnectionStatus.CONNECTION_FAILED);
     }
 	
@@ -279,8 +284,9 @@ public class NXTCommunicator {
         
         @Override
         public void run() {
-            setName("ConnectThread");
+        	setName("ConnectThread");
             Log.d(MainActivity.TAG,"running connected thread");
+            
             
             try {
                 mmSocket.connect();
@@ -301,8 +307,9 @@ public class NXTCommunicator {
             synchronized (NXTCommunicator.this) {
                 mConnectThread = null;
             }
-            
+           
             connectToSocket(mmSocket, mmDevice);
+
         }
         
         public void cancel() {
@@ -354,7 +361,7 @@ public class NXTCommunicator {
                     Log.d(MainActivity.TAG, "listening: "+"bytes: "+bytes+" buffer: "+bytesToString(buffer));
                 } catch (Exception e) {
                     Log.d(MainActivity.TAG, "disconnected");
-                    connectionLost();
+                    // TODO connectionLost();
                     break;
                 }
             }

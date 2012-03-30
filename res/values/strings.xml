@@ -20,13 +20,14 @@
     <string-array name="infoMsg">
         <item >BlueTooth successfully activated. Now you can connect your NXT robot by clicking on the "Connect NXT"</item>
         <item >Please check if your NXT device is turned on or is it in range.</item>  
+        <item >Connection Lost try reconnecting...</item>  
     </string-array>
     <string-array name="connectionStatues">
         <item >Disconnected</item>
         <item >Connected to:</item>
         <item >Connecting to:</item>
         <item >Connection Failed</item>
-        <item >Ready to Connect</item>
+        <item >Connection Lost</item>
     </string-array> 
     <string-array name="controlModes">
       <item>Touch Mode</item>
