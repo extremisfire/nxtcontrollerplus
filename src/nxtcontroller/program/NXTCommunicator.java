@@ -41,6 +41,7 @@ public class NXTCommunicator {
     private byte leftMotor = 0;
     private byte rightMotor = 1;
     private byte thirdMotor = 2;
+    private SensorManager sensorManager;
     
     /* public class properties declaration */
     
@@ -87,7 +88,7 @@ public class NXTCommunicator {
 	
 	/* Methods and Constructors declaration */
 	
-	public String bytesToString(byte[] bytes){
+	public static String bytesToString(byte[] bytes){
 		String temp="[";
 		for(Byte b:bytes){
 			temp+=Byte.toString(b);
@@ -96,9 +97,24 @@ public class NXTCommunicator {
 		return temp+"]";
 	}
 	
+	public static String decodeByteMessage(byte[] bytes){
+		String temp="MSGSTART\n";
+		temp += "Length: "+Byte.toString(bytes[0])+"\n";
+		temp += "Len(MSB): "+Byte.toString(bytes[1])+"\n";
+		for(int i=2; i < bytes[0]+2;i++){
+			temp += "Byte: "+(i-2)+": "+Byte.toString(bytes[i])+"\n";				
+		}
+		int mV = 0;
+		mV = bytes[5]+(bytes[6] << 8);
+		temp += "mV: "+Integer.toString(mV);
+		temp += " | "+Float.toString(((float)mV/(float)7400)*100)+"%\n";
+		return temp+"MSGEND\n";
+	}
+	
 	public NXTCommunicator(Handler handler, MainActivity mainActivity){
 		this.messageHandler = handler;
 		this.mainActivity = mainActivity;
+		this.sensorManager = new SensorManager(handler, this);
 	}
 	
 	/**
@@ -131,6 +147,12 @@ public class NXTCommunicator {
         	mConnectedThread.cancel();
         	mConnectedThread = null;
         }
+        try{
+        	sensorManager.setRunning(false);
+        	sensorManager.join();
+        }catch(Exception e){
+        	Log.e(MainActivity.TAG,"stop sensor man",e);
+        }
         setState(ConnectionStatus.DISCONNECTED);
 	}
 	
@@ -154,6 +176,7 @@ public class NXTCommunicator {
         mConnectedThread.start();
         
 		setState(ConnectionStatus.CONNECTED);
+		sensorManager.start();
     }
 
     
@@ -194,13 +217,7 @@ public class NXTCommunicator {
     
     /**
      * generate a byte array command for NXT
-     * @param indexOfMotor - index of motor1 HINT:A:0,B:1,C:2
-     * @param motorSpeed - speed of second motor range:[-100-100]
-     * @return generated array of bytes, see protocol
-     */
-    public byte[] generateMoveMotorCommand(byte indexOfMotor, byte motorSpeed) {
-        /*
-		 * first see Communication protocol above
+     * first see Communication protocol above
     	 * Command name:  SETOUTPUTSTATE (in data[2..13])
     	 * Byte 0: 0x80 means direct command telegram, no response required
     	 * Byte 1: 0x04
@@ -211,7 +228,12 @@ public class NXTCommunicator {
     	 * Byte 6: Turn ratio (SBYTE;-100 to 100)
     	 * Byte 7: RunState (UBYTE;enumerated)
     	 * Byte 8-12: TachoLmit (ULONG;0:run forever) in ms (how long may be turned on motors)
-    	*/
+     * @param indexOfMotor - index of motor1 HINT:A:0,B:1,C:2
+     * @param motorSpeed - speed of second motor range:[-100-100]
+     * @return generated array of bytes, see protocol
+     */
+    public byte[] generateMoveMotorCommand(byte indexOfMotor, byte motorSpeed) {
+    	
     	byte[] data = { 0x0c, 0x00, (byte) 0x80, 0x04, 0x00, 0x00, 0x07, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x00 };
     	
         data[4] = indexOfMotor; // motors: A:0,B:1,C:2
@@ -351,14 +373,15 @@ public class NXTCommunicator {
         @Override
         public void run() {
             Log.d(MainActivity.TAG, "run listening");
-            byte[] buffer = new byte[1024];
+            byte[] buffer = new byte[2+64];
             int bytes;
             // Keep listening to the InputStream while connected
             while (true) {
                 try {
                     // Read from the InputStream
                     bytes = mmInStream.read(buffer);
-                    Log.d(MainActivity.TAG, "listening: "+"bytes: "+bytes+" buffer: "+bytesToString(buffer));
+                    Log.d(MainActivity.TAG, "["+bytes+"]"+bytesToString(buffer));
+                    Log.d(MainActivity.TAG, decodeByteMessage(buffer));
                 } catch (Exception e) {
                     Log.d(MainActivity.TAG, "disconnected");
                     // TODO connectionLost();
