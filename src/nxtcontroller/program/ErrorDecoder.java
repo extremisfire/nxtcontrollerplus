@@ -2,6 +2,11 @@ package nxtcontroller.program;
 
 import java.util.HashMap;
 
+/**
+ * this class decodes byte coded error 
+ * from NXT to its String human-readable representation
+ * @author Lukas Dilik
+ */
 public class ErrorDecoder {
 	
 	private  HashMap<Byte,String> errorCodes;

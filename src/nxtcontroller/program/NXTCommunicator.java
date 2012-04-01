@@ -105,9 +105,12 @@ public class NXTCommunicator {
 			temp += "Byte: "+(i-2)+": "+Byte.toString(bytes[i])+"\n";				
 		}
 		int mV = 0;
-		mV = bytes[5]+(bytes[6] << 8);
+		byte[] b = new byte[2];
+		b[0] = bytes[5];
+		b[1] = bytes[6];
+		mV = Converter.fromBytes(b);
 		temp += "mV: "+Integer.toString(mV);
-		temp += " | "+Float.toString(((float)mV/(float)7400)*100)+"%\n";
+		temp += " | "+Float.toString(((float)mV/(float)SensorManager.maxVoltage)*100)+"%\n";
 		return temp+"MSGEND\n";
 	}
 	
