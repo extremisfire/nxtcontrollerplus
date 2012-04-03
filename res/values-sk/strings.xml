@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="app_name">NXT Controller Plus</string>
-    <string name="connectNXT">Pripoj NXT</string>
-    <string name="disconnectNXT">Odpoj NXT</string>
-</resources>
