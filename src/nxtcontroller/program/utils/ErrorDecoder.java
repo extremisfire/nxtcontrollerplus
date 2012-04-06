@@ -1,4 +1,4 @@
-package nxtcontroller.program;
+package nxtcontroller.program.utils;
 
 import java.util.HashMap;
 
@@ -13,7 +13,7 @@ public class ErrorDecoder {
 	
 	public ErrorDecoder(){
 		errorCodes = new HashMap<Byte,String>();
-		errorCodes.put((byte)0x00, "no error");
+		errorCodes.put((byte)0x00, "OK");
 		errorCodes.put((byte)0x20, "pending communication transaction in progress");
 		errorCodes.put((byte)0x40, "specified mailbox queue is empty");
 		errorCodes.put((byte)0xBD, "request failed (i.e specified file not found)");

@@ -120,12 +120,12 @@ public class ControlPad extends View implements SensorEventListener{
         controlPoint.setOneDegree(oneDegree);
     }
     
-    @Override
+    
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
     	
 	}
 
-    @Override
+    
 	public void onSensorChanged(SensorEvent event) {
         
 		final float[] vals = event.values; 
@@ -177,7 +177,7 @@ public class ControlPad extends View implements SensorEventListener{
 
     
 	public OnTouchListener TouchPadControlOnTouchListener = new OnTouchListener() {
-		@Override
+		
 		public boolean onTouch(View v, MotionEvent event) {
             int action = event.getAction();
             int x = (int) event.getX();

@@ -7,6 +7,11 @@ import java.util.UUID;
 import nxtcontroller.activity.MainActivity;
 import nxtcontroller.enums.ConnectionStatus;
 import nxtcontroller.enums.TypeOfMessage;
+import nxtcontroller.enums.nxtbuiltin.CommandType;
+import nxtcontroller.program.btmessages.commands.SetOutputState;
+import nxtcontroller.program.btmessages.returnpackages.GetBatteryLevelReturnPackage;
+import nxtcontroller.program.btmessages.returnpackages.ReturnPackage;
+import nxtcontroller.program.utils.Converter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.os.Handler;
@@ -18,18 +23,12 @@ import android.util.Log;
  * send to commands to NXT 
  * receive messages from NXT
  * change connection statutes in UI activity
- * BlueTooth Messages for NXT protocol: 
- * 0.byte - command length LSB, !the length of the packages is counted without two length bytes
- * 1.byte - command length MSB
- * 2.byte - command type, 
- * 3.byte-(command.length-1) - command 
-  * @author Lukas Dilik
- *
- */
+*/
 public class NXTCommunicator {
 	
 	/* declaration constant values */
 	public static final String MyUUID = "00001101-0000-1000-8000-00805F9B34FB";
+	private static final int MAX_LENGHT_OF_BT_MESSAGE = 64+2;
 	
 	/* private class properties declaration */
 	private ConnectThread mConnectThread;
@@ -88,36 +87,29 @@ public class NXTCommunicator {
 	
 	/* Methods and Constructors declaration */
 	
-	public static String bytesToString(byte[] bytes){
-		String temp="[";
-		for(Byte b:bytes){
-			temp+=Byte.toString(b);
-			temp+=", ";
-		}
-		return temp+"]";
-	}
+	public void handleReturnPackages(byte[] bytes){
+		try{
+			ReturnPackage pack = new ReturnPackage(bytes);
+			switch (pack.getType()) {
+			case CommandType.GET_BATTERY_LEVEL:
+				GetBatteryLevelReturnPackage temp = new GetBatteryLevelReturnPackage(bytes);
+				Log.d(MainActivity.TAG,temp.toString());
+				messageHandler.obtainMessage(TypeOfMessage.BATTERY_LEVEL,(int)temp.getBatteryLevel()).sendToTarget();
+				break;
 	
-	public static String decodeByteMessage(byte[] bytes){
-		String temp="MSGSTART\n";
-		temp += "Length: "+Byte.toString(bytes[0])+"\n";
-		temp += "Len(MSB): "+Byte.toString(bytes[1])+"\n";
-		for(int i=2; i < bytes[0]+2;i++){
-			temp += "Byte: "+(i-2)+": "+Byte.toString(bytes[i])+"\n";				
+			default:
+				break;
+			}
+			Log.d(MainActivity.TAG,"read:"+Converter.bytesToString(bytes));
+		}catch(Exception e){
+			Log.e(MainActivity.TAG,"handle return msgs",e);
 		}
-		int mV = 0;
-		byte[] b = new byte[2];
-		b[0] = bytes[5];
-		b[1] = bytes[6];
-		mV = Converter.fromBytes(b);
-		temp += "mV: "+Integer.toString(mV);
-		temp += " | "+Float.toString(((float)mV/(float)SensorManager.maxVoltage)*100)+"%\n";
-		return temp+"MSGEND\n";
 	}
 	
 	public NXTCommunicator(Handler handler, MainActivity mainActivity){
 		this.messageHandler = handler;
 		this.mainActivity = mainActivity;
-		this.sensorManager = new SensorManager(handler, this);
+		this.sensorManager = new SensorManager(this);
 	}
 	
 	/**
@@ -204,9 +196,7 @@ public class NXTCommunicator {
     }
     
     /**
-     * send a command array of bytes via BT to NXT to move 3 motors
-     * @param leftMotorSpeed - speed of  motor range:[-100-100]
-     * @param rightMotorSpeed - speed of motor range:[-100-100]
+     * send a command array of bytes via BT to NXT to move 3. motor
      * @param thirdMotorSpeed - speed of motor range:[-100-100]
      */
     public void move3Motor( byte thirdMotorSpeed) {
@@ -217,32 +207,13 @@ public class NXTCommunicator {
         else
         	Log.d(MainActivity.TAG,"mConnectedThread is NULL");
     }
-    
-    /**
-     * generate a byte array command for NXT
-     * first see Communication protocol above
-    	 * Command name:  SETOUTPUTSTATE (in data[2..13])
-    	 * Byte 0: 0x80 means direct command telegram, no response required
-    	 * Byte 1: 0x04
-    	 * Byte 2: Output port (range 0-2;0xFF is special value meaning 'all' for simple control purposes)
-    	 * Byte 3: Power set point alias SPEED (range:-100 to 100) negative sing means counter-clockwise
-    	 * Byte 4: Mode byte (bit-field)
-    	 * Byte 5: Regulation mode (UBYTE;enumerated)
-    	 * Byte 6: Turn ratio (SBYTE;-100 to 100)
-    	 * Byte 7: RunState (UBYTE;enumerated)
-    	 * Byte 8-12: TachoLmit (ULONG;0:run forever) in ms (how long may be turned on motors)
-     * @param indexOfMotor - index of motor1 HINT:A:0,B:1,C:2
-     * @param motorSpeed - speed of second motor range:[-100-100]
-     * @return generated array of bytes, see protocol
-     */
+
     public byte[] generateMoveMotorCommand(byte indexOfMotor, byte motorSpeed) {
+    	SetOutputState command = new SetOutputState();
+    	command.setOutputPort(indexOfMotor);
+    	command.setPower(motorSpeed);
     	
-    	byte[] data = { 0x0c, 0x00, (byte) 0x80, 0x04, 0x00, 0x00, 0x07, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x00 };
-    	
-        data[4] = indexOfMotor; // motors: A:0,B:1,C:2
-        data[5] = motorSpeed; //speed [-100-100]
-   
-        return data;
+        return command.getBytes();
     }
     
     public void stopMove() {
@@ -269,7 +240,8 @@ public class NXTCommunicator {
     /**
      * Indicate that the connection was lost and notify the UI Activity.
      */
-    private synchronized void connectionLost() {
+    @SuppressWarnings("unused")
+	private synchronized void connectionLost() {
         // Start the service over to restart listening mode
         if(getState() == ConnectionStatus.DISCONNECTED) return;
     	setState(ConnectionStatus.CONNECTION_LOST);
@@ -376,17 +348,18 @@ public class NXTCommunicator {
         @Override
         public void run() {
             Log.d(MainActivity.TAG, "run listening");
-            byte[] buffer = new byte[2+64];
+            byte[] buffer = new byte[MAX_LENGHT_OF_BT_MESSAGE];
             int bytes;
             // Keep listening to the InputStream while connected
             while (true) {
                 try {
                     // Read from the InputStream
                     bytes = mmInStream.read(buffer);
-                    Log.d(MainActivity.TAG, "["+bytes+"]"+bytesToString(buffer));
-                    Log.d(MainActivity.TAG, decodeByteMessage(buffer));
+                    Log.d(MainActivity.TAG,"readed: " + bytes + " bytes");
+                    handleReturnPackages(buffer);
+                    
                 } catch (Exception e) {
-                    Log.d(MainActivity.TAG, "disconnected");
+                    Log.e(MainActivity.TAG, "listenning error",e);
                     // TODO connectionLost();
                     break;
                 }
@@ -400,7 +373,7 @@ public class NXTCommunicator {
         public void write(byte[] buffer) {
             try {
                 mmOutStream.write(buffer);
-                Log.d(MainActivity.TAG, "sending to device: "+ bytesToString(buffer));
+                Log.d(MainActivity.TAG, "sending to device: "+ Converter.bytesToString(buffer));
             } catch (IOException e) {
                 Log.d(MainActivity.TAG, "Exception during write", e);
             }

@@ -44,7 +44,7 @@ public class MainActivity extends Activity{
     private PowerManager powerManager;
     private PowerManager.WakeLock wakeLock;
     
-    private TextView statusLabel,deviceNameLabel,controlModeLabel; 
+    private TextView statusLabel,deviceNameLabel,controlModeLabel,batteryLevelLabel; 
     private Button connectButton,disconnectButton;
     private String[] errors,infos,connectionStatuses,controlModes; //message arrays
     
@@ -72,6 +72,11 @@ public class MainActivity extends Activity{
             	break;
             	case(TypeOfMessage.CONNECTION_STATUS):
             		setConnectionStatus((Integer) msg.obj);
+            	break;
+            	case(TypeOfMessage.BATTERY_LEVEL):
+            		String temp = getResources().getString(R.string.batteryLevel);
+            		temp += " " + msg.obj.toString() + " %";
+            		batteryLevelLabel.setText(temp);
             	break;
             }
         	}catch (Exception e){
@@ -173,6 +178,7 @@ public class MainActivity extends Activity{
 	private void setUpComponents(){
 		try{
 			nxtCommunicator = new NXTCommunicator(messageHandler,this);
+			batteryLevelLabel = (TextView) findViewById(R.id.batteryLevelLable);
 	        statusLabel = (TextView) findViewById(R.id.statusLabel);
 	        deviceNameLabel = (TextView) findViewById(R.id.deviceName);
 	        controlModeLabel = (TextView) findViewById(R.id.controlModeLabel);

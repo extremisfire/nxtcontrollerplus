@@ -67,7 +67,7 @@ public class BluetoothDeviceManagerActivity extends ExpandableListActivity{
      * in expandable list where devices are shown
      */
     private OnChildClickListener myOnChildClickListener = new OnChildClickListener() {
-		@Override
+		
 		public boolean onChildClick(ExpandableListView parent, View v,int groupPosition, int childPosition, long id) {
            
 			if(bluetoothAdapter.isDiscovering())
@@ -91,7 +91,7 @@ public class BluetoothDeviceManagerActivity extends ExpandableListActivity{
      * when click on group "scan for new devices" scanning begin 
      */
     private OnGroupClickListener myOnGroupClickListener = new OnGroupClickListener(){
-		@Override
+		
 		public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
 			try{
 				Map<String,String> temp = groupData.get(groupPosition);

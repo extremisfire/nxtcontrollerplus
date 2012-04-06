@@ -1,14 +1,12 @@
 package nxtcontroller.program;
 
 import nxtcontroller.activity.MainActivity;
-import android.os.Handler;
+import nxtcontroller.program.btmessages.commands.GetBatteryLevel;
 import android.util.Log;
 
 public class SensorManager extends Thread{
 	
-	public static final int maxVoltage = 8200; // full battery volatage in mV
 	private NXTCommunicator nxtCommunicator;
-	private Handler messageHandler;
 	private boolean isRunning;
 	
 	
@@ -21,13 +19,12 @@ public class SensorManager extends Thread{
 	}
 
 	private void getBatteryLevel(){
-		byte[] command = { 0x02, 0x00, 0x00, 0x0B };
-		nxtCommunicator.write(command);
-		Log.d(MainActivity.TAG,"battery level get: "+NXTCommunicator.bytesToString(command));
+		GetBatteryLevel gb = new GetBatteryLevel();
+		nxtCommunicator.write(gb.getBytes());
+		Log.d(MainActivity.TAG, gb.toString());
 	}
 	
-	public SensorManager(Handler messageHandler, NXTCommunicator nxtCommunicator){
-		this.messageHandler = messageHandler;
+	public SensorManager(NXTCommunicator nxtCommunicator){
 		this.nxtCommunicator = nxtCommunicator;
 		isRunning = false;
 	}
