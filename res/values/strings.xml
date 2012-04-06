@@ -20,7 +20,7 @@
     <string-array name="infoMsg">
         <item >BlueTooth successfully activated. Now you can connect your NXT robot by clicking on the "Connect NXT"</item>
         <item >Please check if your NXT device is turned on or is it in range.</item>  
-        <item >Connection Lost try reconnecting...</item>  
+        <item >Connection Lost try reconnecting</item>  
     </string-array>
     <string-array name="connectionStatues">
         <item >Disconnected</item>
@@ -37,4 +37,6 @@
     <color name="textBlack">#000</color>
     <color name="deepBlue">#00008b</color>
     <color name="bgColor">#808080</color>
+    <string name="batteryLevel">Battery:</string>
+    <color name="white">#fff</color>
 </resources>

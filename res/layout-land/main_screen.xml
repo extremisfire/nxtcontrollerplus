@@ -16,6 +16,15 @@
         android1:layout_gravity="left"
         android1:layout_weight="1"
         android1:orientation="vertical" >
+
+        <TextView
+            android1:id="@+id/batteryLevelLable"
+            android1:layout_width="wrap_content"
+            android1:layout_height="wrap_content"
+            android1:text="@string/batteryLevel"
+            android1:textAppearance="?android:attr/textAppearanceMedium"
+            android1:textColor="@color/white" android1:padding="3dp"/>
+
     </LinearLayout>
 
     <LinearLayout
