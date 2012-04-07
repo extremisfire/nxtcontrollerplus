@@ -97,7 +97,8 @@ public class MainActivity extends Activity{
     		break;
     		case ConnectionStatus.DISCONNECTED:
     			statusLabel.setTextColor(Color.BLACK);
-       			if(wakeLock.isHeld())
+    			batteryLevelLabel.setText(getResources().getString(R.string.batteryLevel));
+    			if(wakeLock.isHeld())
     				wakeLock.release();
     		break;
     		case ConnectionStatus.CONNECTING:

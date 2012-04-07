@@ -2,7 +2,6 @@ package nxtcontroller.program;
 
 import nxtcontroller.activity.MainActivity;
 import nxtcontroller.program.btmessages.commands.GetBatteryLevel;
-import nxtcontroller.program.btmessages.commands.PlayTone;
 import android.util.Log;
 
 public class SensorManager extends Thread{
@@ -33,16 +32,6 @@ public class SensorManager extends Thread{
 	@Override
 	public void start(){
 		isRunning = true;
-		byte[] temp = new byte[SlovakAnthem.NUM_OF_TONES*8];
-		/*for(int i=0; i < SlovakAnthem.NUM_OF_TONES;i++){
-			PlayTone pt = new PlayTone((short) (SlovakAnthem.frequency[i]+1000), SlovakAnthem.duration[i]);
-			System.arraycopy(pt.getBytes(), 0, temp,i*(pt.getBytes().length),pt.getBytes().length);
-			Log.d(MainActivity.TAG,pt.toString());
-		}
-		*/
-		PlayTone pt = new PlayTone((short)440, (short) 1000);
-		nxtCommunicator.write(pt.getBytes());
-		Log.d(MainActivity.TAG,pt.toString());
 		super.start();
 	}
 	

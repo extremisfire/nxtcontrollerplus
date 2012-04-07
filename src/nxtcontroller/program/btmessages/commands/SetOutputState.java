@@ -65,7 +65,7 @@ public class SetOutputState extends BluetoothMessage{
 	
 	public void setTachoLimit(int miliSeconds){
 		byte[] temp  = new byte[4];
-		temp = Converter.toBytes(miliSeconds);
+		temp = Converter.toULONG(miliSeconds);
 		System.arraycopy(temp, 0, command, 8, temp.length);
 		super.appendCommand(command);
 	}

@@ -7,7 +7,7 @@ import nxtcontroller.program.utils.Converter;
 
 public class GetBatteryLevel extends BluetoothMessage{
 	
-	private final static byte COMMAND_LENGTH = 13;
+	private final static byte COMMAND_LENGTH = 2;
 	private byte[] command;
 
 	public GetBatteryLevel(){

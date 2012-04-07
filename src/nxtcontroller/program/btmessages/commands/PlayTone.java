@@ -12,14 +12,14 @@ public class PlayTone extends BluetoothMessage{
 	
 	public void setFrequency(short frequency){
 		byte[] f = new byte[2];
-		f = Converter.toBytes(frequency);
+		f = Converter.toUWORD(frequency);
 		System.arraycopy(f, 0, command, 2, f.length);
 		appendCommand(command);
 	}
 	
 	public void setDuration(short duration){
 		byte[] d = new byte[2];
-		d = Converter.toBytes(duration);
+		d = Converter.toUWORD(duration);
 		System.arraycopy(d, 0, command, 4, d.length);
 		appendCommand(command);
 	}
@@ -36,8 +36,8 @@ public class PlayTone extends BluetoothMessage{
 		command[1] = CommandType.PLAY_TONE;
 		byte[] f = new byte[2];
 		byte[] d = new byte[2];
-		f = Converter.toBytes(frequency);
-		d = Converter.toBytes(duration);
+		f = Converter.toUWORD(frequency);
+		d = Converter.toUWORD(duration);
 		System.arraycopy(f, 0, command, 2, f.length);
 		System.arraycopy(d, 0, command, 4, d.length);
 		appendCommand(command);
