@@ -1,6 +1,7 @@
 package nxtcontroller.program.utils;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 /**
  * convert LITTLE-ENDIAN encoded variables
@@ -33,6 +34,8 @@ public class Converter {
 	 */
 	public static byte[] toBytes(int var){
 		ByteBuffer buffer = ByteBuffer.allocate(4);
+		buffer.order(ByteOrder.LITTLE_ENDIAN);
+		buffer.putInt(var);
 		return buffer.array();
 	}
 	
@@ -44,14 +47,16 @@ public class Converter {
 	 */
 	public static byte[] toBytes(short var){
 		ByteBuffer buffer = ByteBuffer.allocate(2);
+		buffer.order(ByteOrder.LITTLE_ENDIAN);
+		buffer.putShort(var);
 		return buffer.array();
 	}
 	
 	public static String bytesToString(byte[] bytes){
 		String temp="[";
 		int i = 0;
-		for(Byte b:bytes){
-			temp+=Byte.toString(b);
+		for(byte b:bytes){
+			temp+=Short.toString(b);
 			temp+= (i==bytes.length-1)? "" : ", ";
 			i++;
 		}

@@ -96,7 +96,10 @@ public class NXTCommunicator {
 				Log.d(MainActivity.TAG,temp.toString());
 				messageHandler.obtainMessage(TypeOfMessage.BATTERY_LEVEL,(int)temp.getBatteryLevel()).sendToTarget();
 				break;
-	
+			case CommandType.PLAY_TONE:
+				ReturnPackage temp2 = new ReturnPackage(bytes);
+				Log.d(MainActivity.TAG,temp2.toString());
+				break;
 			default:
 				break;
 			}
