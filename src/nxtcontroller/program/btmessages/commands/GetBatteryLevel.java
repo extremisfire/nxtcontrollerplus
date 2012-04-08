@@ -1,21 +1,15 @@
 package nxtcontroller.program.btmessages.commands;
 
 import nxtcontroller.enums.nxtbuiltin.CommandType;
-import nxtcontroller.enums.nxtbuiltin.TelegramType;
-import nxtcontroller.program.btmessages.BluetoothMessage;
 import nxtcontroller.program.utils.Converter;
 
-public class GetBatteryLevel extends BluetoothMessage{
+public class GetBatteryLevel extends DirectCommand{
 	
 	private final static byte COMMAND_LENGTH = 2;
-	private byte[] command;
 
 	public GetBatteryLevel(){
-		super(COMMAND_LENGTH);
-		command = new byte[COMMAND_LENGTH];
-		command[0] = TelegramType.DIRECT_COMMAND_RRQ;
-		command[1] = CommandType.GET_BATTERY_LEVEL;
-		appendCommand(command);
+		super(COMMAND_LENGTH,CommandType.GET_BATTERY_LEVEL);
+		super.setRequireResponseToOn();
 	}
 	
 	public String toString(){

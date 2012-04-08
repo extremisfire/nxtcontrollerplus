@@ -5,7 +5,6 @@ import nxtcontroller.enums.nxtbuiltin.Mode;
 import nxtcontroller.enums.nxtbuiltin.RegulationMode;
 import nxtcontroller.enums.nxtbuiltin.RunState;
 import nxtcontroller.enums.nxtbuiltin.TelegramType;
-import nxtcontroller.program.btmessages.BluetoothMessage;
 import nxtcontroller.program.utils.Converter;
 
 	/**
@@ -20,72 +19,64 @@ import nxtcontroller.program.utils.Converter;
 	 * Byte 6: Turn ratio (SBYTE;-100 to 100)
 	 * Byte 7: RunState (UBYTE;enumerated)
 	 * Byte 8-12: TachoLmit (ULONG;0:run forever) in ms (how long may be turned on motors)
-	 * @see BluetoothMessage
+	 * @see DirectCommand
 	 * @author Lukas Dilik
 	 * */
-public class SetOutputState extends BluetoothMessage{
+public class SetOutputState extends DirectCommand{
 
 	private static final byte COMMAND_LENGTH = 12;
-	private byte[] command;
 	
 	public void setRequireReponseFlag(){
 		this.command[0] = TelegramType.DIRECT_COMMAND_RRQ;
-		super.appendCommand(command);
+		super.refreshCommand();
 	}
 	
 	public void setOutputPort(byte port){
 		this.command[2] = port;
-		super.appendCommand(command);
+		super.refreshCommand();
 	}
 	
 	public void setPower(byte power){
 		this.command[3] = power;
-		super.appendCommand(command);
+		super.refreshCommand();
 	}
 	
-	public void setModeByte(byte modeBitMask){
+	public void setMode(byte modeBitMask){
 		this.command[4] = modeBitMask;
-		super.appendCommand(command);
+		super.refreshCommand();
 	}
 	
 	public void setRegulationMode(byte regulationMode){
 		this.command[5] = regulationMode;
-		super.appendCommand(command);
+		super.refreshCommand();
 	}
 	
 	public void setTurnRatio(byte turnRatio){
 		this.command[6] = turnRatio;
-		super.appendCommand(command);
+		super.refreshCommand();
 	}
 	
 	public void setRunState(byte runState){
 		this.command[7] = runState;
-		super.appendCommand(command);
+		super.refreshCommand();
 	}
 	
 	public void setTachoLimit(int miliSeconds){
 		byte[] temp  = new byte[4];
 		temp = Converter.toULONG(miliSeconds);
 		System.arraycopy(temp, 0, command, 8, temp.length);
-		super.appendCommand(command);
+		super.refreshCommand();
 	}
 	
 	public SetOutputState() {
-		super(COMMAND_LENGTH);
-		this.command = new byte[COMMAND_LENGTH];
-		this.command[0] = TelegramType.DIRECT_COMMAND_NORRQ;
-		this.command[1] = CommandType.SET_OUTPUT_STATE;
-		this.command[2] = 0x00;
-		this.command[3] = 0x00;
-		this.command[4] = Mode.MOTOR_ON+Mode.BRAKE+Mode.REGULATED;
-		this.command[5] = RegulationMode.REGULATION_MODE_IDLE;
-		this.command[6] = 0x00;
-		this.command[7] = RunState.MOTOR_RUN_STATE_RUNNING;
-		this.command[8] = 0x00;
-		this.command[9] = 0x00;
-		this.command[10] = 0x00;
-		this.command[11] = 0x00;
-		super.appendCommand(command);
+		super(COMMAND_LENGTH,CommandType.SET_OUTPUT_STATE);
+		setOutputPort((byte)0);
+		setPower((byte)0);
+		setMode((byte)(Mode.MOTOR_ON+Mode.BRAKE+Mode.REGULATED));
+		setRegulationMode(RegulationMode.REGULATION_MODE_IDLE);
+		setTurnRatio((byte) 0);
+		setRunState(RunState.MOTOR_RUN_STATE_RUNNING);
+		setTachoLimit(0);
 	}
 
 }

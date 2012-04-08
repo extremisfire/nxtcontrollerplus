@@ -20,6 +20,7 @@ public class SensorManager extends Thread{
 
 	private void getBatteryLevel(){
 		GetBatteryLevel gb = new GetBatteryLevel();
+		
 		nxtCommunicator.write(gb.getBytes());
 		Log.d(MainActivity.TAG, gb.toString());
 	}

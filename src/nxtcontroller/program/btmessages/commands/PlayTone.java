@@ -1,46 +1,31 @@
 package nxtcontroller.program.btmessages.commands;
 
 import nxtcontroller.enums.nxtbuiltin.CommandType;
-import nxtcontroller.enums.nxtbuiltin.TelegramType;
-import nxtcontroller.program.btmessages.BluetoothMessage;
 import nxtcontroller.program.utils.Converter;
 
-public class PlayTone extends BluetoothMessage{
+public class PlayTone extends DirectCommand{
 
 	private final static byte COMMAND_LENGTH = 6;
-	private byte[] command;
 	
 	public void setFrequency(short frequency){
 		byte[] f = new byte[2];
 		f = Converter.toUWORD(frequency);
 		System.arraycopy(f, 0, command, 2, f.length);
-		appendCommand(command);
+		super.refreshCommand();
 	}
 	
 	public void setDuration(short duration){
 		byte[] d = new byte[2];
 		d = Converter.toUWORD(duration);
 		System.arraycopy(d, 0, command, 4, d.length);
-		appendCommand(command);
+		super.refreshCommand();
 	}
 	
-	public void setRequireResponseFLag(){
-		command[0] = TelegramType.DIRECT_COMMAND_RRQ;
-		appendCommand(command);
-	}
 
 	public PlayTone(short frequency, short duration) {
-		super(COMMAND_LENGTH);
-		command = new byte[COMMAND_LENGTH];
-		command[0] = TelegramType.DIRECT_COMMAND_NORRQ;
-		command[1] = CommandType.PLAY_TONE;
-		byte[] f = new byte[2];
-		byte[] d = new byte[2];
-		f = Converter.toUWORD(frequency);
-		d = Converter.toUWORD(duration);
-		System.arraycopy(f, 0, command, 2, f.length);
-		System.arraycopy(d, 0, command, 4, d.length);
-		appendCommand(command);
+		super(COMMAND_LENGTH,CommandType.PLAY_TONE);
+		setFrequency(frequency);
+		setDuration(duration);
 	}
 		
 	public String toString(){

@@ -8,7 +8,6 @@ import nxtcontroller.activity.MainActivity;
 import nxtcontroller.enums.ConnectionStatus;
 import nxtcontroller.enums.TypeOfMessage;
 import nxtcontroller.enums.nxtbuiltin.CommandType;
-import nxtcontroller.program.btmessages.commands.PlayTone;
 import nxtcontroller.program.btmessages.commands.SetOutputState;
 import nxtcontroller.program.btmessages.returnpackages.GetBatteryLevelReturnPackage;
 import nxtcontroller.program.btmessages.returnpackages.ReturnPackage;
@@ -181,14 +180,7 @@ public class NXTCommunicator {
 		//TODO
 		if(!sensorManager.isAlive())
 			sensorManager.start();
-		/*byte[] temp = new byte[SlovakAnthem.NUM_OF_TONES*8];
-		for(int i=0; i < SlovakAnthem.NUM_OF_TONES;i++){
-			PlayTone pt = new PlayTone((short) (SlovakAnthem.frequency[i]+70),SlovakAnthem.duration[i]);
-			//System.arraycopy(pt.getBytes(), 0, temp,i*(pt.getBytes().length),pt.getBytes().length);
-			this.write(pt.getBytes());
-			Log.d(MainActivity.TAG,pt.toString());
-		}
-		*/
+		
     }
 
     
