@@ -4,7 +4,15 @@ import nxtcontroller.enums.nxtbuiltin.CommandType;
 import nxtcontroller.enums.nxtbuiltin.TelegramType;
 import nxtcontroller.program.btmessages.BluetoothMessage;
 
-public class DirectCommand extends BluetoothMessage{
+/**
+ * this class defines first two byte in command array
+ * this must include every BT message
+ * byte [0] - telegram type @see TelegramType
+ * byte [1] - command type @see CommandType 
+ * @author Lukas Dilik
+ * @see BluetoothMessage
+ */
+public abstract class DirectCommand extends BluetoothMessage{
 
 	/**
 	 * this contains command byte array must initialized
@@ -62,6 +70,13 @@ public class DirectCommand extends BluetoothMessage{
 	 */
 	protected void refreshCommand(){
 		super.appendCommand(this.command);
+	}
+	
+	public String toString(){
+		String temp = super.toString()+"\n";
+		temp += "Telegram Type: "+Integer.toHexString(command[0]);
+		temp += "CommandType Type: "+Integer.toHexString(command[1]);
+		return temp;
 	}
 
 }

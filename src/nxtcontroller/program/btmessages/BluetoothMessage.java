@@ -3,14 +3,14 @@ package nxtcontroller.program.btmessages;
 import nxtcontroller.program.btmessages.commands.DirectCommand;
 
 /**
-* BlueTooth Messages for NXT protocol: 
+* Valid BlueTooth Messages for NXT device: 
 * 0.byte - command length LSB, !the length of the packages is counted without two length bytes
 * 1.byte - command length MSB
 * 3.byte..(length-1). byte - command 
 * @see DirectCommand
 * @author Lukas Dilik
 */
-public class BluetoothMessage {
+public abstract class BluetoothMessage {
 	
 	protected byte[] bytes = null;
 	

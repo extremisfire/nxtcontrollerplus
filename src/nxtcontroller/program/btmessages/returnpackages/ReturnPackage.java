@@ -1,12 +1,28 @@
 package nxtcontroller.program.btmessages.returnpackages;
 
 import nxtcontroller.program.btmessages.BluetoothMessage;
+import nxtcontroller.program.utils.Converter;
 import nxtcontroller.program.utils.ErrorDecoder;
 
+/**
+ * this class represent return package array sends 
+ * by NXT if response is required
+ * Byte[0] - telegram type
+ * Byte[1] - type command which requiers this return package @see CommandType
+ * Byte[2] - status @see ErrorDecoder 
+ * @author Lukas Dilik
+ * @see BluetoothMessage
+ */
 public class ReturnPackage extends BluetoothMessage{
 	private byte telegramType; //every return package has same telegram type 
 	private byte type; //what command type requested this return package
 	private byte status; //status info OK or some errorMessage
+	
+	/**
+	 * this contains byte array without first two bytes
+	 * @see BluetoothMessage
+	 */
+	protected byte[] returnBytes = null;
 	
 	public byte getTelegramType() {
 		return telegramType;
@@ -22,17 +38,20 @@ public class ReturnPackage extends BluetoothMessage{
 
 	public ReturnPackage(byte[] bytes){
 		super(bytes);
-		this.telegramType = super.bytes[2]; 
-		this.type = super.bytes[3];
-		this.status = super.bytes[4];
+		returnBytes = new byte[bytes.length-2];
+		System.arraycopy(bytes, 2, returnBytes, 0, returnBytes.length);
+		this.telegramType = this.returnBytes[0]; 
+		this.type = this.returnBytes[1];
+		this.status = this.returnBytes[2];
 	}
 
 	public String toString(){
 		String temp="RETURN_PACKAGE:\n";
-		temp += "Telegram type: "+ this.telegramType+"\n";
-		temp += "Type: "+ this.type+"\n";
+		temp += Converter.bytesToString(bytes)+"\n";
+		temp += "Telegram type: "+ getTelegramType()+"\n";
+		temp += "Type: "+ getType()+"\n";
 		ErrorDecoder e = new ErrorDecoder();
-		temp += "Status: "+ e.getErrorDescription(this.status)+"\n";
+		temp += "Status: "+ e.getErrorDescription(getStatus())+"\n";
 		return temp;
 	}
 
