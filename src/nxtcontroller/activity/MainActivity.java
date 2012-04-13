@@ -60,6 +60,7 @@ public class MainActivity extends Activity{
         @Override
         public void handleMessage(Message msg) {
         	try{
+        		String temp= "";
         		switch (msg.what) {
             	case(TypeOfMessage.TOAST_ERROR):
             		Toast.makeText(getApplicationContext(), (String) msg.obj,2).show();
@@ -74,8 +75,18 @@ public class MainActivity extends Activity{
             		setConnectionStatus((Integer) msg.obj);
             	break;
             	case(TypeOfMessage.BATTERY_LEVEL):
-            		String temp = getResources().getString(R.string.batteryLevel);
+            		temp = getResources().getString(R.string.batteryLevel);
             		temp += " " + msg.obj.toString() + " %";
+            		batteryLevelLabel.setText(temp);
+            	break;
+            	case(TypeOfMessage.TOUCH_SENSOR):
+            		temp = "Touched ";
+            		temp += " " + msg.obj.toString();
+            		batteryLevelLabel.setText(temp);
+            	break;
+            	case(TypeOfMessage.SOUND_SENSOR):
+            		temp = "SOUND ";
+            		temp += " " + msg.obj.toString();
             		batteryLevelLabel.setText(temp);
             	break;
             }

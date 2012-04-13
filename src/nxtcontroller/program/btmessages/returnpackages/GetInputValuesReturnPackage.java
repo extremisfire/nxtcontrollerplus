@@ -98,8 +98,8 @@ public class GetInputValuesReturnPackage extends ReturnPackage{
 		temp += "input port: "+ getInputPort()+"\n";
 		temp += "valid?: "+ Boolean.toString(isValid()) +"\n";
 		temp += "calibrated?: "+ Boolean.toString(isCalibrated()) +"\n";
-		temp += "sensor type: "+ getSensorType()+"\n";
-		temp += "sensor mode: "+ getSensorMode()+"\n";
+		temp += "sensor type: "+ Integer.toHexString(getSensorType())+"\n";
+		temp += "sensor mode: "+ Integer.toHexString(getSensorMode())+"\n";
 		temp += "raw value: "+ getRawValue()+"\n";
 		temp += "normalized value: "+ getNormalizedValue()+"\n";
 		temp += "scaled value: "+ getScaledValue()+"\n";

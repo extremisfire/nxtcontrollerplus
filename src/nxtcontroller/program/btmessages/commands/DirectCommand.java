@@ -59,7 +59,7 @@ public abstract class DirectCommand extends BluetoothMessage{
 	 * this indicates that BlueTooth message 
 	 * requires a response from NXT
 	 */
-	protected void setRequireResponseToOn(){
+	public void setRequireResponseToOn(){
 		command[0] = TelegramType.DIRECT_COMMAND_RRQ;
 		super.appendCommand(command);
 	}
@@ -74,8 +74,8 @@ public abstract class DirectCommand extends BluetoothMessage{
 	
 	public String toString(){
 		String temp = super.toString()+"\n";
-		temp += "Telegram Type: "+Integer.toHexString(command[0]);
-		temp += "CommandType Type: "+Integer.toHexString(command[1]);
+		temp += "Telegram Type: "+Integer.toHexString(command[0])+"\n";
+		temp += "CommandType Type: "+Integer.toHexString(command[1])+"\n";
 		return temp;
 	}
 

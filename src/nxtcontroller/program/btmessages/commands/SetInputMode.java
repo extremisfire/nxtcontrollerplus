@@ -22,7 +22,7 @@ public class SetInputMode extends DirectCommand{
 	
 	/**
 	 * port where sensor is connected
-	 * @param portNumber [0..3], on NXT: [portNumber+1]
+	 * @param portNumber [0..3] on NXT portNumber+1
 	 */
 	public void setInputPort(byte portNumber){
 		super.command[2] = portNumber;

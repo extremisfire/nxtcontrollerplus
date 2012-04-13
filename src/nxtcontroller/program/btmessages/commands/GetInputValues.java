@@ -26,6 +26,7 @@ public class GetInputValues extends DirectCommand{
 	
 	public GetInputValues(byte portNumber) {
 		super(COMMAND_LENGTH, CommandType.GET_INPUT_VALUES);
+		setRequireResponseToOn();
 		setInputPort(portNumber);
 	}
 	

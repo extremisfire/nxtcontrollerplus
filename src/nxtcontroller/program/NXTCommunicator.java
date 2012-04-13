@@ -8,8 +8,10 @@ import nxtcontroller.activity.MainActivity;
 import nxtcontroller.enums.ConnectionStatus;
 import nxtcontroller.enums.TypeOfMessage;
 import nxtcontroller.enums.nxtbuiltin.CommandType;
+import nxtcontroller.enums.nxtbuiltin.SensorType;
 import nxtcontroller.program.btmessages.commands.SetOutputState;
 import nxtcontroller.program.btmessages.returnpackages.GetBatteryLevelReturnPackage;
+import nxtcontroller.program.btmessages.returnpackages.GetInputValuesReturnPackage;
 import nxtcontroller.program.btmessages.returnpackages.ReturnPackage;
 import nxtcontroller.program.utils.Converter;
 import android.bluetooth.BluetoothDevice;
@@ -87,9 +89,10 @@ public class NXTCommunicator {
 	
 	/* Methods and Constructors declaration */
 	
-	public void handleReturnPackages(byte[] bytes){
+	private void handleReturnPackages(byte[] bytes){
 		try{
 			ReturnPackage pack = new ReturnPackage(bytes);
+			Log.d(MainActivity.TAG,"read:"+Converter.bytesToString(bytes));
 			switch (pack.getType()) {
 			case CommandType.GET_BATTERY_LEVEL:
 				GetBatteryLevelReturnPackage temp = new GetBatteryLevelReturnPackage(bytes);
@@ -100,12 +103,31 @@ public class NXTCommunicator {
 				ReturnPackage temp2 = new ReturnPackage(bytes);
 				Log.d(MainActivity.TAG,temp2.toString());
 				break;
+			case CommandType.GET_INPUT_VALUES:
+				GetInputValuesReturnPackage values = new GetInputValuesReturnPackage(bytes);
+				Log.d(MainActivity.TAG,values.toString());
+				getValuesFromSensor(values);
+				break;
 			default:
+				Log.d(MainActivity.TAG,pack.toString());
 				break;
 			}
-			Log.d(MainActivity.TAG,"read:"+Converter.bytesToString(bytes));
+		
 		}catch(Exception e){
 			Log.e(MainActivity.TAG,"handle return msgs",e);
+		}
+	}
+	
+	private void getValuesFromSensor(GetInputValuesReturnPackage values){
+		switch (values.getSensorType()) {
+		case SensorType.SOUND_DBA:
+			messageHandler.obtainMessage(TypeOfMessage.SOUND_SENSOR,(int)values.getScaledValue()).sendToTarget();
+			break;
+		case SensorType.SWITCH:
+			messageHandler.obtainMessage(TypeOfMessage.TOUCH_SENSOR,(int)values.getScaledValue()).sendToTarget();
+			break;
+		default:
+			break;
 		}
 	}
 	
@@ -177,9 +199,13 @@ public class NXTCommunicator {
         mConnectedThread.start();
         
 		setState(ConnectionStatus.CONNECTED);
-		//TODO
-		if(!sensorManager.isAlive())
-			sensorManager.start();
+		try{
+			if(!sensorManager.isAlive())
+				sensorManager.start();
+			sensorManager.setRunning(true);
+		}catch(Exception e){
+			Log.e(MainActivity.TAG,"sensor man thread",e);
+		}
 		
     }
 
