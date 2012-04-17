@@ -45,6 +45,7 @@ public class MainActivity extends Activity{
     private PowerManager.WakeLock wakeLock;
     
     private TextView statusLabel,deviceNameLabel,controlModeLabel,batteryLevelLabel; 
+    private TextView sensor1,sensor2,sensor3,sensor4;
     private Button connectButton,disconnectButton;
     private String[] errors,infos,connectionStatuses,controlModes; //message arrays
     
@@ -79,21 +80,22 @@ public class MainActivity extends Activity{
             		temp += " " + msg.obj.toString() + " %";
             		batteryLevelLabel.setText(temp);
             	break;
-            	case(TypeOfMessage.TOUCH_SENSOR):
-            		temp = "Touched ";
-            		temp += " " + msg.obj.toString();
-            		batteryLevelLabel.setText(temp);
+            	case(TypeOfMessage.LABEL1):
+            		sensor1.setText("1: "+msg.obj.toString());
             	break;
-            	case(TypeOfMessage.SOUND_SENSOR):
-            		temp = "SOUND ";
-            		temp += " " + msg.obj.toString();
-            		batteryLevelLabel.setText(temp);
+            	case(TypeOfMessage.LABEL2):
+            		sensor2.setText("2: "+msg.obj.toString());
+            	break;
+            	case(TypeOfMessage.LABEL3):
+            		sensor3.setText("3: "+msg.obj.toString());
+            	break;
+            	case(TypeOfMessage.LABEL4):
+            		sensor4.setText("4: "+msg.obj.toString());
             	break;
             }
         	}catch (Exception e){
         		Log.e(TAG,"meesage handling error",e);
         	}
-
         }
     };
     
@@ -190,13 +192,21 @@ public class MainActivity extends Activity{
 	private void setUpComponents(){
 		try{
 			nxtCommunicator = new NXTCommunicator(messageHandler,this);
+			
 			batteryLevelLabel = (TextView) findViewById(R.id.batteryLevelLable);
-	        statusLabel = (TextView) findViewById(R.id.statusLabel);
+	        sensor1 = (TextView) findViewById(R.id.sensor1);
+	        sensor2 = (TextView) findViewById(R.id.sensor2);
+	        sensor3 = (TextView) findViewById(R.id.sensor3);
+	        sensor4 = (TextView) findViewById(R.id.sensor4);
+	        
+			statusLabel = (TextView) findViewById(R.id.statusLabel);
 	        deviceNameLabel = (TextView) findViewById(R.id.deviceName);
 	        controlModeLabel = (TextView) findViewById(R.id.controlModeLabel);
+	        
 	        connectButton = (Button) findViewById(R.id.connectButton);
 	        disconnectButton = (Button) findViewById(R.id.disconnectButton);
 	        disconnectButton.setVisibility(View.GONE); 
+	        
 	        controlPad = (ControlPad) findViewById(R.id.controlPadView);
         }catch(Exception e){
         	Log.e(TAG,"seeting up components",e);

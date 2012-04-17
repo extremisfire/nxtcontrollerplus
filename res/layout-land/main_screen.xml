@@ -24,6 +24,34 @@
             android1:text="@string/batteryLevel"
             android1:textAppearance="?android:attr/textAppearanceMedium"
             android1:textColor="@color/white" android1:padding="3dp"/>
+
+        <TextView
+            android1:id="@+id/sensor1"
+            android1:layout_width="wrap_content"
+            android1:layout_height="wrap_content"
+            android1:text="Small Text"
+            android1:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <TextView
+            android1:id="@+id/sensor2"
+            android1:layout_width="wrap_content"
+            android1:layout_height="wrap_content"
+            android1:text="Small Text"
+            android1:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <TextView
+            android1:id="@+id/sensor3"
+            android1:layout_width="wrap_content"
+            android1:layout_height="wrap_content"
+            android1:text="Small Text"
+            android1:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <TextView
+            android1:id="@+id/sensor4"
+            android1:layout_width="wrap_content"
+            android1:layout_height="wrap_content"
+            android1:text="Small Text"
+            android1:textAppearance="?android:attr/textAppearanceSmall" />
 
     </LinearLayout>
 

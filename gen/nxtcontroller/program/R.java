@@ -29,17 +29,21 @@ public final class R {
     }
     public static final class id {
         public static final int batteryLevelLable=0x7f070002;
-        public static final int connectButton=0x7f07000a;
-        public static final int controlModeLabel=0x7f070008;
-        public static final int controlPadView=0x7f07000b;
-        public static final int controls=0x7f070005;
-        public static final int controlsWrap=0x7f070004;
-        public static final int deviceName=0x7f070007;
-        public static final int disconnectButton=0x7f070009;
+        public static final int connectButton=0x7f07000e;
+        public static final int controlModeLabel=0x7f07000c;
+        public static final int controlPadView=0x7f07000f;
+        public static final int controls=0x7f070009;
+        public static final int controlsWrap=0x7f070008;
+        public static final int deviceName=0x7f07000b;
+        public static final int disconnectButton=0x7f07000d;
         public static final int leftPanel=0x7f070001;
         public static final int main=0x7f070000;
-        public static final int rightPanel=0x7f070003;
-        public static final int statusLabel=0x7f070006;
+        public static final int rightPanel=0x7f070007;
+        public static final int sensor1=0x7f070003;
+        public static final int sensor2=0x7f070004;
+        public static final int sensor3=0x7f070005;
+        public static final int sensor4=0x7f070006;
+        public static final int statusLabel=0x7f07000a;
     }
     public static final class layout {
         public static final int main_screen=0x7f030000;

@@ -1,15 +1,14 @@
 package nxtcontroller.enums;
 
 public class TypeOfMessage {
-	public static final int TOAST_ERROR = 100;
-	public static final int TOAST_INFO = 101;
-	public static final int STATUS_LABEL = 200;
-	public static final int CONNECTION_STATUS = 300;
-	public static final int BATTERY_LEVEL = 400;
-	//5 sensors
-	public static final int TOUCH_SENSOR = 500;
-	public static final int LIGHT_SENSOR = 600;
-	public static final int SOUND_SENSOR = 700;
-	public static final int ULTRASONIC_SENSOR = 800;
-	public static final int COMPASS_SENSOR = 900;
+	public static final int TOAST_ERROR = 10;
+	public static final int TOAST_INFO = 11;
+	public static final int STATUS_LABEL = 12;
+	public static final int CONNECTION_STATUS = 13;
+	public static final int BATTERY_LEVEL = 14;
+	
+	public static final int LABEL1 = 100;
+	public static final int LABEL2 = 200;
+	public static final int LABEL3 = 300;
+	public static final int LABEL4 = 400;
 }

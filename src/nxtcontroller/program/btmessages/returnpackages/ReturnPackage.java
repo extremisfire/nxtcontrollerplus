@@ -1,14 +1,13 @@
 package nxtcontroller.program.btmessages.returnpackages;
 
 import nxtcontroller.program.btmessages.BluetoothMessage;
-import nxtcontroller.program.utils.Converter;
 import nxtcontroller.program.utils.ErrorDecoder;
 
 /**
  * this class represent return package array sends 
  * by NXT if response is required
  * Byte[0] - telegram type
- * Byte[1] - type command which requiers this return package @see CommandType
+ * Byte[1] - type command which requires this return package @see CommandType
  * Byte[2] - status @see ErrorDecoder 
  * @author Lukas Dilik
  * @see BluetoothMessage
@@ -47,7 +46,6 @@ public class ReturnPackage extends BluetoothMessage{
 
 	public String toString(){
 		String temp="RETURN_PACKAGE:\n";
-		temp += Converter.bytesToString(bytes)+"\n";
 		temp += "Telegram type: "+ getTelegramType()+"\n";
 		temp += "Type: "+ getType()+"\n";
 		ErrorDecoder e = new ErrorDecoder();

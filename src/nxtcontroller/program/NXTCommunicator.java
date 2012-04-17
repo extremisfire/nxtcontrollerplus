@@ -8,11 +8,16 @@ import nxtcontroller.activity.MainActivity;
 import nxtcontroller.enums.ConnectionStatus;
 import nxtcontroller.enums.TypeOfMessage;
 import nxtcontroller.enums.nxtbuiltin.CommandType;
-import nxtcontroller.enums.nxtbuiltin.SensorType;
+import nxtcontroller.enums.nxtbuiltin.InputPort;
 import nxtcontroller.program.btmessages.commands.SetOutputState;
 import nxtcontroller.program.btmessages.returnpackages.GetBatteryLevelReturnPackage;
 import nxtcontroller.program.btmessages.returnpackages.GetInputValuesReturnPackage;
+import nxtcontroller.program.btmessages.returnpackages.GetOutputStateReturnPackage;
 import nxtcontroller.program.btmessages.returnpackages.ReturnPackage;
+import nxtcontroller.program.sensors.LightSensor;
+import nxtcontroller.program.sensors.Sensor;
+import nxtcontroller.program.sensors.SoundSensor;
+import nxtcontroller.program.sensors.TouchSensor;
 import nxtcontroller.program.utils.Converter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -92,21 +97,20 @@ public class NXTCommunicator {
 	private void handleReturnPackages(byte[] bytes){
 		try{
 			ReturnPackage pack = new ReturnPackage(bytes);
-			Log.d(MainActivity.TAG,"read:"+Converter.bytesToString(bytes));
 			switch (pack.getType()) {
 			case CommandType.GET_BATTERY_LEVEL:
-				GetBatteryLevelReturnPackage temp = new GetBatteryLevelReturnPackage(bytes);
-				Log.d(MainActivity.TAG,temp.toString());
-				messageHandler.obtainMessage(TypeOfMessage.BATTERY_LEVEL,(int)temp.getBatteryLevel()).sendToTarget();
-				break;
-			case CommandType.PLAY_TONE:
-				ReturnPackage temp2 = new ReturnPackage(bytes);
-				Log.d(MainActivity.TAG,temp2.toString());
+				GetBatteryLevelReturnPackage batteryLevel = new GetBatteryLevelReturnPackage(bytes);
+				Log.d(MainActivity.TAG,batteryLevel.toString());
+				messageHandler.obtainMessage(TypeOfMessage.BATTERY_LEVEL,(int)batteryLevel.getBatteryLevel()).sendToTarget();
 				break;
 			case CommandType.GET_INPUT_VALUES:
-				GetInputValuesReturnPackage values = new GetInputValuesReturnPackage(bytes);
-				Log.d(MainActivity.TAG,values.toString());
-				getValuesFromSensor(values);
+				GetInputValuesReturnPackage inputValues = new GetInputValuesReturnPackage(bytes);
+				Log.d(MainActivity.TAG,inputValues.toString());
+				getValuesFromSensor(inputValues);
+				break;
+			case CommandType.GET_OUTPUT_STATE:
+				GetOutputStateReturnPackage ouputState = new GetOutputStateReturnPackage(bytes);
+				Log.d(MainActivity.TAG,ouputState.toString());
 				break;
 			default:
 				Log.d(MainActivity.TAG,pack.toString());
@@ -119,16 +123,20 @@ public class NXTCommunicator {
 	}
 	
 	private void getValuesFromSensor(GetInputValuesReturnPackage values){
-		switch (values.getSensorType()) {
-		case SensorType.SOUND_DBA:
-			messageHandler.obtainMessage(TypeOfMessage.SOUND_SENSOR,(int)values.getScaledValue()).sendToTarget();
-			break;
-		case SensorType.SWITCH:
-			messageHandler.obtainMessage(TypeOfMessage.TOUCH_SENSOR,(int)values.getScaledValue()).sendToTarget();
-			break;
-		default:
-			break;
+		//TODO sensor from settings
+		String msg = "";
+		Sensor sensor = null;
+		int port = values.getInputPort();
+		
+		sensor = sensorManager.getSensor((byte)port);
+		if(sensor == null){
+		  	msg = "No connected"; 
+		}else{
+		   	sensor.refreshSensorData(values);
+		    msg = sensor.toString();
 		}
+			
+		messageHandler.obtainMessage((port+1)*100,msg).sendToTarget();	
 	}
 	
 	public NXTCommunicator(Handler handler, MainActivity mainActivity){
@@ -153,15 +161,24 @@ public class NXTCommunicator {
         		mConnectedThread.cancel(); 
         		mConnectedThread = null;
         }
-		this.NXTdevice = remoteDevice;
-		mConnectThread = new ConnectThread(this.NXTdevice);
-		mConnectThread.start();
+        try {
+    		this.NXTdevice = remoteDevice;
+    		mConnectThread = new ConnectThread(this.NXTdevice);
+    		mConnectThread.start();
+		} catch (Exception e) {
+			Log.e(MainActivity.TAG,"connecting",e);
+		}
+
 	}
 	
 	public synchronized void disconnectFromNXT(){
-        if (sensorManager != null) {
+        try{
+        	sensorManager.unregisterSensors();
         	sensorManager.setRunning(false);
+        }catch(Exception e){
+        	Log.e(MainActivity.TAG,"stop sensor man",e);
         }
+        
         if (mConnectThread != null) {
         	mConnectThread.cancel(); 
         	mConnectThread = null;
@@ -170,14 +187,21 @@ public class NXTCommunicator {
         	mConnectedThread.cancel();
         	mConnectedThread = null;
         }
-        try{
-        	sensorManager.setRunning(false);
-        	sensorManager.join();
-        }catch(Exception e){
-        	Log.e(MainActivity.TAG,"stop sensor man",e);
-        }
+
         setState(ConnectionStatus.DISCONNECTED);
 	}
+	
+	public void setUpSensors(){
+		TouchSensor ts = new TouchSensor(this, InputPort.PORT1);	
+		SoundSensor ss = new SoundSensor(this, InputPort.PORT2);
+		ss.setDBMode();
+		LightSensor ls = new LightSensor(this, InputPort.PORT4);
+		ls.setLightReflectionMode();
+		sensorManager.addSensor(ts);
+		sensorManager.addSensor(ss);
+		sensorManager.addSensor(ls);
+	}
+	
 	
 	/**
      * Start the ConnectedThread to begin managing a Bluetooth connection
@@ -199,10 +223,12 @@ public class NXTCommunicator {
         mConnectedThread.start();
         
 		setState(ConnectionStatus.CONNECTED);
+		setUpSensors();
 		try{
-			if(!sensorManager.isAlive())
+			if(!sensorManager.isRunning())
 				sensorManager.start();
 			sensorManager.setRunning(true);
+            
 		}catch(Exception e){
 			Log.e(MainActivity.TAG,"sensor man thread",e);
 		}
@@ -259,17 +285,19 @@ public class NXTCommunicator {
      * Write to the ConnectedThread in an unsynchronized manner
      * @param out The bytes to write
      * @see ConnectedThread#write(byte[])
+     * @param out
+     * @return true if command was send 
      */
-    public void write(byte[] out) {
+    public boolean  write(byte[] out) {
         // Create temporary object
         ConnectedThread r;
         // Synchronize a copy of the ConnectedThread
         synchronized (this) {
-            if (getState() != ConnectionStatus.CONNECTED) return;
+            if (getState() != ConnectionStatus.CONNECTED) return false;
             r = mConnectedThread;
         }
         // Perform the write unsynchronized
-        r.write(out);
+        return r.write(out);
     }
     
     /**
@@ -390,7 +418,9 @@ public class NXTCommunicator {
                 try {
                     // Read from the InputStream
                     bytes = mmInStream.read(buffer);
-                    Log.d(MainActivity.TAG,"readed: " + bytes + " bytes");
+                    Log.d(MainActivity.TAG,"read from NXT: " + bytes + " bytes");
+                    Log.d(MainActivity.TAG,"read from NXT: " + Converter.bytesToString(buffer) + " bytes");
+                    //extractCommandFromBuffer(buffer);
                     handleReturnPackages(buffer);
                     
                 } catch (Exception e) {
@@ -405,12 +435,14 @@ public class NXTCommunicator {
          * Write to the connected OutStream.
          * @param buffer  The bytes to write
          */
-        public void write(byte[] buffer) {
+        public boolean write(byte[] buffer) {
             try {
                 mmOutStream.write(buffer);
                 Log.d(MainActivity.TAG, "sending to device: "+ Converter.bytesToString(buffer));
+                return true;
             } catch (IOException e) {
                 Log.d(MainActivity.TAG, "Exception during write", e);
+                return false;
             }
         }
 
