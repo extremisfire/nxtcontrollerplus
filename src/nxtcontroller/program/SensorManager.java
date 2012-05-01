@@ -2,12 +2,16 @@ package nxtcontroller.program;
 
 import java.util.ArrayList;
 import nxtcontroller.activity.MainActivity;
+import nxtcontroller.enums.nxtbuiltin.InputPort;
 import nxtcontroller.enums.nxtbuiltin.SensorType;
 import nxtcontroller.program.btmessages.commands.DirectCommand;
-import nxtcontroller.program.btmessages.commands.GetBatteryLevel;
 import nxtcontroller.program.btmessages.commands.GetInputValues;
+import nxtcontroller.program.btmessages.commands.LSGetStatus;
+import nxtcontroller.program.btmessages.commands.LSRead;
+import nxtcontroller.program.btmessages.commands.LSWrite;
 import nxtcontroller.program.btmessages.commands.SetInputMode;
 import nxtcontroller.program.sensors.Sensor;
+import nxtcontroller.program.sensors.UltrasonicSensor;
 import android.util.Log;
 
 public class SensorManager extends Thread{
@@ -30,6 +34,8 @@ public class SensorManager extends Thread{
 	}
 
 	public void addSensor(Sensor sensor){
+		if(sensor.getPort()<0 || sensor.getPort() > 3)
+			throw new UnsupportedOperationException("Port: "+Byte.toString(sensor.getPort() )+", only <0-3> ports are legal.");
 		int found = -1;
 		for(int i=0; i<sensorList.size();i++){
 			if(sensorList.get(i).getPort()==sensor.getPort()){
@@ -51,7 +57,7 @@ public class SensorManager extends Thread{
 			if(s.getPort()==inputPort)
 				return s;
 		}
-		return null;
+		return null; 
 	}
 	
 	public void unregisterSensors(){
@@ -63,11 +69,18 @@ public class SensorManager extends Thread{
 	
 	private void setUpAutoRefreshedCommands(){
 		autoRefreshedCommands.clear();
-		autoRefreshedCommands.add(new GetBatteryLevel());
+		//autoRefreshedCommands.add(new GetBatteryLevel());
+
+		//autoRefreshedCommands.add(new LSGetStatus(InputPort.PORT3));
 		
+		byte[] tx = {0x02, 0x42}; 
+		LSWrite lw = new LSWrite(InputPort.PORT3, tx, (byte)1);
+		lw.setRequireResponseToOn();
+		autoRefreshedCommands.add(lw);
+		autoRefreshedCommands.add(new LSRead(InputPort.PORT3));
 		for(int i=0; i < NUMBER_OF_SENSOR_PORTS;i++){
 			GetInputValues giv = new GetInputValues((byte)i);
-			autoRefreshedCommands.add(giv);
+			//autoRefreshedCommands.add(giv);
 		}
 
 		
@@ -91,7 +104,14 @@ public class SensorManager extends Thread{
 	
 	private void initializeSensors(){
 		for(Sensor s:sensorList){
-			s.initialize();
+			if(s instanceof UltrasonicSensor){
+				try {
+					s.initialize();
+					sleep(500);
+				} catch (Exception e) {}
+			}else{
+				s.initialize();
+			}
 		}
 	}
 
@@ -101,7 +121,7 @@ public class SensorManager extends Thread{
 		counter = 0;
 		super.start();
 		try {
-			sleep(REFRESH_INTERVAL);
+			sleep(500);
 		} catch (InterruptedException e) {}
 		initializeSensors();
 	}

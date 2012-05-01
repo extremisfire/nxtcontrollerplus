@@ -11,19 +11,10 @@ import nxtcontroller.program.utils.Converter;
  * @author Lukas Dilik
  *
  */
-public class GetInputValues extends DirectCommand{
+public class GetInputValues extends DirectCommandInput{
 
 	private static final byte COMMAND_LENGTH = 3;
-	
-	/**
-	 * port where sensor is connected
-	 * @param portNumber [0..3], on NXT: [portNumber+1]
-	 */
-	public void setInputPort(byte portNumber){
-		super.command[2] = portNumber;
-		super.refreshCommand();
-	}
-	
+		
 	public GetInputValues(byte portNumber) {
 		super(COMMAND_LENGTH, CommandType.GET_INPUT_VALUES);
 		setRequireResponseToOn();

@@ -22,7 +22,7 @@ import nxtcontroller.program.utils.Converter;
  * @author Lukas Dilik
  * */
 
-public class SetOutputState extends DirectCommand{
+public class SetOutputState extends DirectCommandOutput{
 
 	private static final byte COMMAND_LENGTH = 12;
 	
@@ -31,14 +31,6 @@ public class SetOutputState extends DirectCommand{
 	 */
 	public void setRequireReponseFlag(){
 		this.command[0] = TelegramType.DIRECT_COMMAND_RRQ;
-		super.refreshCommand();
-	}
-	
-	/**
-	 * @param port onNXT:[A:0,B:1,C:2]
-	 */
-	public void setOutputPort(byte port){
-		this.command[2] = port;
 		super.refreshCommand();
 	}
 	

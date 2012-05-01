@@ -11,18 +11,9 @@ import nxtcontroller.program.utils.Converter;
  * @author Lukas Dilik
  *
  */
-public class ResetInputScaledValue  extends DirectCommand{
+public class ResetInputScaledValue  extends DirectCommandInput{
 
 	private final static byte COMMAND_LENGTH = 3;
-	
-	/**
-	 * port where sensor is connected
-	 * @param portNumber [0..3], on NXT: [portNumber+1]
-	 */
-	public void setInputPort(byte portNumber){
-		super.command[2] = portNumber;
-		super.refreshCommand();
-	}
 	
 	public ResetInputScaledValue(byte portNumber) {
 		super(COMMAND_LENGTH, CommandType.RESET_INPUT_SCALED_VALUE);

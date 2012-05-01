@@ -9,15 +9,21 @@ import nxtcontroller.enums.ConnectionStatus;
 import nxtcontroller.enums.TypeOfMessage;
 import nxtcontroller.enums.nxtbuiltin.CommandType;
 import nxtcontroller.enums.nxtbuiltin.InputPort;
+import nxtcontroller.enums.nxtbuiltin.Motor;
 import nxtcontroller.program.btmessages.commands.SetOutputState;
-import nxtcontroller.program.btmessages.returnpackages.GetBatteryLevelReturnPackage;
-import nxtcontroller.program.btmessages.returnpackages.GetInputValuesReturnPackage;
-import nxtcontroller.program.btmessages.returnpackages.GetOutputStateReturnPackage;
-import nxtcontroller.program.btmessages.returnpackages.ReturnPackage;
+import nxtcontroller.program.btmessages.returns.packages.GetBatteryLevelReturnPackage;
+import nxtcontroller.program.btmessages.returns.packages.GetInputValuesReturnPackage;
+import nxtcontroller.program.btmessages.returns.packages.GetOutputStateReturnPackage;
+import nxtcontroller.program.btmessages.returns.packages.LSGetStatusReturnPackage;
+import nxtcontroller.program.btmessages.returns.packages.LSReadReturnPackages;
+import nxtcontroller.program.btmessages.returns.packages.ReturnPackage;
+import nxtcontroller.program.sensors.CompassSensor;
+import nxtcontroller.program.sensors.I2CSensor;
 import nxtcontroller.program.sensors.LightSensor;
 import nxtcontroller.program.sensors.Sensor;
 import nxtcontroller.program.sensors.SoundSensor;
 import nxtcontroller.program.sensors.TouchSensor;
+import nxtcontroller.program.sensors.UltrasonicSensor;
 import nxtcontroller.program.utils.Converter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -43,10 +49,10 @@ public class NXTCommunicator {
     private Handler messageHandler;
     private MainActivity mainActivity;
     private BluetoothDevice NXTdevice = null;
-    //index of motors HINT:A:0,B:1,C:2
-    private byte leftMotor = 0;
-    private byte rightMotor = 1;
-    private byte thirdMotor = 2;
+ 
+    private byte leftMotor = Motor.A;
+    private byte rightMotor = Motor.B; 
+    private byte thirdMotor = Motor.C;
     private SensorManager sensorManager;
     
     /* public class properties declaration */
@@ -109,8 +115,17 @@ public class NXTCommunicator {
 				getValuesFromSensor(inputValues);
 				break;
 			case CommandType.GET_OUTPUT_STATE:
-				GetOutputStateReturnPackage ouputState = new GetOutputStateReturnPackage(bytes);
-				Log.d(MainActivity.TAG,ouputState.toString());
+				GetOutputStateReturnPackage outputState = new GetOutputStateReturnPackage(bytes);
+				Log.d(MainActivity.TAG,outputState.toString());
+				break;
+			case CommandType.LS_READ:
+				LSReadReturnPackages lsRead = new LSReadReturnPackages(bytes);
+				Log.d(MainActivity.TAG,lsRead.toString());
+				getValuesFromI2CSensor(lsRead);
+				break;
+			case CommandType.LS_GET_STATUS:
+				LSGetStatusReturnPackage lsGetStatus = new LSGetStatusReturnPackage(bytes);
+				Log.d(MainActivity.TAG,lsGetStatus.toString());
 				break;
 			default:
 				Log.d(MainActivity.TAG,pack.toString());
@@ -120,6 +135,22 @@ public class NXTCommunicator {
 		}catch(Exception e){
 			Log.e(MainActivity.TAG,"handle return msgs",e);
 		}
+	}
+	
+	private void getValuesFromI2CSensor(LSReadReturnPackages values){
+		//TODO sensor from settings
+		String msg = "";
+		I2CSensor sensor = null;
+		
+		sensor = (I2CSensor) sensorManager.getSensor((byte)InputPort.PORT3);
+		if(sensor == null){
+		  	msg = "No connected"; 
+		}else{
+		   	sensor.refreshSensorData(values);
+		    msg = sensor.toString();
+		}
+			
+		messageHandler.obtainMessage((InputPort.PORT3+1)*100,msg).sendToTarget();	
 	}
 	
 	private void getValuesFromSensor(GetInputValuesReturnPackage values){
@@ -192,14 +223,16 @@ public class NXTCommunicator {
 	}
 	
 	public void setUpSensors(){
-		TouchSensor ts = new TouchSensor(this, InputPort.PORT1);	
-		SoundSensor ss = new SoundSensor(this, InputPort.PORT2);
-		ss.setDBMode();
-		LightSensor ls = new LightSensor(this, InputPort.PORT4);
-		ls.setLightReflectionMode();
-		sensorManager.addSensor(ts);
-		sensorManager.addSensor(ss);
-		sensorManager.addSensor(ls);
+		//TouchSensor ts = new TouchSensor(this, InputPort.PORT1);	
+		//SoundSensor ss = new SoundSensor(this, InputPort.PORT2);
+		//LightSensor ls = new LightSensor(this, InputPort.PORT4);
+		//ls.setLightReflectionMode();
+		//UltrasonicSensor us = new UltrasonicSensor(this, InputPort.PORT3);
+		//sensorManager.addSensor(ts);
+		//sensorManager.addSensor(ss);
+		//sensorManager.addSensor(ls);
+		CompassSensor cs = new CompassSensor(this, InputPort.PORT3);
+		sensorManager.addSensor(cs);
 	}
 	
 	
@@ -420,7 +453,6 @@ public class NXTCommunicator {
                     bytes = mmInStream.read(buffer);
                     Log.d(MainActivity.TAG,"read from NXT: " + bytes + " bytes");
                     Log.d(MainActivity.TAG,"read from NXT: " + Converter.bytesToString(buffer) + " bytes");
-                    //extractCommandFromBuffer(buffer);
                     handleReturnPackages(buffer);
                     
                 } catch (Exception e) {

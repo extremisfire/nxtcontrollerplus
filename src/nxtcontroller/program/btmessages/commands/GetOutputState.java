@@ -11,18 +11,9 @@ import nxtcontroller.program.utils.Converter;
  * @author Lukas Dilik
  *
  */
-public class GetOutputState extends DirectCommand{
+public class GetOutputState extends DirectCommandOutput{
 
 	private static final byte COMMAND_LENGTH = 3;
-	
-	/**
-	 * port where motor is connected
-	 * @param portNumber <0,2>, on NXT: A:0,B:1,C:1
-	 */
-	public void setOutputPort(byte portNumber){
-		super.command[2] = portNumber;
-		super.refreshCommand();
-	}
 	
 	public GetOutputState(byte portNumber) {	
 		super(COMMAND_LENGTH, CommandType.GET_OUTPUT_STATE);

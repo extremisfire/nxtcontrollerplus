@@ -4,7 +4,7 @@ import android.util.Log;
 import nxtcontroller.activity.MainActivity;
 import nxtcontroller.program.NXTCommunicator;
 import nxtcontroller.program.btmessages.commands.SetInputMode;
-import nxtcontroller.program.btmessages.returnpackages.GetInputValuesReturnPackage;
+import nxtcontroller.program.btmessages.returns.packages.GetInputValuesReturnPackage;
 
 public abstract class Sensor {
 	protected byte type;
@@ -48,6 +48,7 @@ public abstract class Sensor {
 		SetInputMode sim = new SetInputMode(port, type, mode);
 		if(nxt != null){
 			nxt.write(sim.getBytes());
+			Log.d(MainActivity.TAG,sim.toString());
 		}
 	}
 	
@@ -64,10 +65,9 @@ public abstract class Sensor {
 		return -1;
 	}
 	
-	protected Sensor(NXTCommunicator nxt,byte port){
-		if(port > 3 || port < 0){
-			throw new UnsupportedOperationException();
-		}
+	protected Sensor(NXTCommunicator nxt,byte port) throws UnsupportedOperationException{
+		if(port < 0 || port > 3)
+			throw new UnsupportedOperationException("Port: "+Byte.toString(port)+", only <0-3> ports are legal.");
 		this.nxt = nxt;
 		this.port = port;
 	}

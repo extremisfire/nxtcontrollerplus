@@ -13,7 +13,7 @@ import nxtcontroller.program.btmessages.BluetoothMessage;
  * @see BluetoothMessage
  */
 public abstract class DirectCommand extends BluetoothMessage{
-
+	
 	/**
 	 * this contains command byte array must initialized
 	 */
