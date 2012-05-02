@@ -36,8 +36,9 @@ public class MainActivity extends Activity{
 	/* declaration constant values */
 	public static final String TAG = "nxtcontroller"; //debug tag for LogCat
 	public static final String PREFERENCES_FNAME = "Preferences"; //name of shared preferences file
-    public static final int REQUEST_CONNECT_DEVICE = 2;
-    public static final int REQUEST_ENABLE_BT = 1;
+	public static final int REQUEST_ENABLE_BT = 1;
+	public static final int REQUEST_CONNECT_DEVICE = 2;
+    public static final int REQUEST_SETTINGS = 3;
 	
 	/* private class properties declaration */
     private BluetoothAdapter bluetoothAdapter;
@@ -192,7 +193,7 @@ public class MainActivity extends Activity{
 	private void setUpComponents(){
 		try{
 			nxtCommunicator = new NXTCommunicator(messageHandler,this);
-			
+
 			batteryLevelLabel = (TextView) findViewById(R.id.batteryLevelLable);
 	        sensor1 = (TextView) findViewById(R.id.sensor1);
 	        sensor2 = (TextView) findViewById(R.id.sensor2);
@@ -295,10 +296,18 @@ public class MainActivity extends Activity{
     	
     }
     
+    private void showSettingsActivity(){
+    	if(connectionStatus == ConnectionStatus.CONNECTED)
+    		disconnectNXT();
+        Intent intent = new Intent(this, SettingsActivity.class);
+        startActivityForResult(intent, REQUEST_SETTINGS);
+    }
+    
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 		menu.add(0, 0, 0, controlModes[0]);
 		menu.add(0, 1, 1, controlModes[1]);
+		menu.add(0, 2, 2, getResources().getString(R.string.settingsText));
 		return true;
 	}
     
@@ -311,7 +320,11 @@ public class MainActivity extends Activity{
 		case 1:
 			setControlMode(ControlModes.TILT_MODE);
 			break;
+		case 2:
+			showSettingsActivity();
+			break;
 		}
+		
 		return true;
 	}
     
@@ -334,17 +347,28 @@ public class MainActivity extends Activity{
 	    			String msg = errors[ErrorCodes.BLUETOOTH_NOT_ACTIVATED];
 	    			Toast.makeText(getApplicationContext(),msg,2).show();
 	    		}
+	    	case REQUEST_SETTINGS:
+	    		if(resultCode == Activity.RESULT_OK){
+	    			Toast.makeText(getApplicationContext(), infos[InfoCodes.SETTING_SAVED],Toast.LENGTH_LONG).show();
+	    		}else{
+	    			Toast.makeText(getApplicationContext(), infos[InfoCodes.SETTING_NOT_SAVED],Toast.LENGTH_LONG).show();
+	    		}
 	        break;
         }
     }
     
     private void loadPreviousState(Bundle savedInstanceState){
-    	this.connectionStatus = savedInstanceState.getInt(Keys.CONNECTION_STATUS);
-    	setControlMode(savedInstanceState.getInt(Keys.CONTROL_MODE));
-    	NXTDevice temp = new NXTDevice();
-    	temp.setName(savedInstanceState.getString(Keys.DEVICE_NAME));
-    	temp.setAddress(savedInstanceState.getString(Keys.DEVICE_ADDRESS));
-    	setNxtDevice(temp);
+    	try{
+    		this.connectionStatus = savedInstanceState.getInt(Keys.CONNECTION_STATUS);
+    		setControlMode(savedInstanceState.getInt(Keys.CONTROL_MODE));
+    		NXTDevice temp = new NXTDevice();
+    		temp.setName(savedInstanceState.getString(Keys.DEVICE_NAME));
+    		temp.setAddress(savedInstanceState.getString(Keys.DEVICE_ADDRESS));
+    		setNxtDevice(temp);
+    	}catch(Exception e){
+    		Log.e(TAG, "load previous state", e);
+    	}
+    	
     }
     
 	@Override

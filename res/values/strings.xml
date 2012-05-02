@@ -20,7 +20,9 @@
     <string-array name="infoMsg">
         <item >BlueTooth successfully activated. Now you can connect your NXT robot by clicking on the "Connect NXT"</item>
         <item >Please check if your NXT device is turned on or is it in range.</item>  
-        <item >Connection Lost try reconnecting</item>  
+        <item >Connection Lost try reconnecting</item>
+        <item >Setting saved. Please connect your NXT again.</item>    
+        <item >Setting has not been changed.</item>   
     </string-array>
     <string-array name="connectionStatues">
         <item >Disconnected</item>
@@ -33,6 +35,27 @@
       <item>Touch Mode</item>
       <item>Tilt Mode</item>
       <item>Follower Mode</item> 
+    </string-array>
+    <string-array name="motorNames">
+      <item>Motor A</item>
+      <item>Motor B</item>
+      <item>Motor C</item>
+    </string-array>
+	<string name="selectLeftMotor">Select Left Motor:</string>
+	<string name="selectRightMotor">Select Right Motor:</string>
+	<string name="selectPortOne">Select Sensor at Port 1:</string>
+	<string name="selectPortTwo">Select Sensor at Port 2:</string>
+	<string name="selectPortThird">Select Sensor at Port 3:</string>
+	<string name="selectPortFourth">Select Sensor at Port 4:</string>
+	<string name="saveButtonText">Save</string>
+	<string name="settingsText">Settings</string>
+    <string-array name="sensorNames">
+      <item>Touch Sensor</item>
+      <item>Light Sensor</item>
+      <item>Sound Sensor</item>
+      <item>Ultrasonic Sensor</item>
+      <item>Compass Sensor</item> 
+      <item>No Sensor</item> 
     </string-array>
     <color name="textBlack">#000</color>
     <color name="deepBlue">#00008b</color>

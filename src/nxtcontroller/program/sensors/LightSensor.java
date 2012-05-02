@@ -24,7 +24,7 @@ public class LightSensor extends Sensor{
 	
 	public LightSensor(NXTCommunicator nxt, byte port) {
 		super(nxt, port);
-		setAmbientMode();
+		setLightReflectionMode();
 		this.mode = SensorMode.PCT_FULL_SCALE_MODE;
 	}
 	

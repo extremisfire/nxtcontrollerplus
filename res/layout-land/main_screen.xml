@@ -63,11 +63,12 @@
         android1:layout_weight="0.18"
         android1:gravity="center|right"
         android1:orientation="vertical">
-
+
         <LinearLayout
             android1:id="@+id/controlsWrap"
             android1:layout_width="match_parent"
             android1:layout_height="wrap_content"
+            android1:gravity="right"
             android1:orientation="horizontal" >
 
             <LinearLayout

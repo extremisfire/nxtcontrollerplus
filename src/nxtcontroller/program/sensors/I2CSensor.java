@@ -18,7 +18,6 @@ public abstract class I2CSensor extends Sensor{
 		super.type = SensorType.LOW_SPEED_9V;
 	}
 	
-	
 	/**
 	 * MUST call refreshData before
 	 * @return actual register values from NXT 

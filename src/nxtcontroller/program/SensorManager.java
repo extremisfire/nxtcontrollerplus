@@ -30,7 +30,7 @@ public class SensorManager extends Thread{
 		this.isRunning = isRunning;
 	}
 
-	public void addSensor(Sensor sensor){
+	public synchronized void addSensor(Sensor sensor){
 		if(sensor.getPort()<0 || sensor.getPort() > 3)
 			throw new UnsupportedOperationException("Port: "+Byte.toString(sensor.getPort() )+", only <0-3> ports are legal.");
 		int found = -1;
@@ -48,7 +48,7 @@ public class SensorManager extends Thread{
 		}
 	}
 	
-	public Sensor getSensor(byte inputPort){
+	public synchronized Sensor getSensor(byte inputPort){
 		for(Sensor s:sensorList){
 			if(s.getPort()==inputPort && !(s instanceof I2CSensor))
 				return s;
@@ -56,7 +56,7 @@ public class SensorManager extends Thread{
 		return null; 
 	}
 	
-	public ArrayList<I2CSensor> getI2CSensors(){
+	public synchronized ArrayList<I2CSensor> getI2CSensors(){
 		ArrayList<I2CSensor> temp = new ArrayList<I2CSensor>();
 		for(Sensor s:sensorList){
 			if(s instanceof I2CSensor)
@@ -65,7 +65,7 @@ public class SensorManager extends Thread{
 		return temp; 
 	}
 	
-	public void unregisterSensors(){
+	public synchronized void unregisterSensors(){
 		for(Sensor s:sensorList){
 			SetInputMode sim = new SetInputMode(s.getPort(), SensorType.NO_SENSOR);
 			nxtCommunicator.write(sim.getBytes());

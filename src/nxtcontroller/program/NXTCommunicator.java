@@ -156,11 +156,14 @@ public class NXTCommunicator {
 	
 	private void getValuesFromI2CSensor(LSReadReturnPackages values){
 		String msg = "";
-		ArrayList<I2CSensor> temp = sensorManager.getI2CSensors();
-		for(I2CSensor s:temp){
-			s.refreshSensorData(values);
-			msg = s.toString();
-			messageHandler.obtainMessage((s.getPort()+1)*100,msg).sendToTarget();	
+		synchronized (this) {
+			ArrayList<I2CSensor> temp = sensorManager.getI2CSensors();
+			
+			for(I2CSensor s:temp){
+				s.refreshSensorData(values);
+				msg = s.toString();
+				messageHandler.obtainMessage((s.getPort()+1)*100,msg).sendToTarget();	
+			}
 		}
 	}
 	
@@ -168,11 +171,14 @@ public class NXTCommunicator {
 		String msg = "";
 		Sensor sensor = null;
 		int port = values.getInputPort();
-		
-		sensor = sensorManager.getSensor((byte)port);
+		synchronized (this) {
+			sensor = sensorManager.getSensor((byte)port);	
+		}
 		sensor.refreshSensorData(values);
-		
-		msg = sensor.toString();	
+		if(values.getSensorType() == SensorType.NO_SENSOR)
+			msg = "NO Sensor";
+		else
+			msg = sensor.toString();
 		messageHandler.obtainMessage((port+1)*100,msg).sendToTarget();	
 	}
 	
@@ -181,8 +187,6 @@ public class NXTCommunicator {
 		this.mainActivity = mainActivity;
 		this.sensorManager = new SensorManager(this);
 		this.connectedSensors = new HashMap<Byte, Integer>();
-		//load setting from shared Prefrences
-		loadFromPreferences();
 	}
 	
 	/**
@@ -193,7 +197,8 @@ public class NXTCommunicator {
 	 */
 	private Integer connectSensorToPort(byte portNumber,final Integer keyForSensorType){
 		try {
-			switch (keyForSensorType) {
+			synchronized (this) {
+				switch (keyForSensorType) {
 				case SensorID.TOUCH_SENSOR:
 					sensorManager.addSensor(new TouchSensor(this, portNumber));
 				break;
@@ -209,6 +214,7 @@ public class NXTCommunicator {
 				case SensorID.COMPASS_SENSOR:
 					sensorManager.addSensor(new CompassSensor(this, portNumber));
 				break;
+				}
 			}
 		} catch (Exception e) {
 			Log.e(MainActivity.TAG, "connect sensor", e);
@@ -218,23 +224,23 @@ public class NXTCommunicator {
 		return connectedSensors.put(portNumber, keyForSensorType);
 	}
 	
-	private void loadFromPreferences(){
+	public void loadFromPreferences(){
 		SharedPreferences currentSettings = this.mainActivity.getSharedPreferences(SettingsActivity.PREFERENCES_NAME, Context.MODE_PRIVATE);
 		
 		setLeftMotor((byte)currentSettings.getInt(Keys.MOTOR_LEFT, Motor.A));
 		setRightMotor((byte)currentSettings.getInt(Keys.MOTOR_RIGHT, Motor.B));
 		
 		if(currentSettings.contains(Keys.SENSOR_1)){
-			connectSensorToPort(InputPort.PORT1, currentSettings.getInt(Keys.SENSOR_1, SensorType.NO_SENSOR));
+			connectSensorToPort(InputPort.PORT1, currentSettings.getInt(Keys.SENSOR_1, SensorID.NO_SENSOR));
 		}
 		if(currentSettings.contains(Keys.SENSOR_2)){
-			connectSensorToPort(InputPort.PORT2, currentSettings.getInt(Keys.SENSOR_2, SensorType.NO_SENSOR));
+			connectSensorToPort(InputPort.PORT2, currentSettings.getInt(Keys.SENSOR_2, SensorID.NO_SENSOR));
 		}
 		if(currentSettings.contains(Keys.SENSOR_3)){
-			connectSensorToPort(InputPort.PORT3, currentSettings.getInt(Keys.SENSOR_3, SensorType.NO_SENSOR));
+			connectSensorToPort(InputPort.PORT3, currentSettings.getInt(Keys.SENSOR_3, SensorID.NO_SENSOR));
 		}
 		if(currentSettings.contains(Keys.SENSOR_4)){
-			connectSensorToPort(InputPort.PORT4, currentSettings.getInt(Keys.SENSOR_4, SensorType.NO_SENSOR));
+			connectSensorToPort(InputPort.PORT4, currentSettings.getInt(Keys.SENSOR_4, SensorID.NO_SENSOR));
 		}
 	}
 	
@@ -244,7 +250,8 @@ public class NXTCommunicator {
 	 * @param remoteDevice - BT device NXT which you want to connect 
 	 */
 	public synchronized void connectToNXT(BluetoothDevice remoteDevice){
-        if (getState() == ConnectionStatus.CONNECTING) {
+		loadFromPreferences();
+		if (getState() == ConnectionStatus.CONNECTING) {
             if (mConnectThread != null){
             	mConnectThread.cancel(); 
             	mConnectThread = null;
@@ -266,8 +273,10 @@ public class NXTCommunicator {
 	
 	public synchronized void disconnectFromNXT(){
         try{
-        	sensorManager.unregisterSensors();
-        	sensorManager.setRunning(false);
+        	synchronized (this) {
+            	sensorManager.unregisterSensors();
+            	sensorManager.setRunning(false);
+			}
         }catch(Exception e){
         	Log.e(MainActivity.TAG,"stop sensor man",e);
         }
@@ -305,10 +314,11 @@ public class NXTCommunicator {
         
 		setState(ConnectionStatus.CONNECTED);
 		try{
-			if(!sensorManager.isRunning())
-				sensorManager.start();
-			sensorManager.setRunning(true);
-            
+			synchronized (this) {
+				if(!sensorManager.isRunning())
+					sensorManager.start();
+				sensorManager.setRunning(true);	
+			}  
 		}catch(Exception e){
 			Log.e(MainActivity.TAG,"sensor man thread",e);
 		}
