@@ -3,13 +3,19 @@ package nxtcontroller.program;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.UUID;
 import nxtcontroller.activity.MainActivity;
+import nxtcontroller.activity.SettingsActivity;
 import nxtcontroller.enums.ConnectionStatus;
+import nxtcontroller.enums.Keys;
 import nxtcontroller.enums.TypeOfMessage;
 import nxtcontroller.enums.nxtbuiltin.CommandType;
 import nxtcontroller.enums.nxtbuiltin.InputPort;
 import nxtcontroller.enums.nxtbuiltin.Motor;
+import nxtcontroller.enums.nxtbuiltin.SensorID;
+import nxtcontroller.enums.nxtbuiltin.SensorType;
 import nxtcontroller.program.btmessages.commands.SetOutputState;
 import nxtcontroller.program.btmessages.returns.packages.GetBatteryLevelReturnPackage;
 import nxtcontroller.program.btmessages.returns.packages.GetInputValuesReturnPackage;
@@ -27,6 +33,8 @@ import nxtcontroller.program.sensors.UltrasonicSensor;
 import nxtcontroller.program.utils.Converter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.util.Log;
 
@@ -49,10 +57,8 @@ public class NXTCommunicator {
     private Handler messageHandler;
     private MainActivity mainActivity;
     private BluetoothDevice NXTdevice = null;
- 
-    private byte leftMotor = Motor.A;
-    private byte rightMotor = Motor.B; 
-    private byte thirdMotor = Motor.C;
+    private HashMap<Byte,Integer> connectedSensors;
+    private byte leftMotor,rightMotor,thirdMotor;
     private SensorManager sensorManager;
     
     /* public class properties declaration */
@@ -75,6 +81,7 @@ public class NXTCommunicator {
 		if(leftMotor > 2 || leftMotor < 0)
 			return;
 		this.leftMotor = leftMotor;
+		setThirdMotor();
 	}
 
 	public byte getRightMotor() {
@@ -85,16 +92,26 @@ public class NXTCommunicator {
 		if(rightMotor > 2 || rightMotor < 0)
 			return;
 		this.rightMotor = rightMotor;
+		setThirdMotor();
 	}
 
 	public byte getThirdMotor() {
 		return thirdMotor;
 	}
 
-	public void setThirdMotor(byte thirdMotor) {
-		if(thirdMotor > 2 || thirdMotor < 0)
-			return;
-		this.thirdMotor = thirdMotor;
+	public void setThirdMotor() {
+		if(getLeftMotor() == 0 && getRightMotor() == 1)
+			this.thirdMotor = Motor.C;
+		if(getLeftMotor() == 0 && getRightMotor() == 2)
+			this.thirdMotor = Motor.B;
+		if(getLeftMotor() == 1 && getRightMotor() == 0)
+			this.thirdMotor = Motor.C;
+		if(getLeftMotor() == 1 && getRightMotor() == 2)
+			this.thirdMotor = Motor.A;
+		if(getLeftMotor() == 2 && getRightMotor() == 0)
+			this.thirdMotor = Motor.B;
+		if(getLeftMotor() == 2 && getRightMotor() == 1)
+			this.thirdMotor = Motor.A;
 	}
 
 	
@@ -138,35 +155,24 @@ public class NXTCommunicator {
 	}
 	
 	private void getValuesFromI2CSensor(LSReadReturnPackages values){
-		//TODO sensor from settings
 		String msg = "";
-		I2CSensor sensor = null;
-		
-		sensor = (I2CSensor) sensorManager.getSensor((byte)InputPort.PORT3);
-		if(sensor == null){
-		  	msg = "No connected"; 
-		}else{
-		   	sensor.refreshSensorData(values);
-		    msg = sensor.toString();
+		ArrayList<I2CSensor> temp = sensorManager.getI2CSensors();
+		for(I2CSensor s:temp){
+			s.refreshSensorData(values);
+			msg = s.toString();
+			messageHandler.obtainMessage((s.getPort()+1)*100,msg).sendToTarget();	
 		}
-			
-		messageHandler.obtainMessage((InputPort.PORT3+1)*100,msg).sendToTarget();	
 	}
 	
 	private void getValuesFromSensor(GetInputValuesReturnPackage values){
-		//TODO sensor from settings
 		String msg = "";
 		Sensor sensor = null;
 		int port = values.getInputPort();
 		
 		sensor = sensorManager.getSensor((byte)port);
-		if(sensor == null){
-		  	msg = "No connected"; 
-		}else{
-		   	sensor.refreshSensorData(values);
-		    msg = sensor.toString();
-		}
-			
+		sensor.refreshSensorData(values);
+		
+		msg = sensor.toString();	
 		messageHandler.obtainMessage((port+1)*100,msg).sendToTarget();	
 	}
 	
@@ -174,6 +180,62 @@ public class NXTCommunicator {
 		this.messageHandler = handler;
 		this.mainActivity = mainActivity;
 		this.sensorManager = new SensorManager(this);
+		this.connectedSensors = new HashMap<Byte, Integer>();
+		//load setting from shared Prefrences
+		loadFromPreferences();
+	}
+	
+	/**
+	 * add sensor to map of connectedSensors
+	 * @param portNumber 0-3
+	 * @param sensor - one of supported sensors 
+	 * @return if sensorPort had already attached sensor return this sensor and replace old with new else returns null
+	 */
+	private Integer connectSensorToPort(byte portNumber,final Integer keyForSensorType){
+		try {
+			switch (keyForSensorType) {
+				case SensorID.TOUCH_SENSOR:
+					sensorManager.addSensor(new TouchSensor(this, portNumber));
+				break;
+				case SensorID.SOUND_SENSOR:
+					sensorManager.addSensor(new SoundSensor(this, portNumber));
+				break;
+				case SensorID.LIGHT_SENSOR:
+					sensorManager.addSensor(new LightSensor(this, portNumber));
+				break;
+				case SensorID.ULTRASONIC_SENSOR:
+					sensorManager.addSensor(new UltrasonicSensor(this, portNumber));
+				break;
+				case SensorID.COMPASS_SENSOR:
+					sensorManager.addSensor(new CompassSensor(this, portNumber));
+				break;
+			}
+		} catch (Exception e) {
+			Log.e(MainActivity.TAG, "connect sensor", e);
+			return null;
+		}
+		
+		return connectedSensors.put(portNumber, keyForSensorType);
+	}
+	
+	private void loadFromPreferences(){
+		SharedPreferences currentSettings = this.mainActivity.getSharedPreferences(SettingsActivity.PREFERENCES_NAME, Context.MODE_PRIVATE);
+		
+		setLeftMotor((byte)currentSettings.getInt(Keys.MOTOR_LEFT, Motor.A));
+		setRightMotor((byte)currentSettings.getInt(Keys.MOTOR_RIGHT, Motor.B));
+		
+		if(currentSettings.contains(Keys.SENSOR_1)){
+			connectSensorToPort(InputPort.PORT1, currentSettings.getInt(Keys.SENSOR_1, SensorType.NO_SENSOR));
+		}
+		if(currentSettings.contains(Keys.SENSOR_2)){
+			connectSensorToPort(InputPort.PORT2, currentSettings.getInt(Keys.SENSOR_2, SensorType.NO_SENSOR));
+		}
+		if(currentSettings.contains(Keys.SENSOR_3)){
+			connectSensorToPort(InputPort.PORT3, currentSettings.getInt(Keys.SENSOR_3, SensorType.NO_SENSOR));
+		}
+		if(currentSettings.contains(Keys.SENSOR_4)){
+			connectSensorToPort(InputPort.PORT4, currentSettings.getInt(Keys.SENSOR_4, SensorType.NO_SENSOR));
+		}
 	}
 	
 	/**
@@ -222,20 +284,6 @@ public class NXTCommunicator {
         setState(ConnectionStatus.DISCONNECTED);
 	}
 	
-	public void setUpSensors(){
-		//TouchSensor ts = new TouchSensor(this, InputPort.PORT1);	
-		//SoundSensor ss = new SoundSensor(this, InputPort.PORT2);
-		//LightSensor ls = new LightSensor(this, InputPort.PORT4);
-		//ls.setLightReflectionMode();
-		//UltrasonicSensor us = new UltrasonicSensor(this, InputPort.PORT3);
-		//sensorManager.addSensor(ts);
-		//sensorManager.addSensor(ss);
-		//sensorManager.addSensor(ls);
-		CompassSensor cs = new CompassSensor(this, InputPort.PORT3);
-		sensorManager.addSensor(cs);
-	}
-	
-	
 	/**
      * Start the ConnectedThread to begin managing a Bluetooth connection
      * @param socket  The BluetoothSocket on which the connection was made
@@ -256,7 +304,6 @@ public class NXTCommunicator {
         mConnectedThread.start();
         
 		setState(ConnectionStatus.CONNECTED);
-		setUpSensors();
 		try{
 			if(!sensorManager.isRunning())
 				sensorManager.start();

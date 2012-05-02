@@ -2,22 +2,19 @@ package nxtcontroller.program;
 
 import java.util.ArrayList;
 import nxtcontroller.activity.MainActivity;
-import nxtcontroller.enums.nxtbuiltin.InputPort;
 import nxtcontroller.enums.nxtbuiltin.SensorType;
 import nxtcontroller.program.btmessages.commands.DirectCommand;
+import nxtcontroller.program.btmessages.commands.GetBatteryLevel;
 import nxtcontroller.program.btmessages.commands.GetInputValues;
-import nxtcontroller.program.btmessages.commands.LSGetStatus;
 import nxtcontroller.program.btmessages.commands.LSRead;
-import nxtcontroller.program.btmessages.commands.LSWrite;
 import nxtcontroller.program.btmessages.commands.SetInputMode;
+import nxtcontroller.program.sensors.I2CSensor;
 import nxtcontroller.program.sensors.Sensor;
-import nxtcontroller.program.sensors.UltrasonicSensor;
 import android.util.Log;
 
 public class SensorManager extends Thread{
 	
 	private static final int REFRESH_INTERVAL = 50; //ms 
-	private static final int NUMBER_OF_SENSOR_PORTS = 4;
 	
 	private NXTCommunicator nxtCommunicator;
 	private boolean isRunning;
@@ -49,42 +46,46 @@ public class SensorManager extends Thread{
 		}else{
 			sensorList.set(found,sensor);
 		}
-		sensor.initialize();
 	}
 	
 	public Sensor getSensor(byte inputPort){
 		for(Sensor s:sensorList){
-			if(s.getPort()==inputPort)
+			if(s.getPort()==inputPort && !(s instanceof I2CSensor))
 				return s;
 		}
 		return null; 
 	}
 	
+	public ArrayList<I2CSensor> getI2CSensors(){
+		ArrayList<I2CSensor> temp = new ArrayList<I2CSensor>();
+		for(Sensor s:sensorList){
+			if(s instanceof I2CSensor)
+				temp.add((I2CSensor)s);
+		}
+		return temp; 
+	}
+	
 	public void unregisterSensors(){
-		for(int i=0; i < NUMBER_OF_SENSOR_PORTS;i++){
-			SetInputMode sim = new SetInputMode((byte)i, SensorType.NO_SENSOR);
+		for(Sensor s:sensorList){
+			SetInputMode sim = new SetInputMode(s.getPort(), SensorType.NO_SENSOR);
 			nxtCommunicator.write(sim.getBytes());
 		}
 	}
 	
 	private void setUpAutoRefreshedCommands(){
 		autoRefreshedCommands.clear();
-		//autoRefreshedCommands.add(new GetBatteryLevel());
-
-		//autoRefreshedCommands.add(new LSGetStatus(InputPort.PORT3));
-		
-		byte[] tx = {0x02, 0x42}; 
-		LSWrite lw = new LSWrite(InputPort.PORT3, tx, (byte)1);
-		lw.setRequireResponseToOn();
-		autoRefreshedCommands.add(lw);
-		autoRefreshedCommands.add(new LSRead(InputPort.PORT3));
-		for(int i=0; i < NUMBER_OF_SENSOR_PORTS;i++){
-			GetInputValues giv = new GetInputValues((byte)i);
-			//autoRefreshedCommands.add(giv);
+		autoRefreshedCommands.add(new GetBatteryLevel());
+		for(Sensor s:sensorList){
+			if(s instanceof I2CSensor){
+				I2CSensor temp = (I2CSensor) s;
+				autoRefreshedCommands.add(temp.getLSWriteCommand());
+				autoRefreshedCommands.add(new LSRead(temp.getPort()));
+			}else{
+				autoRefreshedCommands.add(new GetInputValues(s.getPort()));
+			}
 		}
-
-		
 	}
+	
 	private void sendCommandToNXT(int commandNumber){
 		try {
 			Log.d(MainActivity.TAG,"sending: "+commandNumber);
@@ -99,19 +100,11 @@ public class SensorManager extends Thread{
 		isRunning = false;
 		autoRefreshedCommands =  new ArrayList<DirectCommand>();
 		sensorList = new ArrayList<Sensor>();		
-		setUpAutoRefreshedCommands();
 	}
 	
 	private void initializeSensors(){
 		for(Sensor s:sensorList){
-			if(s instanceof UltrasonicSensor){
-				try {
-					s.initialize();
-					sleep(500);
-				} catch (Exception e) {}
-			}else{
-				s.initialize();
-			}
+			s.initialize();
 		}
 	}
 
@@ -120,6 +113,7 @@ public class SensorManager extends Thread{
 		isRunning = true;
 		counter = 0;
 		super.start();
+		setUpAutoRefreshedCommands();
 		try {
 			sleep(500);
 		} catch (InterruptedException e) {}
