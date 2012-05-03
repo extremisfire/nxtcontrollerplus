@@ -117,7 +117,30 @@ public class NXTCommunicator {
 	
 	/* Methods and Constructors declaration */
 	
-	private void handleReturnPackages(byte[] bytes){
+	
+	@SuppressWarnings("unused")
+	private void extractCommandsFromBuffer(byte[] buffer){
+		//TODO
+		//LinkedList<Byte[]> commands = new LinkedList<Byte[]>();
+		int pos = 0;
+		final byte offset = 2;//length in BT msg is counted without two bytes on the front
+		byte readedLength = (byte) (buffer[pos]);
+		
+		while(readedLength != 0){
+			byte[] temp = new byte[readedLength+offset];
+			System.arraycopy(buffer, pos, temp, 0, temp.length);
+			//commands.offer(temp);
+			//Log.d(MainActivity.TAG, "Extract Commands:\n"+Converter.bytesToString(temp)+"\n");
+			parseReturnPackage(temp);
+			pos += temp.length;
+			readedLength = (byte) (buffer[pos]);
+		}
+		//for(Byte[] b:commands){
+			
+		//}
+	}
+	
+	private void parseReturnPackage(byte[] bytes){
 		try{
 			ReturnPackage pack = new ReturnPackage(bytes);
 			switch (pack.getType()) {
@@ -273,12 +296,10 @@ public class NXTCommunicator {
 	
 	public synchronized void disconnectFromNXT(){
         try{
-        	synchronized (this) {
-            	sensorManager.unregisterSensors();
-            	sensorManager.setRunning(false);
-			}
+        	sensorManager.unregisterSensors();
+        	sensorManager.stopReadingSensorData();
         }catch(Exception e){
-        	Log.e(MainActivity.TAG,"stop sensor man",e);
+        	Log.e(MainActivity.TAG,"stop sensor manager",e);
         }
         
         if (mConnectThread != null) {
@@ -314,11 +335,7 @@ public class NXTCommunicator {
         
 		setState(ConnectionStatus.CONNECTED);
 		try{
-			synchronized (this) {
-				if(!sensorManager.isRunning())
-					sensorManager.start();
-				sensorManager.setRunning(true);	
-			}  
+			sensorManager.startReadingSensorData();
 		}catch(Exception e){
 			Log.e(MainActivity.TAG,"sensor man thread",e);
 		}
@@ -350,7 +367,7 @@ public class NXTCommunicator {
      * send a command array of bytes via BT to NXT to move 3. motor
      * @param thirdMotorSpeed - speed of motor range:[-100-100]
      */
-    public void move3Motor( byte thirdMotorSpeed) {
+    public void move3Motor(byte thirdMotorSpeed) {
     	byte[] command = generateMoveMotorCommand((byte)getThirdMotor(), (byte)thirdMotorSpeed); //command for 3.motor
     	
         if(mConnectedThread != null)
@@ -369,6 +386,7 @@ public class NXTCommunicator {
     
     public void stopMove() {
     	this.move2Motors((byte)0, (byte)0);
+    	this.move3Motor((byte)0);
     }
     
     /**
@@ -510,7 +528,8 @@ public class NXTCommunicator {
                     bytes = mmInStream.read(buffer);
                     Log.d(MainActivity.TAG,"read from NXT: " + bytes + " bytes");
                     Log.d(MainActivity.TAG,"read from NXT: " + Converter.bytesToString(buffer) + " bytes");
-                    handleReturnPackages(buffer);
+                   // extractCommandsFromBuffer(buffer); TODO
+                    parseReturnPackage(buffer);
                     
                 } catch (Exception e) {
                     Log.e(MainActivity.TAG, "listenning error",e);

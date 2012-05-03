@@ -73,5 +73,32 @@ public class Converter {
 		}
 		return temp+"]";
 	}
-
+	
+	public static String bytesToString(Byte[] bytes){
+		String temp="[";
+		int i = 0;
+		for(byte b:bytes){
+			int ubyte = (int)(b & 0xFF);
+			temp+= "0x"+ Integer.toHexString(ubyte).toUpperCase();
+			temp+= (i==bytes.length-1)? "" : ", ";
+			i++;
+		}
+		return temp+"]";
+	}
+	
+	public static byte[] bytesArrayConverter(Byte[] source){
+		byte[] res = new byte[source.length];
+		for(int i=0;i<source.length;i++){
+			res[i] = source[i];
+		}
+		return res;
+	}
+	
+	public static Byte[] bytesArrayConverter(byte[] source){
+		Byte[] res = new Byte[source.length];
+		for(int i=0;i<source.length;i++){
+			res[i] = source[i];
+		}
+		return res;
+	}
 }

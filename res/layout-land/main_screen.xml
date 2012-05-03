@@ -7,7 +7,8 @@
     android1:background="@drawable/bg"
     android1:baselineAligned="false"
     android1:gravity="left"
-    android1:orientation="horizontal" android1:paddingTop="3dp">
+    android1:orientation="horizontal"
+    android1:paddingTop="3dp" >
 
     <LinearLayout
         android1:id="@+id/leftPanel"
@@ -15,37 +16,39 @@
         android1:layout_height="match_parent"
         android1:layout_gravity="left"
         android1:layout_weight="1"
+        android1:gravity="bottom"
         android1:orientation="vertical" >
-
+
         <TextView
             android1:id="@+id/batteryLevelLable"
             android1:layout_width="wrap_content"
             android1:layout_height="wrap_content"
+            android1:padding="3dp"
             android1:text="@string/batteryLevel"
             android1:textAppearance="?android:attr/textAppearanceMedium"
-            android1:textColor="@color/white" android1:padding="3dp"/>
-
+            android1:textColor="@color/white" />
+
         <TextView
             android1:id="@+id/sensor1"
             android1:layout_width="wrap_content"
             android1:layout_height="wrap_content"
             android1:text="Small Text"
             android1:textAppearance="?android:attr/textAppearanceSmall" />
-
+
         <TextView
             android1:id="@+id/sensor2"
             android1:layout_width="wrap_content"
             android1:layout_height="wrap_content"
             android1:text="Small Text"
             android1:textAppearance="?android:attr/textAppearanceSmall" />
-
+
         <TextView
             android1:id="@+id/sensor3"
             android1:layout_width="wrap_content"
             android1:layout_height="wrap_content"
             android1:text="Small Text"
             android1:textAppearance="?android:attr/textAppearanceSmall" />
-
+
         <TextView
             android1:id="@+id/sensor4"
             android1:layout_width="wrap_content"
@@ -53,6 +56,17 @@
             android1:text="Small Text"
             android1:textAppearance="?android:attr/textAppearanceSmall" />
 
+        <LinearLayout
+            android1:id="@+id/seekBarWrapper"
+            android1:layout_width="match_parent"
+            android1:layout_height="wrap_content"
+            android1:orientation="vertical" android1:paddingLeft="15dp" android1:paddingRight="15dp" android1:paddingTop="150dp" android1:paddingBottom="15dp">
+
+            <SeekBar
+                android1:id="@+id/thirdMotorSeekBar"
+                android1:layout_width="match_parent"
+                android1:layout_height="wrap_content"/>
+        </LinearLayout>
     </LinearLayout>
 
     <LinearLayout
@@ -62,15 +76,15 @@
         android1:layout_gravity="bottom"
         android1:layout_weight="0.18"
         android1:gravity="center|right"
-        android1:orientation="vertical">
-
+        android1:orientation="vertical" >
+
         <LinearLayout
             android1:id="@+id/controlsWrap"
             android1:layout_width="match_parent"
             android1:layout_height="wrap_content"
             android1:gravity="right"
             android1:orientation="horizontal" >
-
+
             <LinearLayout
                 android1:id="@+id/controls"
                 android1:layout_width="wrap_content"

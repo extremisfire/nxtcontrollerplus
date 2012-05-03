@@ -28,10 +28,11 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MainActivity extends Activity{
+public class MainActivity extends Activity implements SeekBar.OnSeekBarChangeListener{
 
 	/* declaration constant values */
 	public static final String TAG = "nxtcontroller"; //debug tag for LogCat
@@ -48,6 +49,7 @@ public class MainActivity extends Activity{
     private TextView statusLabel,deviceNameLabel,controlModeLabel,batteryLevelLabel; 
     private TextView sensor1,sensor2,sensor3,sensor4;
     private Button connectButton,disconnectButton;
+    private SeekBar thirdMotorController;
     private String[] errors,infos,connectionStatuses,controlModes; //message arrays
     
     private int connectionStatus;
@@ -208,6 +210,10 @@ public class MainActivity extends Activity{
 	        disconnectButton = (Button) findViewById(R.id.disconnectButton);
 	        disconnectButton.setVisibility(View.GONE); 
 	        
+	        thirdMotorController = (SeekBar)findViewById(R.id.thirdMotorSeekBar);
+	        thirdMotorController.setMax(200);
+	        thirdMotorController.setProgress(100);
+	        
 	        controlPad = (ControlPad) findViewById(R.id.controlPadView);
         }catch(Exception e){
         	Log.e(TAG,"seeting up components",e);
@@ -217,6 +223,7 @@ public class MainActivity extends Activity{
     
     private void setUpListeners(){
     	try{
+    		thirdMotorController.setOnSeekBarChangeListener(this);
             connectButton.setOnClickListener(new View.OnClickListener()  {
                 public void onClick(View v) {
 	                startChooseDeviceActivity();
@@ -234,10 +241,10 @@ public class MainActivity extends Activity{
     
     private void connectNXT(){
     	try{
-		     BluetoothDevice remoteDevice = bluetoothAdapter.getRemoteDevice(nxtDevice.getAddress());
-		     nxtCommunicator.connectToNXT(remoteDevice);
-		     setConnectionStatus(ConnectionStatus.CONNECTING);
-		     connectButton.setVisibility(View.GONE);
+		    BluetoothDevice remoteDevice = bluetoothAdapter.getRemoteDevice(nxtDevice.getAddress());
+		    nxtCommunicator.connectToNXT(remoteDevice);
+		    setConnectionStatus(ConnectionStatus.CONNECTING);
+		    connectButton.setVisibility(View.GONE);
 		    disconnectButton.setVisibility(View.VISIBLE);
     	}catch(Exception e){
     		setConnectionStatus(ConnectionStatus.CONNECTION_FAILED);
@@ -249,7 +256,7 @@ public class MainActivity extends Activity{
     	try{
 	    	if(nxtCommunicator != null){
 	    		nxtCommunicator.stopMove();
-	    		nxtCommunicator.disconnectFromNXT();	
+	    		nxtCommunicator.disconnectFromNXT();
 			}
     		Log.d(TAG,"disconnecting:"+getNxtDevice());
     		unregisterController();
@@ -388,16 +395,12 @@ public class MainActivity extends Activity{
 
 	@Override
 	protected void onStop() {
-		super.onStop();
 		if(wakeLock.isHeld())
 			wakeLock.release();
+		disconnectNXT();
+		super.onStop();
 	}
 
-	@Override
-	protected void onDestroy() {
-		disconnectNXT();
-		super.onDestroy();
-	}
 	
     @Override
     protected void onSaveInstanceState(Bundle savedInstanceState) {
@@ -451,4 +454,27 @@ public class MainActivity extends Activity{
     	}
     	
     }
+
+	public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+		final int zero = 100;
+		if(this.connectionStatus == ConnectionStatus.CONNECTED){
+			byte speed = (byte) (progress - zero);
+			speed *= -1;
+			nxtCommunicator.move3Motor(speed);
+		}
+	}
+
+	public void onStartTrackingTouch(SeekBar seekBar) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void onStopTrackingTouch(SeekBar seekBar) {
+		final int zero = 100;
+		if(this.connectionStatus == ConnectionStatus.CONNECTED){
+			byte speed = 0;
+			nxtCommunicator.move3Motor(speed);
+		}
+		seekBar.setProgress(zero);
+	}
 }

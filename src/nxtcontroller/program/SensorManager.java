@@ -1,36 +1,51 @@
 package nxtcontroller.program;
 
 import java.util.ArrayList;
-import nxtcontroller.activity.MainActivity;
 import nxtcontroller.enums.nxtbuiltin.SensorType;
-import nxtcontroller.program.btmessages.commands.DirectCommand;
 import nxtcontroller.program.btmessages.commands.GetBatteryLevel;
 import nxtcontroller.program.btmessages.commands.GetInputValues;
 import nxtcontroller.program.btmessages.commands.LSRead;
 import nxtcontroller.program.btmessages.commands.SetInputMode;
 import nxtcontroller.program.sensors.I2CSensor;
 import nxtcontroller.program.sensors.Sensor;
-import android.util.Log;
+import nxtcontroller.program.utils.Converter;
 
-public class SensorManager extends Thread{
-	
-	private static final int REFRESH_INTERVAL = 50; //ms 
+public class SensorManager{
 	
 	private NXTCommunicator nxtCommunicator;
-	private boolean isRunning;
-	private int counter;
-	private ArrayList<DirectCommand> autoRefreshedCommands;
+	private ArrayList<Byte[]> autoRefreshedCommands;
 	private ArrayList<Sensor> sensorList;
+	private SensorRefresher refresher;
+
+	private byte[] mergeByteArrays(byte[] arrayOne, byte[] arrayTwo){
+		byte[] temp = new byte[arrayOne.length+arrayTwo.length];
+		System.arraycopy(arrayOne, 0, temp, 0, arrayOne.length);
+		System.arraycopy(arrayTwo, 0, temp, arrayOne.length, arrayTwo.length);
+		return temp;
+	}
 	
-	public synchronized boolean isRunning() {
-		return isRunning;
+	private void setUpAutoRefreshedCommands(){
+		autoRefreshedCommands.clear();
+		autoRefreshedCommands.add(Converter.bytesArrayConverter(new GetBatteryLevel().getBytes()));
+		
+		for(Sensor s:sensorList){
+			if(s instanceof I2CSensor){
+				I2CSensor temp = (I2CSensor) s;
+				
+				byte[] one = temp.getLSWriteCommand().getBytes();
+				LSRead lr = new LSRead(temp.getPort());
+				byte[] two = lr.getBytes();
+				byte[] merged = mergeByteArrays(one, two);
+				
+				autoRefreshedCommands.add(Converter.bytesArrayConverter(merged));
+			}else{
+				GetInputValues giv = new GetInputValues(s.getPort());
+				autoRefreshedCommands.add(Converter.bytesArrayConverter(giv.getBytes()));
+			}
+		}
 	}
-
-	public synchronized void setRunning(boolean isRunning) {
-		this.isRunning = isRunning;
-	}
-
-	public synchronized void addSensor(Sensor sensor){
+	
+	public void addSensor(Sensor sensor){
 		if(sensor.getPort()<0 || sensor.getPort() > 3)
 			throw new UnsupportedOperationException("Port: "+Byte.toString(sensor.getPort() )+", only <0-3> ports are legal.");
 		int found = -1;
@@ -48,7 +63,7 @@ public class SensorManager extends Thread{
 		}
 	}
 	
-	public synchronized Sensor getSensor(byte inputPort){
+	public Sensor getSensor(byte inputPort){
 		for(Sensor s:sensorList){
 			if(s.getPort()==inputPort && !(s instanceof I2CSensor))
 				return s;
@@ -72,66 +87,24 @@ public class SensorManager extends Thread{
 		}
 	}
 	
-	private void setUpAutoRefreshedCommands(){
-		autoRefreshedCommands.clear();
-		autoRefreshedCommands.add(new GetBatteryLevel());
-		for(Sensor s:sensorList){
-			if(s instanceof I2CSensor){
-				I2CSensor temp = (I2CSensor) s;
-				autoRefreshedCommands.add(temp.getLSWriteCommand());
-				autoRefreshedCommands.add(new LSRead(temp.getPort()));
-			}else{
-				autoRefreshedCommands.add(new GetInputValues(s.getPort()));
-			}
-		}
+	public void startReadingSensorData(){
+		setUpAutoRefreshedCommands();
+		refresher = new SensorRefresher(autoRefreshedCommands, sensorList, nxtCommunicator);
+		refresher.setRunning(true);
+		refresher.start();
 	}
 	
-	private void sendCommandToNXT(int commandNumber){
-		try {
-			Log.d(MainActivity.TAG,"sending: "+commandNumber);
-			nxtCommunicator.write(autoRefreshedCommands.get(commandNumber).getBytes());
-		} catch (Exception e) {
-			Log.e(MainActivity.TAG, "send command",e);
+	public void stopReadingSensorData(){
+		if(refresher != null){
+			refresher.setRunning(false);
+			refresher = null;
 		}
 	}
 	
 	public SensorManager(NXTCommunicator nxtCommunicator){
 		this.nxtCommunicator = nxtCommunicator;
-		isRunning = false;
-		autoRefreshedCommands =  new ArrayList<DirectCommand>();
+		autoRefreshedCommands =  new ArrayList<Byte[]>();
 		sensorList = new ArrayList<Sensor>();		
 	}
 	
-	private void initializeSensors(){
-		for(Sensor s:sensorList){
-			s.initialize();
-		}
-	}
-
-	@Override
-	public void start(){
-		isRunning = true;
-		counter = 0;
-		super.start();
-		setUpAutoRefreshedCommands();
-		try {
-			sleep(500);
-		} catch (InterruptedException e) {}
-		initializeSensors();
-	}
-	
-	@Override
-	public void run(){
-		while(isRunning){
-			try{
-				sendCommandToNXT(counter % autoRefreshedCommands.size());
-				counter++;
-				sleep(REFRESH_INTERVAL);
-			}catch(Exception e){
-				//do nothing
-			}
-		}
-	}
-
-
 }
