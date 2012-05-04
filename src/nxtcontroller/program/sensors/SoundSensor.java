@@ -2,7 +2,6 @@ package nxtcontroller.program.sensors;
 
 import nxtcontroller.enums.nxtbuiltin.SensorMode;
 import nxtcontroller.enums.nxtbuiltin.SensorType;
-import nxtcontroller.program.NXTCommunicator;
 
 /**
  * The Sound Sensor detects the decibel level: the softness or
@@ -33,8 +32,8 @@ public class SoundSensor extends Sensor{
 		this.type = SensorType.SOUND_DB;
 	}
 	
-	public SoundSensor(NXTCommunicator nxt, byte port) {
-		super(nxt, port);
+	public SoundSensor(byte port) {
+		super(port);
 		this.mode = SensorMode.PCT_FULL_SCALE_MODE;
 		setDBAMode();
 	}

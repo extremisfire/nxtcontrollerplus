@@ -39,27 +39,31 @@ import android.os.Handler;
 import android.util.Log;
 
 /**
+ * Singleton pattern class
  * This class provides communication with NXT brick,
  * create socket for communication with NXT
  * send to commands to NXT 
  * receive messages from NXT
  * change connection statutes in UI activity
 */
-public class NXTCommunicator {
+public final class NXTCommunicator {
+	
+	/* Singleton instance variable */
+	private static volatile NXTCommunicator instance = null;
 	
 	/* declaration constant values */
 	public static final String MyUUID = "00001101-0000-1000-8000-00805F9B34FB";
 	private static final int MAX_LENGHT_OF_BT_MESSAGE = 64+2;
 	
 	/* private class properties declaration */
-	private ConnectThread mConnectThread;
-    private ConnectedThread mConnectedThread;
-    private Handler messageHandler;
-    private MainActivity mainActivity;
+	private ConnectThread mConnectThread = null;
+    private ConnectedThread mConnectedThread = null;
+    private Handler messageHandler = null;
+    private MainActivity mainActivity = null;
     private BluetoothDevice NXTdevice = null;
-    private HashMap<Byte,Integer> connectedSensors;
+    private HashMap<Byte,Integer> connectedSensors = null;
     private byte leftMotor,rightMotor,thirdMotor;
-    private SensorManager sensorManager;
+    private SensorManager sensorManager = null;
     
     /* public class properties declaration */
     
@@ -67,6 +71,14 @@ public class NXTCommunicator {
     
 	public synchronized void setState(int state) {
 		messageHandler.obtainMessage(TypeOfMessage.CONNECTION_STATUS, state).sendToTarget();
+	}
+
+	public void setMessageHandler(Handler messageHandler) {
+		this.messageHandler = messageHandler;
+	}
+
+	public void setMainActivity(MainActivity mainActivity) {
+		this.mainActivity = mainActivity;
 	}
 
 	public synchronized int getState(){
@@ -205,10 +217,15 @@ public class NXTCommunicator {
 		messageHandler.obtainMessage((port+1)*100,msg).sendToTarget();	
 	}
 	
-	public NXTCommunicator(Handler handler, MainActivity mainActivity){
-		this.messageHandler = handler;
-		this.mainActivity = mainActivity;
-		this.sensorManager = new SensorManager(this);
+	public static synchronized NXTCommunicator getInstance() {
+		if (instance == null) {
+			instance = new NXTCommunicator();
+		}
+		return instance;
+	}
+	
+	private NXTCommunicator(){
+		this.sensorManager = new SensorManager();
 		this.connectedSensors = new HashMap<Byte, Integer>();
 	}
 	
@@ -223,19 +240,19 @@ public class NXTCommunicator {
 			synchronized (this) {
 				switch (keyForSensorType) {
 				case SensorID.TOUCH_SENSOR:
-					sensorManager.addSensor(new TouchSensor(this, portNumber));
+					sensorManager.addSensor(new TouchSensor(portNumber));
 				break;
 				case SensorID.SOUND_SENSOR:
-					sensorManager.addSensor(new SoundSensor(this, portNumber));
+					sensorManager.addSensor(new SoundSensor(portNumber));
 				break;
 				case SensorID.LIGHT_SENSOR:
-					sensorManager.addSensor(new LightSensor(this, portNumber));
+					sensorManager.addSensor(new LightSensor(portNumber));
 				break;
 				case SensorID.ULTRASONIC_SENSOR:
-					sensorManager.addSensor(new UltrasonicSensor(this, portNumber));
+					sensorManager.addSensor(new UltrasonicSensor(portNumber));
 				break;
 				case SensorID.COMPASS_SENSOR:
-					sensorManager.addSensor(new CompassSensor(this, portNumber));
+					sensorManager.addSensor(new CompassSensor(portNumber));
 				break;
 				}
 			}
@@ -296,7 +313,6 @@ public class NXTCommunicator {
 	
 	public synchronized void disconnectFromNXT(){
         try{
-        	sensorManager.unregisterSensors();
         	sensorManager.stopReadingSensorData();
         }catch(Exception e){
         	Log.e(MainActivity.TAG,"stop sensor manager",e);

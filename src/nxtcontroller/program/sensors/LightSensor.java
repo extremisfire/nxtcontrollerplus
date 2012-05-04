@@ -2,7 +2,6 @@ package nxtcontroller.program.sensors;
 
 import nxtcontroller.enums.nxtbuiltin.SensorMode;
 import nxtcontroller.enums.nxtbuiltin.SensorType;
-import nxtcontroller.program.NXTCommunicator;
 
 /**
  * The Light Sensor enables the robot to distinguish
@@ -22,8 +21,8 @@ public class LightSensor extends Sensor{
 		this.type = SensorType.LIGHT_ACTIVE;
 	}
 	
-	public LightSensor(NXTCommunicator nxt, byte port) {
-		super(nxt, port);
+	public LightSensor(byte port) {
+		super(port);
 		setLightReflectionMode();
 		this.mode = SensorMode.PCT_FULL_SCALE_MODE;
 	}

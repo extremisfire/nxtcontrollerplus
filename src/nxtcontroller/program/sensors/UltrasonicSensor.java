@@ -2,13 +2,12 @@ package nxtcontroller.program.sensors;
 
 import android.util.Log;
 import nxtcontroller.activity.MainActivity;
-import nxtcontroller.program.NXTCommunicator;
 import nxtcontroller.program.btmessages.commands.LSWrite;
 
 public class UltrasonicSensor extends I2CSensor{
 
-	public UltrasonicSensor(NXTCommunicator nxt, byte port) {
-		super(nxt, port);
+	public UltrasonicSensor( byte port) {
+		super(port);
 	}
 	
 	@Override

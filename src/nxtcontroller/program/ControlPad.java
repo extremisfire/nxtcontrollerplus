@@ -27,19 +27,13 @@ public class ControlPad extends View implements SensorEventListener{
 	private final int circleOffSet = 2;
 	private Paint paint;
 	private ControlPoint controlPoint;
-	private NXTCommunicator nxtCommnunicator = null;
-	@SuppressWarnings("unused")
-	private Display display;
-
+	private NXTCommunicator nxtCommnunicator = NXTCommunicator.getInstance();
+	
 	private float[] tilt_data = {0, 0, 0}, gravity = {0, 0, 0}, magnet = {0, 0, 0};
 	private SensorManager manager;
 	private Sensor magnetic,accelerometer;
 	
 	/* Getters and Setter declaration */
-    public void setNxtCommnunicator(NXTCommunicator nxtCommnunicator) {
-		this.nxtCommnunicator = nxtCommnunicator;
-	}
-
 	public Point getCenter() {
 		return center;
 	}
@@ -52,10 +46,7 @@ public class ControlPad extends View implements SensorEventListener{
         super(context, attrs);
         center = new Point();
         paint = new Paint();
-        controlPoint = new ControlPoint(context, center.x, center.y,this);
-        WindowManager windowManager = (WindowManager) context.getSystemService(MainActivity.WINDOW_SERVICE);
-        display = windowManager.getDefaultDisplay();
-        
+        controlPoint = new ControlPoint(context, center.x, center.y,this);    
         manager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
         magnetic = manager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
         accelerometer = manager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -119,26 +110,15 @@ public class ControlPad extends View implements SensorEventListener{
         double oneDegree = (double)radius / (double)degreesCount;
         controlPoint.setOneDegree(oneDegree);
     }
-    
-    
-	public void onAccuracyChanged(Sensor sensor, int accuracy) {
-    	
-	}
+       
+	public void onAccuracyChanged(Sensor sensor, int accuracy) {}
 
-    
 	public void onSensorChanged(SensorEvent event) {
-        
 		final float[] vals = event.values; 
         final float[] target;
         
         target = (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) ? gravity : magnet;
-
         System.arraycopy(vals, 0, target, 0, 3);   
-        /*
-        Log.d(MainActivity.TAG,"X: "+Math.round(getTiltValues()[0]*100)/(float)100);
-        Log.d(MainActivity.TAG,"Y: "+Math.round(getTiltValues()[1]*100)/(float)100);
-        Log.d(MainActivity.TAG,"Z: "+Math.round(getTiltValues()[2]*100)/(float)100);
-    	*/
         tiltMoves(getTiltValues()[1], getTiltValues()[2]);
 	}
     

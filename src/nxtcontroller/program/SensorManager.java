@@ -1,18 +1,15 @@
 package nxtcontroller.program;
 
 import java.util.ArrayList;
-import nxtcontroller.enums.nxtbuiltin.SensorType;
 import nxtcontroller.program.btmessages.commands.GetBatteryLevel;
 import nxtcontroller.program.btmessages.commands.GetInputValues;
 import nxtcontroller.program.btmessages.commands.LSRead;
-import nxtcontroller.program.btmessages.commands.SetInputMode;
 import nxtcontroller.program.sensors.I2CSensor;
 import nxtcontroller.program.sensors.Sensor;
 import nxtcontroller.program.utils.Converter;
 
 public class SensorManager{
 	
-	private NXTCommunicator nxtCommunicator;
 	private ArrayList<Byte[]> autoRefreshedCommands;
 	private ArrayList<Sensor> sensorList;
 	private SensorRefresher refresher;
@@ -80,31 +77,24 @@ public class SensorManager{
 		return temp; 
 	}
 	
-	public synchronized void unregisterSensors(){
-		for(Sensor s:sensorList){
-			SetInputMode sim = new SetInputMode(s.getPort(), SensorType.NO_SENSOR);
-			nxtCommunicator.write(sim.getBytes());
-		}
-	}
-	
 	public void startReadingSensorData(){
 		setUpAutoRefreshedCommands();
-		refresher = new SensorRefresher(autoRefreshedCommands, sensorList, nxtCommunicator);
+		refresher = new SensorRefresher(autoRefreshedCommands, sensorList);
 		refresher.setRunning(true);
 		refresher.start();
 	}
 	
 	public void stopReadingSensorData(){
 		if(refresher != null){
+			refresher.unregisterSensors();
 			refresher.setRunning(false);
 			refresher = null;
 		}
 	}
 	
-	public SensorManager(NXTCommunicator nxtCommunicator){
-		this.nxtCommunicator = nxtCommunicator;
+	public SensorManager(){
 		autoRefreshedCommands =  new ArrayList<Byte[]>();
-		sensorList = new ArrayList<Sensor>();		
+		sensorList = new ArrayList<Sensor>();	
 	}
 	
 }

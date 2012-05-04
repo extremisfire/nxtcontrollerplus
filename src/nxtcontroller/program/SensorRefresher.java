@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import android.util.Log;
 
 import nxtcontroller.activity.MainActivity;
+import nxtcontroller.enums.nxtbuiltin.SensorType;
+import nxtcontroller.program.btmessages.commands.SetInputMode;
 import nxtcontroller.program.sensors.Sensor;
 import nxtcontroller.program.utils.Converter;
 
@@ -13,7 +15,7 @@ public class SensorRefresher extends Thread{
 	
 	private ArrayList<Byte[]> autoRefreshedCommands;
 	private ArrayList<Sensor> sensorList;	
-	private NXTCommunicator nxtCommunicator;
+	private NXTCommunicator nxtCommunicator = NXTCommunicator.getInstance();
 	
 	private volatile boolean isRunning;
 	private int counter;
@@ -26,15 +28,21 @@ public class SensorRefresher extends Thread{
 		this.isRunning = isRunning;
 	}
 	
-	public SensorRefresher(ArrayList<Byte[]> autoRefreshedCommands, ArrayList<Sensor> sensorList,NXTCommunicator nxtCommunicator){
+	public SensorRefresher(ArrayList<Byte[]> autoRefreshedCommands, ArrayList<Sensor> sensorList){
 		this.autoRefreshedCommands = autoRefreshedCommands;
 		this.sensorList = sensorList;
-		this.nxtCommunicator = nxtCommunicator;
 	}
 	
 	private void initializeSensors(){
 		for(Sensor s:sensorList){
 			s.initialize();
+		}
+	}
+	
+	public synchronized void unregisterSensors(){
+		for(Sensor s:sensorList){
+			SetInputMode sim = new SetInputMode(s.getPort(), SensorType.NO_SENSOR);
+			nxtCommunicator.write(sim.getBytes());
 		}
 	}
 	

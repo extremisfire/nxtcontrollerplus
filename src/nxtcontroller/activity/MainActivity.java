@@ -54,7 +54,7 @@ public class MainActivity extends Activity implements SeekBar.OnSeekBarChangeLis
     
     private int connectionStatus;
     private int controlMode;
-    private NXTCommunicator nxtCommunicator;
+    private NXTCommunicator nxtCommunicator = NXTCommunicator.getInstance();
     private ControlPad controlPad;
     private NXTDevice nxtDevice = null;
   
@@ -194,8 +194,9 @@ public class MainActivity extends Activity implements SeekBar.OnSeekBarChangeLis
 
 	private void setUpComponents(){
 		try{
-			nxtCommunicator = new NXTCommunicator(messageHandler,this);
-
+			nxtCommunicator.setMainActivity(this);
+			nxtCommunicator.setMessageHandler(this.messageHandler);
+			
 			batteryLevelLabel = (TextView) findViewById(R.id.batteryLevelLable);
 	        sensor1 = (TextView) findViewById(R.id.sensor1);
 	        sensor2 = (TextView) findViewById(R.id.sensor2);
@@ -287,7 +288,6 @@ public class MainActivity extends Activity implements SeekBar.OnSeekBarChangeLis
     private void registerController(){
     	try{
     		controlPad.turnOnTouchControl();
-    		controlPad.setNxtCommnunicator(nxtCommunicator);  
     	}catch(Exception e){
     		Log.e(TAG,"control pad setting up",e);
     	}

@@ -2,13 +2,12 @@ package nxtcontroller.program.sensors;
 
 import android.util.Log;
 import nxtcontroller.activity.MainActivity;
-import nxtcontroller.program.NXTCommunicator;
 import nxtcontroller.program.btmessages.commands.LSWrite;
 
 public class CompassSensor extends I2CSensor{
-
-	public CompassSensor(NXTCommunicator nxt, byte port) {
-		super(nxt, port);
+		
+	public CompassSensor(byte port) {
+		super(port);
 	}
 	
 	@Override
@@ -36,7 +35,6 @@ public class CompassSensor extends I2CSensor{
 		byte[] tx = {I2CSensor.DEFAULT_REGISTER_ADDRESS, result}; //transmitted data from NXT written in NXT register
 		byte recievedDataLength = 0x01; // constant measurement mode is default this means only one value is expected to return
 		LSWrite lw = new LSWrite(super.getPort(), tx, recievedDataLength);
-		
 		return lw;
 	}
 
