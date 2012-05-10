@@ -13,13 +13,6 @@ public class SensorManager{
 	private ArrayList<Byte[]> autoRefreshedCommands;
 	private ArrayList<Sensor> sensorList;
 	private SensorRefresher refresher;
-
-	private byte[] mergeByteArrays(byte[] arrayOne, byte[] arrayTwo){
-		byte[] temp = new byte[arrayOne.length+arrayTwo.length];
-		System.arraycopy(arrayOne, 0, temp, 0, arrayOne.length);
-		System.arraycopy(arrayTwo, 0, temp, arrayOne.length, arrayTwo.length);
-		return temp;
-	}
 	
 	private void setUpAutoRefreshedCommands(){
 		autoRefreshedCommands.clear();
@@ -32,7 +25,7 @@ public class SensorManager{
 				byte[] one = temp.getLSWriteCommand().getBytes();
 				LSRead lr = new LSRead(temp.getPort());
 				byte[] two = lr.getBytes();
-				byte[] merged = mergeByteArrays(one, two);
+				byte[] merged = Converter.mergeByteArrays(one, two);
 				
 				autoRefreshedCommands.add(Converter.bytesArrayConverter(merged));
 			}else{
@@ -60,7 +53,7 @@ public class SensorManager{
 		}
 	}
 	
-	public Sensor getSensor(byte inputPort){
+	public Sensor getDigitalSensor(byte inputPort){
 		for(Sensor s:sensorList){
 			if(s.getPort()==inputPort && !(s instanceof I2CSensor))
 				return s;

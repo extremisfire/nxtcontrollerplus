@@ -9,64 +9,177 @@
     android1:gravity="left"
     android1:orientation="horizontal"
     android1:paddingTop="3dp" >
-
+
     <LinearLayout
         android1:id="@+id/leftPanel"
         android1:layout_width="0dp"
         android1:layout_height="match_parent"
-        android1:layout_gravity="left"
+        android1:layout_gravity="top"
         android1:layout_weight="1"
-        android1:gravity="bottom"
+        android1:gravity="bottom|top"
         android1:orientation="vertical" >
 
-        <TextView
-            android1:id="@+id/batteryLevelLable"
-            android1:layout_width="wrap_content"
-            android1:layout_height="wrap_content"
-            android1:padding="3dp"
-            android1:text="@string/batteryLevel"
-            android1:textAppearance="?android:attr/textAppearanceMedium"
-            android1:textColor="@color/white" />
-
-        <TextView
-            android1:id="@+id/sensor1"
-            android1:layout_width="wrap_content"
-            android1:layout_height="wrap_content"
-            android1:text="Small Text"
-            android1:textAppearance="?android:attr/textAppearanceSmall" />
-
-        <TextView
-            android1:id="@+id/sensor2"
-            android1:layout_width="wrap_content"
-            android1:layout_height="wrap_content"
-            android1:text="Small Text"
-            android1:textAppearance="?android:attr/textAppearanceSmall" />
-
-        <TextView
-            android1:id="@+id/sensor3"
-            android1:layout_width="wrap_content"
-            android1:layout_height="wrap_content"
-            android1:text="Small Text"
-            android1:textAppearance="?android:attr/textAppearanceSmall" />
-
-        <TextView
-            android1:id="@+id/sensor4"
-            android1:layout_width="wrap_content"
-            android1:layout_height="wrap_content"
-            android1:text="Small Text"
-            android1:textAppearance="?android:attr/textAppearanceSmall" />
-
-        <LinearLayout
-            android1:id="@+id/seekBarWrapper"
+        <TableLayout
+            android1:id="@+id/sensors"
             android1:layout_width="match_parent"
-            android1:layout_height="wrap_content"
-            android1:orientation="vertical" android1:paddingLeft="15dp" android1:paddingRight="15dp" android1:paddingTop="150dp" android1:paddingBottom="15dp">
+            android1:layout_height="wrap_content" >
 
-            <SeekBar
-                android1:id="@+id/thirdMotorSeekBar"
-                android1:layout_width="match_parent"
-                android1:layout_height="wrap_content"/>
-        </LinearLayout>
+            <TableRow
+                android1:id="@+id/Battery"
+                android1:layout_width="wrap_content"
+                android1:layout_height="wrap_content" android1:paddingLeft="5dp" android1:paddingBottom="2dp">
+
+                <TextView
+                    android1:id="@+id/batteryLevelLable"
+                    android1:layout_width="wrap_content"
+                    android1:layout_height="wrap_content"
+                    android1:layout_span="3"
+                    android1:text="@string/batteryLevel"
+                    android1:textAppearance="?android:attr/textAppearanceMedium"
+                    android1:textColor="@color/white" />
+            </TableRow>
+
+            <TableRow
+                android1:id="@+id/row1"
+                android1:layout_width="wrap_content"
+                android1:layout_height="wrap_content" android1:paddingLeft="5dp" android1:paddingBottom="5dp">
+
+                <LinearLayout
+                    android1:id="@+id/row1wrapper"
+                    android1:layout_width="50dp"
+                    android1:layout_height="fill_parent"
+                    android1:gravity="center_vertical"
+                    android1:orientation="horizontal" >
+
+                    <TextView
+                        android1:id="@+id/row1name"
+                        android1:layout_width="wrap_content"
+                        android1:layout_height="wrap_content"
+                        android1:text="@string/noSensorLabel"
+                        android1:textAppearance="?android:attr/textAppearanceSmall"
+                        android1:textColor="@color/white" />
+
+                    <LinearLayout
+                        android1:id="@+id/view1"
+                        android1:layout_width="160px"
+                        android1:layout_height="80px"
+                        android1:orientation="vertical" >
+
+                    </LinearLayout>
+                </LinearLayout>
+            </TableRow>
+
+            <TableRow
+                android1:id="@+id/row2"
+                android1:layout_width="wrap_content"
+                android1:layout_height="wrap_content" android1:paddingLeft="5dp" android1:paddingBottom="5dp">
+
+                <LinearLayout
+                    android1:id="@+id/row2wrapper"
+                    android1:layout_width="match_parent"
+                    android1:layout_height="match_parent"
+                    android1:gravity="center_vertical"
+                    android1:orientation="horizontal" >
+
+                    <TextView
+                        android1:id="@+id/row2name"
+                        android1:layout_width="wrap_content"
+                        android1:layout_height="wrap_content"
+                        android1:text="@string/noSensorLabel"
+                        android1:textAppearance="?android:attr/textAppearanceSmall"
+                        android1:textColor="@color/white" />
+
+                    <LinearLayout
+                        android1:id="@+id/view2"
+                        android1:layout_width="160px"
+                        android1:layout_height="80px"
+                        android1:orientation="vertical" >
+
+                    </LinearLayout>
+                </LinearLayout>
+            </TableRow>
+
+            <TableRow
+                android1:id="@+id/row3"
+                android1:layout_width="wrap_content"
+                android1:layout_height="wrap_content" android1:paddingBottom="5dp" android1:paddingLeft="5dp">
+
+                <LinearLayout
+                    android1:id="@+id/row3wrapper"
+                    android1:layout_width="match_parent"
+                    android1:layout_height="match_parent"
+                    android1:gravity="center_vertical"
+                    android1:orientation="horizontal" >
+
+                    <TextView
+                        android1:id="@+id/row3name"
+                        android1:layout_width="wrap_content"
+                        android1:layout_height="wrap_content"
+                        android1:text="@string/noSensorLabel"
+                        android1:textAppearance="?android:attr/textAppearanceSmall"
+                        android1:textColor="@color/white" />
+
+                    <LinearLayout
+                        android1:id="@+id/view3"
+                        android1:layout_width="160px"
+                        android1:layout_height="80px"
+                        android1:orientation="vertical" >
+
+                    </LinearLayout>
+
+                </LinearLayout>
+            </TableRow>
+
+            <TableRow
+                android1:id="@+id/row4"
+                android1:layout_width="wrap_content"
+                android1:layout_height="wrap_content" android1:paddingLeft="5dp" android1:paddingBottom="5dp">
+
+                <LinearLayout
+                    android1:id="@+id/row4wrapper"
+                    android1:layout_width="match_parent"
+                    android1:layout_height="match_parent"
+                    android1:gravity="center_vertical"
+                    android1:orientation="horizontal" >
+
+                    <TextView
+                        android1:id="@+id/row4name"
+                        android1:layout_width="wrap_content"
+                        android1:layout_height="wrap_content"
+                        android1:text="@string/noSensorLabel"
+                        android1:textAppearance="?android:attr/textAppearanceSmall"
+                        android1:textColor="@color/white" />
+
+                    <LinearLayout
+                        android1:id="@+id/view4"
+                        android1:layout_width="160px"
+                        android1:layout_height="80px"
+                        android1:orientation="vertical" >
+
+                    </LinearLayout>
+
+                </LinearLayout>
+            </TableRow>
+
+            <TableRow
+                android1:id="@+id/seekBar"
+                android1:layout_width="wrap_content"
+                android1:layout_height="wrap_content"
+                android1:layout_span="3" >
+
+                <LinearLayout
+                    android1:id="@+id/seekBarWrap"
+                    android1:layout_width="250dp"
+                    android1:layout_height="wrap_content"
+                    android1:orientation="vertical" android1:padding="5dp">
+
+                    <SeekBar
+                        android1:id="@+id/thirdMotorSeekBar"
+                        android1:layout_width="match_parent"
+                        android1:layout_height="match_parent" />
+                </LinearLayout>
+            </TableRow>
+        </TableLayout>
     </LinearLayout>
 
     <LinearLayout
@@ -132,7 +245,7 @@
                 android1:text="@string/connectNXT" />
         </LinearLayout>
 
-        <nxtcontroller.program.ControlPad
+        <nxtcontroller.program.views.ControlPad
             android1:id="@+id/controlPadView"
             android1:layout_width="wrap_content"
             android1:layout_height="wrap_content" />

@@ -6,10 +6,14 @@ import nxtcontroller.enums.ErrorCodes;
 import nxtcontroller.enums.InfoCodes;
 import nxtcontroller.enums.Keys;
 import nxtcontroller.enums.TypeOfMessage;
-import nxtcontroller.program.ControlPad;
+import nxtcontroller.enums.nxtbuiltin.InputPort;
+import nxtcontroller.enums.nxtbuiltin.SensorID;
 import nxtcontroller.program.NXTCommunicator;
 import nxtcontroller.program.NXTDevice;
 import nxtcontroller.program.R;
+import nxtcontroller.program.views.ControlPad;
+import nxtcontroller.program.views.SensorView;
+import nxtcontroller.program.views.TouchSensorView;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -28,6 +32,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -40,6 +45,8 @@ public class MainActivity extends Activity implements SeekBar.OnSeekBarChangeLis
 	public static final int REQUEST_ENABLE_BT = 1;
 	public static final int REQUEST_CONNECT_DEVICE = 2;
     public static final int REQUEST_SETTINGS = 3;
+    
+    public static final int NUMBER_OF_PORTS = 4;
 	
 	/* private class properties declaration */
     private BluetoothAdapter bluetoothAdapter;
@@ -47,10 +54,14 @@ public class MainActivity extends Activity implements SeekBar.OnSeekBarChangeLis
     private PowerManager.WakeLock wakeLock;
     
     private TextView statusLabel,deviceNameLabel,controlModeLabel,batteryLevelLabel; 
-    private TextView sensor1,sensor2,sensor3,sensor4;
+    
+    private TextView[] sensorNames;
+    private LinearLayout[] sensorViewWrappers; // position is the number of Port
+    private SensorView[] sensorViews;
+    
     private Button connectButton,disconnectButton;
     private SeekBar thirdMotorController;
-    private String[] errors,infos,connectionStatuses,controlModes; //message arrays
+    private String[] errors,infos,connectionStatuses,controlModes,sensorTextName; //message arrays
     
     private int connectionStatus;
     private int controlMode;
@@ -83,17 +94,8 @@ public class MainActivity extends Activity implements SeekBar.OnSeekBarChangeLis
             		temp += " " + msg.obj.toString() + " %";
             		batteryLevelLabel.setText(temp);
             	break;
-            	case(TypeOfMessage.LABEL1):
-            		sensor1.setText("1: "+msg.obj.toString());
-            	break;
-            	case(TypeOfMessage.LABEL2):
-            		sensor2.setText("2: "+msg.obj.toString());
-            	break;
-            	case(TypeOfMessage.LABEL3):
-            		sensor3.setText("3: "+msg.obj.toString());
-            	break;
-            	case(TypeOfMessage.LABEL4):
-            		sensor4.setText("4: "+msg.obj.toString());
+            	case(TypeOfMessage.SENSOR_DATA):
+            		refreshSensorData(msg);
             	break;
             }
         	}catch (Exception e){
@@ -101,6 +103,35 @@ public class MainActivity extends Activity implements SeekBar.OnSeekBarChangeLis
         	}
         }
     };
+    
+    /**
+     * @param msg.arg1 = sensor ID
+     * msg.arg2 - port number
+     * msg.obj - sensor data
+     */
+    private void refreshSensorData(Message msg){
+    	int portNumber = msg.arg1;
+    	int sensorData = msg.arg2;
+    	SensorView sensorView = sensorViews[portNumber];
+    	if(sensorView != null){
+    		sensorView.setValue(sensorData);
+    		sensorView.invalidate();
+    	}   	
+    	Log.d(TAG,"REFRESH:"+sensorData+" | "+portNumber);
+    }
+    
+    public void setUpSensorView(byte portNumber, int sensorID){
+    	LinearLayout viewWrapper = sensorViewWrappers[portNumber];
+    	switch (sensorID) {
+		case SensorID.TOUCH_SENSOR:
+			TouchSensorView touchView = new TouchSensorView(this);
+			sensorViews[portNumber] =  touchView;
+			viewWrapper.addView(touchView);
+			break;
+		}
+    	TextView name = sensorNames[portNumber];
+    	name.setText("Port "+Byte.toString(portNumber)+":\n"+sensorTextName[sensorID]);
+    }
     
     /* Getters and Setter declaration */
     
@@ -187,6 +218,7 @@ public class MainActivity extends Activity implements SeekBar.OnSeekBarChangeLis
     		infos = res.getStringArray(R.array.infoMsg);
     		connectionStatuses = res.getStringArray(R.array.connectionStatues);
     		controlModes = res.getStringArray(R.array.controlModes);
+    		sensorTextName = res.getStringArray(R.array.sensorNames);
     	}catch(Exception e){
     		Log.e(TAG,"resources error: ",e);
     	}
@@ -198,11 +230,21 @@ public class MainActivity extends Activity implements SeekBar.OnSeekBarChangeLis
 			nxtCommunicator.setMessageHandler(this.messageHandler);
 			
 			batteryLevelLabel = (TextView) findViewById(R.id.batteryLevelLable);
-	        sensor1 = (TextView) findViewById(R.id.sensor1);
-	        sensor2 = (TextView) findViewById(R.id.sensor2);
-	        sensor3 = (TextView) findViewById(R.id.sensor3);
-	        sensor4 = (TextView) findViewById(R.id.sensor4);
-	        
+			
+			sensorNames = new TextView[NUMBER_OF_PORTS];
+			sensorViewWrappers = new LinearLayout[NUMBER_OF_PORTS];
+			sensorViews = new SensorView[NUMBER_OF_PORTS];
+			
+			sensorNames[InputPort.PORT1]  = (TextView)findViewById(R.id.row1name);
+			sensorNames[InputPort.PORT2]  = (TextView)findViewById(R.id.row2name);
+			sensorNames[InputPort.PORT3]  = (TextView)findViewById(R.id.row3name);
+			sensorNames[InputPort.PORT4]  = (TextView)findViewById(R.id.row4name);
+
+			sensorViewWrappers[InputPort.PORT1] = (LinearLayout)findViewById(R.id.view1);
+			sensorViewWrappers[InputPort.PORT2] = (LinearLayout)findViewById(R.id.view2);
+			sensorViewWrappers[InputPort.PORT3] = (LinearLayout)findViewById(R.id.view3);
+			sensorViewWrappers[InputPort.PORT4] = (LinearLayout)findViewById(R.id.view4);
+			
 			statusLabel = (TextView) findViewById(R.id.statusLabel);
 	        deviceNameLabel = (TextView) findViewById(R.id.deviceName);
 	        controlModeLabel = (TextView) findViewById(R.id.controlModeLabel);
@@ -357,6 +399,7 @@ public class MainActivity extends Activity implements SeekBar.OnSeekBarChangeLis
 	    	case REQUEST_SETTINGS:
 	    		if(resultCode == Activity.RESULT_OK){
 	    			Toast.makeText(getApplicationContext(), infos[InfoCodes.SETTING_SAVED],Toast.LENGTH_LONG).show();
+	    			nxtCommunicator.loadFromPreferences();
 	    		}else{
 	    			Toast.makeText(getApplicationContext(), infos[InfoCodes.SETTING_NOT_SAVED],Toast.LENGTH_LONG).show();
 	    		}

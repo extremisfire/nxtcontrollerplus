@@ -1,5 +1,6 @@
 package nxtcontroller.program.sensors;
 
+import nxtcontroller.enums.nxtbuiltin.SensorID;
 import nxtcontroller.enums.nxtbuiltin.SensorMode;
 import nxtcontroller.enums.nxtbuiltin.SensorType;
 
@@ -23,6 +24,12 @@ import nxtcontroller.enums.nxtbuiltin.SensorType;
  *
  */
 public class SoundSensor extends Sensor{
+	
+	private final int id = SensorID.SOUND_SENSOR;
+	
+	public int getId() {
+		return id;
+	}
 
 	public void setDBAMode(){
 		this.type = SensorType.SOUND_DBA;
@@ -40,7 +47,7 @@ public class SoundSensor extends Sensor{
 	
 	@Override
 	public String toString() {
-		String ret="SOUND SENSOR: ";
+		String ret="";
 		ret += Integer.toString(super.getMeasuredData());
 		if(this.type == SensorType.SOUND_DB)
 			ret += " Db";

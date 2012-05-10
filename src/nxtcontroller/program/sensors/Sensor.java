@@ -13,6 +13,8 @@ public abstract class Sensor {
 	protected NXTCommunicator nxtCommunicator = NXTCommunicator.getInstance();
 	protected GetInputValuesReturnPackage data;
 	
+	public abstract int getId();
+	
 	public byte getType() {
 		return type;
 	}

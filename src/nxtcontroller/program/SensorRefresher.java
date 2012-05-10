@@ -39,11 +39,15 @@ public class SensorRefresher extends Thread{
 		}
 	}
 	
-	public synchronized void unregisterSensors(){
-		for(Sensor s:sensorList){
-			SetInputMode sim = new SetInputMode(s.getPort(), SensorType.NO_SENSOR);
-			nxtCommunicator.write(sim.getBytes());
+	public void unregisterSensors(){
+		byte[] temp = null;
+		SetInputMode sim = new SetInputMode((byte)0, SensorType.NO_SENSOR);
+		temp =sim.getBytes();
+		for(byte i = 1; i<4;i++){
+			sim = new SetInputMode(i, SensorType.NO_SENSOR);
+			temp = Converter.mergeByteArrays(temp, sim.getBytes());
 		}
+		nxtCommunicator.write(temp);
 	}
 	
 	private void sendCommandToNXT(int commandNumber){

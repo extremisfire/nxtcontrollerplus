@@ -2,9 +2,16 @@ package nxtcontroller.program.sensors;
 
 import android.util.Log;
 import nxtcontroller.activity.MainActivity;
+import nxtcontroller.enums.nxtbuiltin.SensorID;
 import nxtcontroller.program.btmessages.commands.LSWrite;
 
 public class UltrasonicSensor extends I2CSensor{
+	
+	private final int id = SensorID.SOUND_SENSOR;
+	
+	public int getId() {
+		return id;
+	}
 
 	public UltrasonicSensor( byte port) {
 		super(port);
@@ -37,4 +44,5 @@ public class UltrasonicSensor extends I2CSensor{
 		
 		return lw;
 	}
+
 }

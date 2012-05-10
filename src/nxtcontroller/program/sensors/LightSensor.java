@@ -1,5 +1,6 @@
 package nxtcontroller.program.sensors;
 
+import nxtcontroller.enums.nxtbuiltin.SensorID;
 import nxtcontroller.enums.nxtbuiltin.SensorMode;
 import nxtcontroller.enums.nxtbuiltin.SensorType;
 
@@ -12,6 +13,12 @@ import nxtcontroller.enums.nxtbuiltin.SensorType;
  *
  */
 public class LightSensor extends Sensor{
+	
+	private final int id = SensorID.LIGHT_SENSOR;
+	
+	public int getId() {
+		return id;
+	}
 
 	public void setAmbientMode(){
 		this.type = SensorType.LIGHT_INACTIVE;
@@ -51,12 +58,12 @@ public class LightSensor extends Sensor{
 	
 	@Override
 	public String toString(){
-		String ret="LIGHT SENSOR: ";
 		if(this.type == SensorType.LIGHT_INACTIVE){
-			return ret+"Ambient: "+Integer.toString(getAmbientLight())+" %" ;
+			return Integer.toString(getAmbientLight())+" %" ;
 		}else{
-			return ret+"Reflected light: "+Integer.toString(getReflection())+" %";
+			return Integer.toString(getReflection())+" %";
 		}
 		
 	}
+
 }

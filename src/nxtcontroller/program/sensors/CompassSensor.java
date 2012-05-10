@@ -2,9 +2,16 @@ package nxtcontroller.program.sensors;
 
 import android.util.Log;
 import nxtcontroller.activity.MainActivity;
+import nxtcontroller.enums.nxtbuiltin.SensorID;
 import nxtcontroller.program.btmessages.commands.LSWrite;
 
 public class CompassSensor extends I2CSensor{
+	
+	private final int id = SensorID.COMPASS_SENSOR;
+	
+	public int getId() {
+		return id;
+	}
 		
 	public CompassSensor(byte port) {
 		super(port);
@@ -18,7 +25,7 @@ public class CompassSensor extends I2CSensor{
 
 	@Override
 	public String toString() {
-		String ret="COMPASS SENSOR: ";
+		String ret="";
 		//this sensor works exactly as ultrasonic but returns value div 2
 	    ret += Integer.toString(getMeasuredData()*2)+" deg";
 		return ret;

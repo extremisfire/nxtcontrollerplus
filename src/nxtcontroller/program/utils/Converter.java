@@ -101,4 +101,11 @@ public class Converter {
 		}
 		return res;
 	}
+	
+	public static byte[] mergeByteArrays(byte[] arrayOne, byte[] arrayTwo){
+		byte[] temp = new byte[arrayOne.length+arrayTwo.length];
+		System.arraycopy(arrayOne, 0, temp, 0, arrayOne.length);
+		System.arraycopy(arrayTwo, 0, temp, arrayOne.length, arrayTwo.length);
+		return temp;
+	}
 }
