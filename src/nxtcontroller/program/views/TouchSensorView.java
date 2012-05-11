@@ -25,7 +25,7 @@ public class TouchSensorView extends SensorView{
 	
 	@Override
 	protected void onDraw (Canvas canvas){
-		if(super.value == 1){
+		if(getSensorValue() == 1){
 			canvas.drawBitmap(touchONbmp, 0, 0, null);
 		}else{
 			canvas.drawBitmap(touchOFFbmp, 0, 0, null);

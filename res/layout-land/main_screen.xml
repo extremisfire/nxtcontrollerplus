@@ -57,13 +57,14 @@
                         android1:layout_height="wrap_content"
                         android1:text="@string/noSensorLabel"
                         android1:textAppearance="?android:attr/textAppearanceSmall"
-                        android1:textColor="@color/white" />
-
+                        android1:textColor="@color/white" android1:paddingRight="5dp"/>
+
                     <LinearLayout
                         android1:id="@+id/view1"
-                        android1:layout_width="160px"
+                        android1:layout_width="200px"
                         android1:layout_height="80px"
-                        android1:orientation="vertical" >
+                        android1:gravity="center_vertical"
+                        android1:orientation="vertical" android1:paddingLeft="5dp">
 
                     </LinearLayout>
                 </LinearLayout>
@@ -87,13 +88,14 @@
                         android1:layout_height="wrap_content"
                         android1:text="@string/noSensorLabel"
                         android1:textAppearance="?android:attr/textAppearanceSmall"
-                        android1:textColor="@color/white" />
-
+                        android1:textColor="@color/white" android1:paddingRight="5dp"/>
+
                     <LinearLayout
                         android1:id="@+id/view2"
-                        android1:layout_width="160px"
+                        android1:layout_width="200px"
                         android1:layout_height="80px"
-                        android1:orientation="vertical" >
+                        android1:gravity="center_vertical"
+                        android1:orientation="vertical" android1:paddingLeft="5dp">
 
                     </LinearLayout>
                 </LinearLayout>
@@ -117,13 +119,14 @@
                         android1:layout_height="wrap_content"
                         android1:text="@string/noSensorLabel"
                         android1:textAppearance="?android:attr/textAppearanceSmall"
-                        android1:textColor="@color/white" />
-
+                        android1:textColor="@color/white" android1:paddingRight="5dp"/>
+
                     <LinearLayout
                         android1:id="@+id/view3"
-                        android1:layout_width="160px"
+                        android1:layout_width="200px"
                         android1:layout_height="80px"
-                        android1:orientation="vertical" >
+                        android1:gravity="center_vertical"
+                        android1:orientation="vertical" android1:paddingLeft="5dp">
 
                     </LinearLayout>
 
@@ -148,13 +151,14 @@
                         android1:layout_height="wrap_content"
                         android1:text="@string/noSensorLabel"
                         android1:textAppearance="?android:attr/textAppearanceSmall"
-                        android1:textColor="@color/white" />
-
+                        android1:textColor="@color/white" android1:paddingRight="5dp"/>
+
                     <LinearLayout
                         android1:id="@+id/view4"
-                        android1:layout_width="160px"
+                        android1:layout_width="200px"
                         android1:layout_height="80px"
-                        android1:orientation="vertical" >
+                        android1:gravity="center_vertical"
+                        android1:orientation="vertical" android1:paddingLeft="5dp">
 
                     </LinearLayout>
 
@@ -171,7 +175,7 @@
                     android1:id="@+id/seekBarWrap"
                     android1:layout_width="250dp"
                     android1:layout_height="wrap_content"
-                    android1:orientation="vertical" android1:padding="5dp">
+                    android1:orientation="vertical" android1:paddingLeft="5dp" android1:paddingRight="5dp" android1:paddingBottom="5dp" android1:paddingTop="10dp">
 
                     <SeekBar
                         android1:id="@+id/thirdMotorSeekBar"

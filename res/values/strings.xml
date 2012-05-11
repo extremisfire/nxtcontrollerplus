@@ -8,6 +8,8 @@
     <string name="pairedDevicesLabel">Paired NXT devices:</string>
     <string name="newFoundedDevicesLabel"> NXT found</string>
     <string name="scanCompleteLabel">Scanning finished</string>
+    <string name="ledONLabel">LED:ON</string>
+    <string name="ledOFFLabel">LED:OFF</string>
     <string name="scanningLabel">Scanning</string>
     <string name="noSensorLabel">No sensor</string>
     <string name="noFoundedDevicesLabel">No new NXT devices</string>

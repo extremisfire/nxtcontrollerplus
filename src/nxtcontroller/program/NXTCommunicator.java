@@ -72,6 +72,10 @@ public final class NXTCommunicator {
 		messageHandler.obtainMessage(TypeOfMessage.CONNECTION_STATUS, state).sendToTarget();
 	}
 
+	public SensorManager getSensorManager() {
+		return sensorManager;
+	}
+
 	public void setMessageHandler(Handler messageHandler) {
 		this.messageHandler = messageHandler;
 	}
@@ -256,6 +260,9 @@ public final class NXTCommunicator {
 			case SensorID.COMPASS_SENSOR:
 				sensorManager.addSensor(new CompassSensor(portNumber));
 				//TODO
+			break;
+			case SensorID.NO_SENSOR:
+				mainActivity.setUpSensorView(portNumber,keyForSensorType);
 			break;	
 			}
 		} catch (Exception e) {

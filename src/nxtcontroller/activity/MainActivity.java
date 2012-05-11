@@ -11,8 +11,12 @@ import nxtcontroller.enums.nxtbuiltin.SensorID;
 import nxtcontroller.program.NXTCommunicator;
 import nxtcontroller.program.NXTDevice;
 import nxtcontroller.program.R;
+import nxtcontroller.program.sensors.LightSensor;
+import nxtcontroller.program.sensors.SoundSensor;
 import nxtcontroller.program.views.ControlPad;
+import nxtcontroller.program.views.LightSensorView;
 import nxtcontroller.program.views.SensorView;
+import nxtcontroller.program.views.SoundSensorView;
 import nxtcontroller.program.views.TouchSensorView;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -114,10 +118,9 @@ public class MainActivity extends Activity implements SeekBar.OnSeekBarChangeLis
     	int sensorData = msg.arg2;
     	SensorView sensorView = sensorViews[portNumber];
     	if(sensorView != null){
-    		sensorView.setValue(sensorData);
+    		sensorView.setSensorValue(sensorData);
     		sensorView.invalidate();
     	}   	
-    	Log.d(TAG,"REFRESH:"+sensorData+" | "+portNumber);
     }
     
     public void setUpSensorView(byte portNumber, int sensorID){
@@ -128,9 +131,24 @@ public class MainActivity extends Activity implements SeekBar.OnSeekBarChangeLis
 			sensorViews[portNumber] =  touchView;
 			viewWrapper.addView(touchView);
 			break;
-		}
+		case SensorID.SOUND_SENSOR:
+			SoundSensor ss = (SoundSensor)nxtCommunicator.getSensorManager().getDigitalSensor(portNumber);
+			SoundSensorView soundView = new SoundSensorView(this,ss);
+			sensorViews[portNumber] =  soundView;
+			viewWrapper.addView(soundView);
+			break;
+		case SensorID.LIGHT_SENSOR:
+			LightSensor ls = (LightSensor)nxtCommunicator.getSensorManager().getDigitalSensor(portNumber);
+			LightSensorView lightView = new LightSensorView(this,ls);
+			sensorViews[portNumber] =  lightView;
+			viewWrapper.addView(lightView);
+			break;
+    	}
+    	
     	TextView name = sensorNames[portNumber];
-    	name.setText("Port "+Byte.toString(portNumber)+":\n"+sensorTextName[sensorID]);
+    	String temp = "Port "+Byte.toString((byte) (portNumber+1))+":\n";
+    	temp += sensorTextName[sensorID];
+    	name.setText(temp);
     }
     
     /* Getters and Setter declaration */
