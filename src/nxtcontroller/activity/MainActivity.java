@@ -22,7 +22,9 @@ import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.DialogInterface.OnClickListener;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -30,8 +32,11 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.PowerManager;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -40,8 +45,9 @@ import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ViewFlipper;
 
-public class MainActivity extends Activity implements SeekBar.OnSeekBarChangeListener{
+public class MainActivity extends Activity implements OnClickListener, SeekBar.OnSeekBarChangeListener,android.view.View.OnClickListener{
 
 	/* declaration constant values */
 	public static final String TAG = "nxtcontroller"; //debug tag for LogCat
@@ -72,7 +78,39 @@ public class MainActivity extends Activity implements SeekBar.OnSeekBarChangeLis
     private NXTCommunicator nxtCommunicator = NXTCommunicator.getInstance();
     private ControlPad controlPad;
     private NXTDevice nxtDevice = null;
-  
+    
+    /* layout flipper resources */
+    public ViewFlipper flipper = null;
+    private LinearLayout firstLayout = null, secondLayout = null; 
+    private GestureDetector gestureDetector;
+    private View.OnTouchListener gestureListener; 
+    private static final int SWIPE_MIN_DISTANCE = 60;
+    private static final int SWIPE_MAX_OFF_PATH = 300;
+    private static final int SWIPE_THRESHOLD_VELOCITY = 100;
+    
+    /* Gesture Detect used for swtich layout onFling event */
+    class MyGestureDetector extends SimpleOnGestureListener {
+      
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            try {
+                if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH)
+                	return false;
+                
+                final float distance = e1.getY() - e2.getY();
+                final boolean enoughSpeed = Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY;
+                if(distance > SWIPE_MIN_DISTANCE && enoughSpeed) {
+                    // down to up
+                	MainActivity.this.flipper.showNext();
+                    return true;
+                }  else if (distance < -SWIPE_MIN_DISTANCE && enoughSpeed) {
+                	MainActivity.this.flipper.showPrevious();
+                    return true;
+                } 
+                
+            } catch (Exception e) {}
+            return false;
+        }
+    };
     
     /* The Handler that gets information back from NXTCommunicator */
     private final Handler messageHandler = new Handler() {
@@ -275,6 +313,10 @@ public class MainActivity extends Activity implements SeekBar.OnSeekBarChangeLis
 	        thirdMotorController.setMax(200);
 	        thirdMotorController.setProgress(100);
 	        
+	        flipper = (ViewFlipper)findViewById(R.id.flipper);
+	        firstLayout = (LinearLayout)findViewById(R.id.firstScreen);
+	        secondLayout = (LinearLayout)findViewById(R.id.secondScreen);
+	        
 	        controlPad = (ControlPad) findViewById(R.id.controlPadView);
         }catch(Exception e){
         	Log.e(TAG,"seeting up components",e);
@@ -295,6 +337,12 @@ public class MainActivity extends Activity implements SeekBar.OnSeekBarChangeLis
                 	disconnectNXT();
                 }
             });
+            
+            firstLayout.setOnTouchListener(gestureListener);
+            firstLayout.setOnClickListener(MainActivity.this); 
+            secondLayout.setOnTouchListener(gestureListener);
+            secondLayout.setOnClickListener(MainActivity.this); 
+            
     	}catch(Exception e){
     		Log.e(MainActivity.TAG," setUpListeners error",e);
     	}
@@ -481,6 +529,13 @@ public class MainActivity extends Activity implements SeekBar.OnSeekBarChangeLis
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         
+        gestureDetector = new GestureDetector(new MyGestureDetector());
+        gestureListener = new View.OnTouchListener() {
+            public boolean onTouch(View v, MotionEvent event) {
+                return gestureDetector.onTouchEvent(event);
+            }
+        };       
+        
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     	if(bluetoothAdapter == null){
     		String msg = errors[ErrorCodes.BLUETOOTH_NOT_FOUND];
@@ -537,5 +592,14 @@ public class MainActivity extends Activity implements SeekBar.OnSeekBarChangeLis
 			nxtCommunicator.move3Motor(speed);
 		}
 		seekBar.setProgress(zero);
+	}
+
+	public void onClick(DialogInterface dialog, int which) {
+		// TODO Auto-generated method stub
+	}
+
+	public void onClick(View arg0) {
+		// TODO Auto-generated method stub
+		
 	}
 }

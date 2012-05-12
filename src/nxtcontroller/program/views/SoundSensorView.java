@@ -43,7 +43,7 @@ public class SoundSensorView extends SensorView{
 		paint.setTextSize(20);
 		paint.setColor(Color.WHITE);
 		String text = Integer.toString(getSensorValue())+" % ";
-		text += (getPairedSensor().getType() == SensorType.SOUND_DB) ? "dB" : "dBA";
+		text += (getPairedSensor().getType() == SensorType.SOUND_DB) ? "(dB)" : "(dBA)";
 		canvas.drawText(text, (WIDTH/2)-20, (HEIGHT/2+5), paint);
 	}
 	
