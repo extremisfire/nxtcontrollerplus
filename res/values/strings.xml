@@ -12,6 +12,8 @@
     <string name="ledOFFLabel">LED:OFF</string>
     <string name="scanningLabel">Scanning</string>
     <string name="noSensorLabel">No sensor</string>
+    <string name="azimuthText">Azimuth:</string>
+    <string name="distanceText">Distance:</string>
     <string name="noFoundedDevicesLabel">No new NXT devices</string>
     <string name="selectDevice">Select NXT device</string>
     <string-array name="errorsMsg">

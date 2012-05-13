@@ -13,6 +13,7 @@ import nxtcontroller.program.NXTDevice;
 import nxtcontroller.program.R;
 import nxtcontroller.program.sensors.LightSensor;
 import nxtcontroller.program.sensors.SoundSensor;
+import nxtcontroller.program.views.CompassSensorView;
 import nxtcontroller.program.views.ControlPad;
 import nxtcontroller.program.views.LightSensorView;
 import nxtcontroller.program.views.SensorView;
@@ -78,13 +79,15 @@ public class MainActivity extends Activity implements OnClickListener, SeekBar.O
     private NXTCommunicator nxtCommunicator = NXTCommunicator.getInstance();
     private ControlPad controlPad;
     private NXTDevice nxtDevice = null;
+    private CompassSensorView compass = null;
+    private TextView azimuthLabel = null;
     
     /* layout flipper resources */
     public ViewFlipper flipper = null;
     private LinearLayout firstLayout = null, secondLayout = null; 
     private GestureDetector gestureDetector;
     private View.OnTouchListener gestureListener; 
-    private static final int SWIPE_MIN_DISTANCE = 60;
+    private static final int SWIPE_MIN_DISTANCE = 40;
     private static final int SWIPE_MAX_OFF_PATH = 300;
     private static final int SWIPE_THRESHOLD_VELOCITY = 100;
     
@@ -138,6 +141,10 @@ public class MainActivity extends Activity implements OnClickListener, SeekBar.O
             	break;
             	case(TypeOfMessage.SENSOR_DATA):
             		refreshSensorData(msg);
+            	break;
+            	case(TypeOfMessage.COMPASS_SENSOR_DATA):
+            		compass.setSensorValue(msg.arg1);
+            		compass.invalidate();
             	break;
             }
         	}catch (Exception e){
@@ -316,6 +323,11 @@ public class MainActivity extends Activity implements OnClickListener, SeekBar.O
 	        flipper = (ViewFlipper)findViewById(R.id.flipper);
 	        firstLayout = (LinearLayout)findViewById(R.id.firstScreen);
 	        secondLayout = (LinearLayout)findViewById(R.id.secondScreen);
+	        
+	        /* setUP Compass and Radar */
+	        compass = (CompassSensorView)findViewById(R.id.compassSensorView);
+	        azimuthLabel = (TextView)findViewById(R.id.azimutLabel);
+	        compass.setAzimuthLabel(azimuthLabel);
 	        
 	        controlPad = (ControlPad) findViewById(R.id.controlPadView);
         }catch(Exception e){

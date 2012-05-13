@@ -27,13 +27,14 @@ public class CompassSensor extends I2CSensor{
 	public String toString() {
 		String ret="";
 		//this sensor works exactly as ultrasonic but returns value div 2
-	    ret += Integer.toString(getMeasuredData()*2)+" deg";
+	    ret += Integer.toString(getMeasuredData())+" deg";
 		return ret;
 	}
 
 	@Override
 	public int getMeasuredData() {
-		return (int)(0x000000FF & (int)super.lsdata.getRxData()[0]);
+		int rxData = (int)(0x000000FF) & (int)super.lsdata.getRxData()[0];
+		return rxData*2;
 	}
 
 	@Override

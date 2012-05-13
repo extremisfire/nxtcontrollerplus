@@ -195,14 +195,17 @@ public final class NXTCommunicator {
 	}
 	
 	private void getValuesFromI2CSensor(LSReadReturnPackages values){
-		//String msg = "";
 		synchronized (this) {
 			ArrayList<I2CSensor> temp = sensorManager.getI2CSensors();
-			
 			for(I2CSensor s:temp){
 				s.refreshSensorData(values);
-				//msg = s.toString();
-				//TODO
+				if(s instanceof CompassSensor){
+					Message msg = messageHandler.obtainMessage(TypeOfMessage.COMPASS_SENSOR_DATA);
+					msg.arg1 = s.getMeasuredData();
+					msg.sendToTarget();
+				}else{
+					//TODO radar
+				}
 			}
 		}
 	}
@@ -258,8 +261,8 @@ public final class NXTCommunicator {
 				//TODO
 			break;
 			case SensorID.COMPASS_SENSOR:
-				sensorManager.addSensor(new CompassSensor(portNumber));
-				//TODO
+				CompassSensor compass = new CompassSensor(portNumber);
+				sensorManager.addSensor(compass);
 			break;
 			case SensorID.NO_SENSOR:
 				mainActivity.setUpSensorView(portNumber,keyForSensorType);

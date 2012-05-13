@@ -9,7 +9,7 @@
     android1:gravity="left"
     android1:orientation="horizontal"
     android1:paddingTop="3dp" >
-
+
     <ViewFlipper
         android1:id="@+id/flipper"
         android1:layout_width="300dp"
@@ -21,10 +21,11 @@
 
         <LinearLayout
             android1:id="@+id/firstScreen"
-            android1:layout_width="match_parent"
+            android1:layout_width="wrap_content"
             android1:layout_height="wrap_content"
             android1:gravity="bottom"
-            android1:orientation="vertical" >
+            android1:orientation="vertical"
+            android1:visibility="gone" >
 
             <LinearLayout
                 android1:id="@+id/batteryWrapper"
@@ -41,7 +42,7 @@
                     android1:textAppearance="?android:attr/textAppearanceMedium"
                     android1:textColor="@color/white" />
             </LinearLayout>
-
+
             <LinearLayout
                 android1:id="@+id/row1wrapper"
                 android1:layout_width="wrap_content"
@@ -49,7 +50,7 @@
                 android1:gravity="center_vertical"
                 android1:orientation="horizontal"
                 android1:paddingLeft="5dp" >
-
+
                 <TextView
                     android1:id="@+id/row1name"
                     android1:layout_width="wrap_content"
@@ -57,12 +58,13 @@
                     android1:text="@string/noSensorLabel"
                     android1:textAppearance="?android:attr/textAppearanceSmall"
                     android1:textColor="@color/white" />
-
+
                 <LinearLayout
                     android1:id="@+id/view1"
                     android1:layout_width="160px"
                     android1:layout_height="80px"
-                    android1:orientation="vertical" android1:paddingLeft="5dp">
+                    android1:orientation="vertical"
+                    android1:paddingLeft="5dp" >
                 </LinearLayout>
             </LinearLayout>
 
@@ -155,7 +157,7 @@
                 android1:paddingBottom="5dp"
                 android1:paddingLeft="5dp"
                 android1:paddingRight="5dp"
-                android1:paddingTop="10dp" >
+                android1:paddingTop="20dp" >
 
                 <SeekBar
                     android1:id="@+id/thirdMotorSeekBar"
@@ -167,13 +169,32 @@
         <LinearLayout
             android1:id="@+id/secondScreen"
             android1:layout_width="match_parent"
-            android1:layout_height="match_parent" >
-
-            <Button
-                android1:id="@+id/button1"
+            android1:layout_height="match_parent"
+            android1:visibility="visible" >
+
+            <LinearLayout
+                android1:id="@+id/compassWrapper"
                 android1:layout_width="wrap_content"
                 android1:layout_height="wrap_content"
-                android1:text="Button" />
+                android1:gravity="bottom|center"
+                android1:orientation="vertical"
+                android1:paddingRight="2dp" >
+
+                <nxtcontroller.program.views.CompassSensorView
+                    android1:id="@+id/compassSensorView"
+                    android1:layout_width="128px"
+                    android1:layout_height="128px" />
+
+                <TextView
+                    android1:id="@+id/azimutLabel"
+                    android1:layout_width="wrap_content"
+                    android1:layout_height="wrap_content"
+                    android1:text="@string/azimuthText"
+                    android1:textAppearance="?android:attr/textAppearanceSmall"
+                    android1:textColor="@color/white" android1:paddingTop="2dp" android1:paddingBottom="2dp"/>
+
+            </LinearLayout>
+
         </LinearLayout>
     </ViewFlipper>
 
