@@ -19,6 +19,7 @@ import nxtcontroller.program.views.LightSensorView;
 import nxtcontroller.program.views.SensorView;
 import nxtcontroller.program.views.SoundSensorView;
 import nxtcontroller.program.views.TouchSensorView;
+import nxtcontroller.program.views.UltrasonicSensorView;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -81,6 +82,9 @@ public class MainActivity extends Activity implements OnClickListener, SeekBar.O
     private NXTDevice nxtDevice = null;
     private CompassSensorView compass = null;
     private TextView azimuthLabel = null;
+    
+    private UltrasonicSensorView radar = null;
+    private TextView distanceLabel = null;
     
     /* layout flipper resources */
     public ViewFlipper flipper = null;
@@ -146,6 +150,10 @@ public class MainActivity extends Activity implements OnClickListener, SeekBar.O
             		compass.setSensorValue(msg.arg1);
             		compass.invalidate();
             	break;
+               	case(TypeOfMessage.ULTRASONIC_SENSOR_DATA):
+            		radar.setSensorValue(msg.arg1);
+               		radar.invalidate();
+            	break;
             }
         	}catch (Exception e){
         		Log.e(TAG,"meesage handling error",e);
@@ -170,6 +178,7 @@ public class MainActivity extends Activity implements OnClickListener, SeekBar.O
     
     public void setUpSensorView(byte portNumber, int sensorID){
     	LinearLayout viewWrapper = sensorViewWrappers[portNumber];
+    	viewWrapper.removeAllViews();
     	switch (sensorID) {
 		case SensorID.TOUCH_SENSOR:
 			TouchSensorView touchView = new TouchSensorView(this);
@@ -328,6 +337,10 @@ public class MainActivity extends Activity implements OnClickListener, SeekBar.O
 	        compass = (CompassSensorView)findViewById(R.id.compassSensorView);
 	        azimuthLabel = (TextView)findViewById(R.id.azimutLabel);
 	        compass.setAzimuthLabel(azimuthLabel);
+	        
+	        distanceLabel = (TextView)findViewById(R.id.distanceLabel);
+	        radar = (UltrasonicSensorView)findViewById(R.id.ultrasonicSensorView);
+	        radar.setDistanceLabel(distanceLabel);
 	        
 	        controlPad = (ControlPad) findViewById(R.id.controlPadView);
         }catch(Exception e){

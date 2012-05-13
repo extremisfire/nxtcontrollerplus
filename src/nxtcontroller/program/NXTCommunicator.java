@@ -204,7 +204,9 @@ public final class NXTCommunicator {
 					msg.arg1 = s.getMeasuredData();
 					msg.sendToTarget();
 				}else{
-					//TODO radar
+					Message msg = messageHandler.obtainMessage(TypeOfMessage.ULTRASONIC_SENSOR_DATA);
+					msg.arg1 = s.getMeasuredData();
+					msg.sendToTarget();
 				}
 			}
 		}
@@ -213,9 +215,7 @@ public final class NXTCommunicator {
 	private void getValuesFromDigitalSensor(GetInputValuesReturnPackage values){
 		Sensor sensor = null;
 		int port = values.getInputPort();
-		synchronized (this) {
-			sensor = sensorManager.getDigitalSensor((byte)port);	
-		}
+		sensor = sensorManager.getDigitalSensor((byte)port);	
 		sensor.refreshSensorData(values);
 		Message msg = messageHandler.obtainMessage(TypeOfMessage.SENSOR_DATA);
 	    msg.arg1 = sensor.getPort();

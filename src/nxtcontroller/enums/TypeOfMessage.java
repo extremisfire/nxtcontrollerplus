@@ -8,5 +8,5 @@ public class TypeOfMessage {
 	public static final int BATTERY_LEVEL = 14;
 	public static final int SENSOR_DATA = 15;
 	public static final int COMPASS_SENSOR_DATA = 16;
-	public static final int ULTRASONIC_SENSOR_DATA = 16;
+	public static final int ULTRASONIC_SENSOR_DATA = 17;
 }

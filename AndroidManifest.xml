@@ -23,6 +23,7 @@
             </intent-filter>
         </activity>
         <activity android:name="nxtcontroller.activity.BluetoothDeviceManagerActivity" android:configChanges="keyboardHidden|orientation" android:theme="@android:style/Theme.Dialog" android:label="@string/selectDevice"></activity>
+        <activity android:name="nxtcontroller.activity.SettingsActivity" android:screenOrientation="landscape"></activity>
     </application>
 
 </manifest>

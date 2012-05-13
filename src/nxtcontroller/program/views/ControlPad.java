@@ -27,6 +27,7 @@ public class ControlPad extends View implements SensorEventListener{
 	private final int color = Color.argb(128, 255, 255, 255);
 	private final int circleOffSet = 2;
 	private Paint paint;
+	private Context context = null;
 	private ControlPoint controlPoint;
 	private NXTCommunicator nxtCommnunicator = NXTCommunicator.getInstance();
 	
@@ -43,14 +44,21 @@ public class ControlPad extends View implements SensorEventListener{
 		return radius;
 	}
 
-	public ControlPad(Context context, AttributeSet attrs) {
-        super(context, attrs);
+	private void setUpComponents(Context context){
         center = new Point();
         paint = new Paint();
         controlPoint = new ControlPoint(context, center.x, center.y,this);    
-        manager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
-        magnetic = manager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
-        accelerometer = manager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        this.context = context;
+	}
+	
+	public ControlPad(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        setUpComponents(context);
+    }
+	
+	public ControlPad(Context context, AttributeSet attrs,int defStyle) {
+        super(context, attrs,defStyle);
+        setUpComponents(context);
     }
 	
 	private float[] getTiltValues() {
@@ -64,6 +72,9 @@ public class ControlPad extends View implements SensorEventListener{
 	}
 	
 	public void turnOnTiltControl(){
+        manager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
+        magnetic = manager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        accelerometer = manager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 	    if( manager.registerListener(this, magnetic, ControlPad.delay) && manager.registerListener(this, accelerometer, ControlPad.delay) ) {
 	           Log.d(MainActivity.TAG, "accelerometer+magnetic successfully register");
 	    }else {
@@ -73,7 +84,8 @@ public class ControlPad extends View implements SensorEventListener{
 	}
 	
 	public void turnOffTiltControl(){
-		manager.unregisterListener(this);
+		if(manager != null)
+			manager.unregisterListener(this);
 	}
 	
 	public void turnOnTouchControl(){

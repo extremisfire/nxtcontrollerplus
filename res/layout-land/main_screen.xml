@@ -165,34 +165,57 @@
                     android1:layout_height="match_parent" />
             </LinearLayout>
         </LinearLayout>
-
+
         <LinearLayout
             android1:id="@+id/secondScreen"
             android1:layout_width="match_parent"
             android1:layout_height="match_parent"
-            android1:visibility="visible" >
-
+            android1:gravity="bottom"
+            android1:visibility="visible" android1:paddingBottom="10dp">
+
+            <LinearLayout
+                android1:id="@+id/radarWrapper"
+                android1:layout_width="wrap_content"
+                android1:layout_height="wrap_content"
+                android1:gravity="bottom|center"
+                android1:orientation="vertical" >
+
+                <nxtcontroller.program.views.UltrasonicSensorView
+                    android1:id="@+id/ultrasonicSensorView"
+                    android1:layout_width="215dp"
+                    android1:layout_height="215dp" />
+
+                <TextView
+                    android1:id="@+id/distanceLabel"
+                    android1:layout_width="wrap_content"
+                    android1:layout_height="wrap_content"
+                    android1:text="@string/distanceText"
+                    android1:textAppearance="?android:attr/textAppearanceSmall"
+                    android1:textColor="@color/white" />
+
+            </LinearLayout>
+
             <LinearLayout
                 android1:id="@+id/compassWrapper"
                 android1:layout_width="wrap_content"
                 android1:layout_height="wrap_content"
                 android1:gravity="bottom|center"
-                android1:orientation="vertical"
-                android1:paddingRight="2dp" >
-
+                android1:orientation="vertical" >
+
                 <nxtcontroller.program.views.CompassSensorView
                     android1:id="@+id/compassSensorView"
                     android1:layout_width="128px"
                     android1:layout_height="128px" />
-
+
                 <TextView
                     android1:id="@+id/azimutLabel"
                     android1:layout_width="wrap_content"
                     android1:layout_height="wrap_content"
+                    android1:paddingBottom="2dp"
+                    android1:paddingTop="2dp"
                     android1:text="@string/azimuthText"
                     android1:textAppearance="?android:attr/textAppearanceSmall"
-                    android1:textColor="@color/white" android1:paddingTop="2dp" android1:paddingBottom="2dp"/>
-
+                    android1:textColor="@color/white" />
             </LinearLayout>
 
         </LinearLayout>
