@@ -46,8 +46,8 @@ public class ReturnPackage extends BluetoothMessage{
 
 	public String toString(){
 		String temp="RETURN_PACKAGE:\n";
-		temp += "Telegram type: "+ getTelegramType()+"\n";
-		temp += "Type: "+ getType()+"\n";
+		temp += "Telegram type: "+ Integer.toHexString(getTelegramType()) +"\n";
+		temp += "Type: "+ Integer.toHexString(getType())+"\n";
 		ErrorDecoder e = new ErrorDecoder();
 		temp += "Status: "+ e.getErrorDescription(getStatus())+"\n";
 		return temp;

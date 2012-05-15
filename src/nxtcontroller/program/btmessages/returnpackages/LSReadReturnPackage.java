@@ -1,8 +1,8 @@
-package nxtcontroller.program.btmessages.returns.packages;
+package nxtcontroller.program.btmessages.returnpackages;
 
 import nxtcontroller.program.utils.Converter;
 
-public class LSReadReturnPackages extends ReturnPackage{
+public class LSReadReturnPackage extends ReturnPackage{
 
 	public static final byte LS_COMMUNICATION_MAX_LENGTH = 16; 
 	private byte bytesRead;
@@ -20,7 +20,7 @@ public class LSReadReturnPackages extends ReturnPackage{
 		System.arraycopy(returnBytes, 4, rxData, 0, rxData.length);
 	}
 
-	public LSReadReturnPackages(byte[] bytes) {
+	public LSReadReturnPackage(byte[] bytes) {
 		super(bytes);
 		rxData = new byte[LS_COMMUNICATION_MAX_LENGTH];
 		this.bytesRead = super.returnBytes[3];

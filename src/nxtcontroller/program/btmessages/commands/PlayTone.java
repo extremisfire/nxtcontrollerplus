@@ -9,14 +9,14 @@ public class PlayTone extends DirectCommand{
 	
 	public void setFrequency(short frequency){
 		byte[] f = new byte[2];
-		f = Converter.toUWORD(frequency);
+		f = Converter.to2BytesArray(frequency);
 		System.arraycopy(f, 0, command, 2, f.length);
 		super.refreshCommand();
 	}
 	
 	public void setDuration(short duration){
 		byte[] d = new byte[2];
-		d = Converter.toUWORD(duration);
+		d = Converter.to2BytesArray(duration);
 		System.arraycopy(d, 0, command, 4, d.length);
 		super.refreshCommand();
 	}

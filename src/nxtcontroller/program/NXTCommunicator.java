@@ -16,12 +16,12 @@ import nxtcontroller.enums.nxtbuiltin.InputPort;
 import nxtcontroller.enums.nxtbuiltin.Motor;
 import nxtcontroller.enums.nxtbuiltin.SensorID;
 import nxtcontroller.program.btmessages.commands.SetOutputState;
-import nxtcontroller.program.btmessages.returns.packages.GetBatteryLevelReturnPackage;
-import nxtcontroller.program.btmessages.returns.packages.GetInputValuesReturnPackage;
-import nxtcontroller.program.btmessages.returns.packages.GetOutputStateReturnPackage;
-import nxtcontroller.program.btmessages.returns.packages.LSGetStatusReturnPackage;
-import nxtcontroller.program.btmessages.returns.packages.LSReadReturnPackages;
-import nxtcontroller.program.btmessages.returns.packages.ReturnPackage;
+import nxtcontroller.program.btmessages.returnpackages.GetBatteryLevelReturnPackage;
+import nxtcontroller.program.btmessages.returnpackages.GetInputValuesReturnPackage;
+import nxtcontroller.program.btmessages.returnpackages.GetOutputStateReturnPackage;
+import nxtcontroller.program.btmessages.returnpackages.LSGetStatusReturnPackage;
+import nxtcontroller.program.btmessages.returnpackages.LSReadReturnPackage;
+import nxtcontroller.program.btmessages.returnpackages.ReturnPackage;
 import nxtcontroller.program.sensors.CompassSensor;
 import nxtcontroller.program.sensors.I2CSensor;
 import nxtcontroller.program.sensors.LightSensor;
@@ -176,7 +176,7 @@ public final class NXTCommunicator {
 				Log.d(MainActivity.TAG,outputState.toString());
 				break;
 			case CommandType.LS_READ:
-				LSReadReturnPackages lsRead = new LSReadReturnPackages(bytes);
+				LSReadReturnPackage lsRead = new LSReadReturnPackage(bytes);
 				Log.d(MainActivity.TAG,lsRead.toString());
 				getValuesFromI2CSensor(lsRead);
 				break;
@@ -194,7 +194,7 @@ public final class NXTCommunicator {
 		}
 	}
 	
-	private void getValuesFromI2CSensor(LSReadReturnPackages values){
+	private void getValuesFromI2CSensor(LSReadReturnPackage values){
 		synchronized (this) {
 			ArrayList<I2CSensor> temp = sensorManager.getI2CSensors();
 			for(I2CSensor s:temp){

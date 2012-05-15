@@ -35,7 +35,7 @@ public class GetBatteryLevelReturnPackage extends ReturnPackage{
 	public String toString(){
 		String temp = super.toString();
 		temp += "miliVolts: "+ this.currentMiliVolts +"\n";
-		temp += "GET_BATTERY_LEVEL_RETURN_PACKAGE_END";
+		temp += this.getClass().toString()+"_END";
 		return temp;
 	}
 }

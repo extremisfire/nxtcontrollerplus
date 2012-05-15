@@ -112,7 +112,7 @@ public class GetOutputStateReturnPackage extends ReturnPackage{
 		temp += "tacho count: "+ getTachoCount()+"\n";
 		temp += "block tacho count: "+ getBlockTachoCount()+"\n";
 		temp += "rotation count: "+ getRotationCount()+"\n";
-		temp += "GET_OUTPUT_STATE_RETURN_PACKAGE_END";
+		temp += this.getClass().toString()+"_END";
 		return temp;
 	}
 

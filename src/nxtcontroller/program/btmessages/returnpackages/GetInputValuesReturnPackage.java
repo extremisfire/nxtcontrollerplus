@@ -104,7 +104,7 @@ public class GetInputValuesReturnPackage extends ReturnPackage{
 		temp += "normalized value: "+ getNormalizedValue()+"\n";
 		temp += "scaled value: "+ getScaledValue()+"\n";
 		temp += "calibrated value: "+ getCalibratedValue()+"\n";
-		temp += "GET_INPUT_VALUES_RETURN_PACKAGE_END";
+		temp += this.getClass().toString()+"_END";
 		return temp;
 	}
 

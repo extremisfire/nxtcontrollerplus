@@ -83,7 +83,7 @@ public class SetOutputState extends DirectCommandOutput{
 	 */
 	public void setTachoLimit(int miliSeconds){
 		byte[] temp  = new byte[4];
-		temp = Converter.toULONG(miliSeconds);
+		temp = Converter.to4BytesArrays(miliSeconds);
 		System.arraycopy(temp, 0, command, 8, temp.length);
 		super.refreshCommand();
 	}

@@ -4,7 +4,7 @@ import android.util.Log;
 import nxtcontroller.activity.MainActivity;
 import nxtcontroller.program.NXTCommunicator;
 import nxtcontroller.program.btmessages.commands.SetInputMode;
-import nxtcontroller.program.btmessages.returns.packages.GetInputValuesReturnPackage;
+import nxtcontroller.program.btmessages.returnpackages.GetInputValuesReturnPackage;
 
 public abstract class Sensor {
 	protected byte type;

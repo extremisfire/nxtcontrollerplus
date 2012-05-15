@@ -18,8 +18,8 @@ import android.view.*;
 
 public class ControlPad extends View implements SensorEventListener{
 	
-	public static final int degreesCount = 50;
-	private static final int delay = SensorManager.SENSOR_DELAY_UI;
+	public static final int DEGREES_COUNT = 50;
+	private static final int DELAY = SensorManager.SENSOR_DELAY_UI;
 
 	/* private class properties declaration */
 	private int width,radius;
@@ -75,7 +75,7 @@ public class ControlPad extends View implements SensorEventListener{
         manager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
         magnetic = manager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
         accelerometer = manager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-	    if( manager.registerListener(this, magnetic, ControlPad.delay) && manager.registerListener(this, accelerometer, ControlPad.delay) ) {
+	    if( manager.registerListener(this, magnetic, ControlPad.DELAY) && manager.registerListener(this, accelerometer, ControlPad.DELAY) ) {
 	           Log.d(MainActivity.TAG, "accelerometer+magnetic successfully register");
 	    }else {
 	      Log.d("TiltCalc", "No acceptable hardware found.");
@@ -119,8 +119,8 @@ public class ControlPad extends View implements SensorEventListener{
         this.radius = this.width/2;
         this.center.x = width / 2;
         this.center.y = height / 2;
-        controlPoint.setCenter( this.center.x, this.center.y);
-        double oneDegree = (double)radius / (double)degreesCount;
+        controlPoint.setControlPoint( this.center.x, this.center.y);
+        double oneDegree = (double)radius / (double)DEGREES_COUNT;
         controlPoint.setOneDegree(oneDegree);
     }
        
@@ -176,7 +176,7 @@ public class ControlPad extends View implements SensorEventListener{
             int x = (int) event.getX();
             int y = (int) event.getY();
             if ((action == MotionEvent.ACTION_DOWN) || (action == MotionEvent.ACTION_MOVE)) {
-            	controlPoint.setCenter(x,y);
+            	controlPoint.setControlPoint(x,y);
             	
             	byte leftSpeed = controlPoint.getLeftMotorSpeed();
             	byte rightSpeed = controlPoint.getRightMotorSpeed();
@@ -187,7 +187,7 @@ public class ControlPad extends View implements SensorEventListener{
             	nxtCommnunicator.move2Motors(leftSpeed, rightSpeed);	
             }else if((action == MotionEvent.ACTION_UP) || (action == MotionEvent.ACTION_CANCEL)){
             	
-            	controlPoint.setCenter(center.x,center.y);
+            	controlPoint.setControlPoint(center.x,center.y);
             	nxtCommnunicator.stopMove();
             }
             ControlPad.this.postInvalidate();

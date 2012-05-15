@@ -3,13 +3,13 @@ package nxtcontroller.program.sensors;
 import nxtcontroller.enums.nxtbuiltin.SensorMode;
 import nxtcontroller.enums.nxtbuiltin.SensorType;
 import nxtcontroller.program.btmessages.commands.LSWrite;
-import nxtcontroller.program.btmessages.returns.packages.LSReadReturnPackages;
+import nxtcontroller.program.btmessages.returnpackages.LSReadReturnPackage;
 
 public abstract class I2CSensor extends Sensor{
 	
 	protected static final byte DEFAULT_REGISTER_ADDRESS = 0x02;
 	
-	protected LSReadReturnPackages lsdata;
+	protected LSReadReturnPackage lsdata;
 	
 	protected I2CSensor(byte port){
 		super(port);
@@ -21,7 +21,7 @@ public abstract class I2CSensor extends Sensor{
 	 * MUST call refreshData before
 	 * @return actual register values from NXT 
 	 */
-	public void refreshSensorData(LSReadReturnPackages lsdata){
+	public void refreshSensorData(LSReadReturnPackage lsdata){
 		this.lsdata = lsdata;
 	}
 	

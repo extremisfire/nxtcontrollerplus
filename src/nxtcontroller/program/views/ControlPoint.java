@@ -32,7 +32,7 @@ public class ControlPoint extends View{
 		return rightMotorSpeed;
 	}
 
-	public void setCenter(int cx, int cy) {		
+	public void setControlPoint(int cx, int cy) {		
 		double distFromCenter = distanceBetweenTwoPoints(controlPad.getCenter(),new Point(cx,cy));
 		if(distFromCenter > controlPad.getRadius()) return;
 		this.center.x = cx;

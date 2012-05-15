@@ -1,4 +1,4 @@
-package nxtcontroller.program.btmessages.returns.packages;
+package nxtcontroller.program.btmessages.returnpackages;
 
 /**
  * Structure:

@@ -18,13 +18,11 @@ public class Converter {
 	 * @return integer value if byte-array not 2 or 4 bytes size return zero
 	 */
 	public static int fromBytes(byte[] bytes){
+		ByteBuffer b = ByteBuffer.wrap(bytes);
+		b.order(ByteOrder.LITTLE_ENDIAN);
 		if(bytes.length==2){
-			ByteBuffer b = ByteBuffer.wrap(bytes);
-			b.order(ByteOrder.LITTLE_ENDIAN);
 			return b.getShort();
 		}else if (bytes.length == 4){
-			ByteBuffer b = ByteBuffer.wrap(bytes);
-			b.order(ByteOrder.LITTLE_ENDIAN);
 			return b.getInt();
 		}else
 			return 0;
@@ -36,7 +34,7 @@ public class Converter {
 	 * @param var
 	 * @return 2-elements byte array
 	 */
-	public static byte[] toUWORD(short var){
+	public static byte[] to2BytesArray(short var){
 		ByteBuffer buffer = ByteBuffer.allocate(2);
 		buffer.order(ByteOrder.LITTLE_ENDIAN);
 		buffer.putShort(var);
@@ -49,7 +47,7 @@ public class Converter {
 	 * @param var
 	 * @return 4-elements byte array
 	 */
-	public static byte[] toULONG(int var){
+	public static byte[] to4BytesArrays(int var){
 		ByteBuffer buffer = ByteBuffer.allocate(4);
 		buffer.order(ByteOrder.LITTLE_ENDIAN);
 		buffer.putInt(var);
