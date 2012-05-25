@@ -11,15 +11,16 @@ import nxtcontroller.program.sensors.Sensor;
 import nxtcontroller.program.utils.Converter;
 
 public class SensorRefresher extends Thread{
-	private static final int REFRESH_INTERVAL = 50; //ms 
+	
+	private static final int REFRESH_INTERVAL = 35; //ms 
 	
 	private ArrayList<Byte[]> autoRefreshedCommands;
 	private ArrayList<Sensor> sensorList;	
-	private NXTCommunicator nxtCommunicator = NXTCommunicator.getInstance();
 	
+	private NXTCommunicator nxtCommunicator = NXTCommunicator.getInstance();
 	private volatile boolean isRunning;
 	private int counter;
-	
+
 	public synchronized boolean isRunning() {
 		return isRunning;
 	}

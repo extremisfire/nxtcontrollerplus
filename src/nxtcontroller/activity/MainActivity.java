@@ -1,5 +1,6 @@
 package nxtcontroller.activity;
 
+import nxtcontroller.enums.ActiveScreen;
 import nxtcontroller.enums.ConnectionStatus;
 import nxtcontroller.enums.ControlModes;
 import nxtcontroller.enums.ErrorCodes;
@@ -80,11 +81,15 @@ public class MainActivity extends Activity implements OnClickListener, SeekBar.O
     private NXTCommunicator nxtCommunicator = NXTCommunicator.getInstance();
     private ControlPad controlPad;
     private NXTDevice nxtDevice = null;
+    
     private CompassSensorView compass = null;
     private TextView azimuthLabel = null;
+    private String azimuthText = null;
+    
     
     private UltrasonicSensorView radar = null;
-    private TextView distanceLabel = null;
+    private TextView distanceLabel = null, angleLabel = null;
+    private String distanceText = null, currentAngleText = null;
     
     /* layout flipper resources */
     public ViewFlipper flipper = null;
@@ -95,25 +100,34 @@ public class MainActivity extends Activity implements OnClickListener, SeekBar.O
     private static final int SWIPE_MAX_OFF_PATH = 300;
     private static final int SWIPE_THRESHOLD_VELOCITY = 100;
     
-    /* Gesture Detect used for swtich layout onFling event */
+    /* Gesture Detect used for switch layout onFling event */
     class MyGestureDetector extends SimpleOnGestureListener {
       
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
             try {
+            	if(getConnectionStatus() != ConnectionStatus.CONNECTED) return true;
+            	
                 if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH)
                 	return false;
                 
                 final float distance = e1.getY() - e2.getY();
                 final boolean enoughSpeed = Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY;
-                if(distance > SWIPE_MIN_DISTANCE && enoughSpeed) {
-                    // down to up
+                if((distance < 0) && Math.abs(distance) > SWIPE_MIN_DISTANCE && enoughSpeed) {
+                    // DOWN TO UP
                 	MainActivity.this.flipper.showNext();
-                    return true;
-                }  else if (distance < -SWIPE_MIN_DISTANCE && enoughSpeed) {
+                }  else if ((distance > 0) && Math.abs(distance) > SWIPE_MIN_DISTANCE  && enoughSpeed) {
+                	// UP TO DOWN
                 	MainActivity.this.flipper.showPrevious();
-                    return true;
-                } 
-                
+                }
+                if(getConnectionStatus() == ConnectionStatus.CONNECTED){
+                	View current = flipper.getCurrentView();
+                	if(current.getId() == firstLayout.getId()){
+                		nxtCommunicator.getSensorManager().setActiveScreen(ActiveScreen.First);
+                	}else{
+                		nxtCommunicator.getSensorManager().setActiveScreen(ActiveScreen.Second);
+                	}
+                }
+                return true;
             } catch (Exception e) {}
             return false;
         }
@@ -147,11 +161,23 @@ public class MainActivity extends Activity implements OnClickListener, SeekBar.O
             		refreshSensorData(msg);
             	break;
             	case(TypeOfMessage.COMPASS_SENSOR_DATA):
-            		compass.setSensorValue(msg.arg1);
+            		int azimuth = msg.arg1;
+            		azimuthLabel.setText(azimuthText+azimuth);
+            		compass.setSensorValue(azimuth);
             		compass.invalidate();
             	break;
                	case(TypeOfMessage.ULTRASONIC_SENSOR_DATA):
-            		radar.setSensorValue(msg.arg1);
+               		int angle = msg.arg1;
+               		int distance = msg.arg2;
+               		
+               		angleLabel.setText(currentAngleText+angle);
+               		if(distance > UltrasonicSensorView.MAX_DISTANCE){
+               			distanceLabel.setText(distanceText+"N/A");
+               		}else{
+               			distanceLabel.setText(distanceText+distance+" cm");
+               		}
+               		radar.setCurrentAngle(angle);
+               		radar.addDetectedObject(angle, distance);
                		radar.invalidate();
             	break;
             }
@@ -333,14 +359,17 @@ public class MainActivity extends Activity implements OnClickListener, SeekBar.O
 	        firstLayout = (LinearLayout)findViewById(R.id.firstScreen);
 	        secondLayout = (LinearLayout)findViewById(R.id.secondScreen);
 	        
-	        /* setUP Compass and Radar */
+	        /* setUp Compass */
 	        compass = (CompassSensorView)findViewById(R.id.compassSensorView);
 	        azimuthLabel = (TextView)findViewById(R.id.azimutLabel);
-	        compass.setAzimuthLabel(azimuthLabel);
+	        azimuthText = getResources().getString(R.string.azimuthText);
 	        
+	        /* setUp Radar */
 	        distanceLabel = (TextView)findViewById(R.id.distanceLabel);
+	        angleLabel = (TextView)findViewById(R.id.angleLabel);
+	        distanceText = getResources().getString(R.string.distanceText);
+	        currentAngleText = getResources().getString(R.string.angleText);
 	        radar = (UltrasonicSensorView)findViewById(R.id.ultrasonicSensorView);
-	        radar.setDistanceLabel(distanceLabel);
 	        
 	        controlPad = (ControlPad) findViewById(R.id.controlPadView);
         }catch(Exception e){
@@ -380,6 +409,12 @@ public class MainActivity extends Activity implements OnClickListener, SeekBar.O
 		    setConnectionStatus(ConnectionStatus.CONNECTING);
 		    connectButton.setVisibility(View.GONE);
 		    disconnectButton.setVisibility(View.VISIBLE);
+        	View current = flipper.getCurrentView();
+        	if(current.getId() == firstLayout.getId()){
+        		nxtCommunicator.getSensorManager().setActiveScreen(ActiveScreen.First);
+        	}else{
+        		nxtCommunicator.getSensorManager().setActiveScreen(ActiveScreen.Second);
+        	}
     	}catch(Exception e){
     		setConnectionStatus(ConnectionStatus.CONNECTION_FAILED);
     		Log.e(TAG,"connectNXT error",e);
@@ -600,8 +635,7 @@ public class MainActivity extends Activity implements OnClickListener, SeekBar.O
 		final int zero = 100;
 		if(this.connectionStatus == ConnectionStatus.CONNECTED){
 			byte speed = (byte) (progress - zero);
-			speed *= -1;
-			nxtCommunicator.move3Motor(speed);
+			nxtCommunicator.move3Motor((byte) (speed/2));
 		}
 	}
 

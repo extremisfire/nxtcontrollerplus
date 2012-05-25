@@ -18,10 +18,10 @@
         android1:inAnimation="@anim/slide_in_up"
         android1:measureAllChildren="true"
         android1:outAnimation="@anim/slide_out_up" >
-
+
         <LinearLayout
             android1:id="@+id/firstScreen"
-            android1:layout_width="wrap_content"
+            android1:layout_width="240dp"
             android1:layout_height="wrap_content"
             android1:gravity="bottom"
             android1:orientation="vertical"
@@ -148,22 +148,6 @@
                     android1:paddingLeft="5dp" >
                 </LinearLayout>
             </LinearLayout>
-
-            <LinearLayout
-                android1:id="@+id/seekBarWrap"
-                android1:layout_width="250dp"
-                android1:layout_height="wrap_content"
-                android1:orientation="vertical"
-                android1:paddingBottom="5dp"
-                android1:paddingLeft="5dp"
-                android1:paddingRight="5dp"
-                android1:paddingTop="20dp" >
-
-                <SeekBar
-                    android1:id="@+id/thirdMotorSeekBar"
-                    android1:layout_width="match_parent"
-                    android1:layout_height="match_parent" />
-            </LinearLayout>
         </LinearLayout>
 
         <LinearLayout
@@ -172,19 +156,22 @@
             android1:layout_height="match_parent"
             android1:gravity="bottom"
             android1:visibility="visible" android1:paddingBottom="10dp">
-
+
             <LinearLayout
                 android1:id="@+id/radarWrapper"
                 android1:layout_width="wrap_content"
                 android1:layout_height="wrap_content"
-                android1:gravity="bottom|center"
-                android1:orientation="vertical" >
-
-                <nxtcontroller.program.views.UltrasonicSensorView
-                    android1:id="@+id/ultrasonicSensorView"
-                    android1:layout_width="215dp"
-                    android1:layout_height="215dp" />
-
+                android1:gravity="bottom|left"
+                android1:orientation="vertical" android1:paddingLeft="5dp">
+
+                <TextView
+                    android1:id="@+id/angleLabel"
+                    android1:layout_width="wrap_content"
+                    android1:layout_height="wrap_content"
+                    android1:text="@string/angleText"
+                    android1:textAppearance="?android:attr/textAppearanceSmall"
+                    android1:textColor="@color/white" />
+
                 <TextView
                     android1:id="@+id/distanceLabel"
                     android1:layout_width="wrap_content"
@@ -192,6 +179,26 @@
                     android1:text="@string/distanceText"
                     android1:textAppearance="?android:attr/textAppearanceSmall"
                     android1:textColor="@color/white" />
+
+                <nxtcontroller.program.views.UltrasonicSensorView
+                    android1:id="@+id/ultrasonicSensorView"
+                    android1:layout_width="215dp"
+                    android1:layout_height="215dp" />
+
+                <LinearLayout
+                    android1:id="@+id/seekBarWrap"
+                    android1:layout_width="match_parent"
+                    android1:layout_height="wrap_content"
+                    android1:orientation="vertical"
+                    android1:paddingBottom="5dp"
+                    android1:paddingRight="5dp"
+                    android1:paddingTop="20dp" >
+
+                    <SeekBar
+                        android1:id="@+id/thirdMotorSeekBar"
+                        android1:layout_width="match_parent"
+                        android1:layout_height="match_parent" />
+                </LinearLayout>
 
             </LinearLayout>
 

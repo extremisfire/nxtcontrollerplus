@@ -64,12 +64,17 @@ public final class NXTCommunicator {
     private HashMap<Byte,Integer> connectedSensors = null;
     private byte leftMotor,rightMotor,thirdMotor;
     private SensorManager sensorManager = null;
+    public int currentAngle;
     /* public class properties declaration */
     
 	/* Getters and Setter declaration */
     
 	public synchronized void setState(int state) {
 		messageHandler.obtainMessage(TypeOfMessage.CONNECTION_STATUS, state).sendToTarget();
+	}
+
+	public int getCurrentAngle() {
+		return currentAngle;
 	}
 
 	public SensorManager getSensorManager() {
@@ -174,6 +179,7 @@ public final class NXTCommunicator {
 			case CommandType.GET_OUTPUT_STATE:
 				GetOutputStateReturnPackage outputState = new GetOutputStateReturnPackage(bytes);
 				Log.d(MainActivity.TAG,outputState.toString());
+				this.currentAngle = outputState.getRotationCount();
 				break;
 			case CommandType.LS_READ:
 				LSReadReturnPackage lsRead = new LSReadReturnPackage(bytes);
@@ -203,9 +209,10 @@ public final class NXTCommunicator {
 					Message msg = messageHandler.obtainMessage(TypeOfMessage.COMPASS_SENSOR_DATA);
 					msg.arg1 = s.getMeasuredData();
 					msg.sendToTarget();
-				}else{
+				}else if(s instanceof UltrasonicSensor){
 					Message msg = messageHandler.obtainMessage(TypeOfMessage.ULTRASONIC_SENSOR_DATA);
-					msg.arg1 = s.getMeasuredData();
+					msg.arg1 = this.currentAngle % 360;
+					msg.arg2 = s.getMeasuredData();
 					msg.sendToTarget();
 				}
 			}
@@ -231,7 +238,7 @@ public final class NXTCommunicator {
 	}
 	
 	private NXTCommunicator(){
-		this.sensorManager = new SensorManager();
+		this.sensorManager = new SensorManager(this);
 		this.connectedSensors = new HashMap<Byte, Integer>();
 	}
 	
@@ -258,7 +265,6 @@ public final class NXTCommunicator {
 			break;
 			case SensorID.ULTRASONIC_SENSOR:
 				sensorManager.addSensor(new UltrasonicSensor(portNumber));
-				//TODO
 			break;
 			case SensorID.COMPASS_SENSOR:
 				CompassSensor compass = new CompassSensor(portNumber);

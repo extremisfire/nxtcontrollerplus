@@ -17,7 +17,7 @@ import nxtcontroller.program.utils.Converter;
  * Byte 5: Regulation mode (UBYTE;enumerated)
  * Byte 6: Turn ratio (SBYTE;-100 to 100)
  * Byte 7: RunState (UBYTE;enumerated)
- * Byte 8-12: TachoLmit (ULONG;0:run forever) in ms (how long may be turned on motors)
+ * Byte 8-12: TachoLmit (ULONG;0:run forever) in degrees rotation of motor
  * @see DirectCommand
  * @author Lukas Dilik
  * */
@@ -78,12 +78,12 @@ public class SetOutputState extends DirectCommandOutput{
 	}
 	
 	/**
-	 * how long may be turned on motors in miliSeconds, 0 means forever
-	 * @param miliSeconds
+	 * rotate motor for specified angle, 0 means run forever
+	 * @param degrees
 	 */
-	public void setTachoLimit(int miliSeconds){
+	public void setTachoLimit(int degrees){
 		byte[] temp  = new byte[4];
-		temp = Converter.to4BytesArrays(miliSeconds);
+		temp = Converter.to4BytesArrays(degrees);
 		System.arraycopy(temp, 0, command, 8, temp.length);
 		super.refreshCommand();
 	}

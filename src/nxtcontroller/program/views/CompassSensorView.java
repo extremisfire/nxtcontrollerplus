@@ -10,28 +10,16 @@ import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.TextView;
 
 public class CompassSensorView extends SensorView{
 	
 	private Bitmap compassBG = null, compassArrow = null;
-	private TextView azimuthLabel = null;
-	private String azimuthText = null;
 	private Matrix matrix = null;
 	private boolean compassMode = false;
 	
-	public TextView getAzimuthLabel() {
-		return azimuthLabel;
-	}
-
-	public void setAzimuthLabel(TextView azimuthLabel) {
-		this.azimuthLabel = azimuthLabel;
-	}
-
 	private void setUpComponents(Context context){
 		this.compassBG = BitmapFactory.decodeResource(context.getResources(), R.drawable.compass);
 		this.compassArrow =  BitmapFactory.decodeResource(context.getResources(), R.drawable.compass_arrow);
-		this.azimuthText = context.getResources().getString(R.string.azimuthText);
 		this.matrix = new Matrix();
 		this.setOnTouchListener(changeModeOnTouchListener);
 	}
@@ -56,11 +44,6 @@ public class CompassSensorView extends SensorView{
 		}else{
 			canvas.drawBitmap(compassBG, 0, 0, paint);
 			canvas.drawBitmap(compassArrow, matrix,  paint);
-		}
-		if(getAzimuthLabel() != null){
-			String temp = azimuthText+" ";
-			temp += azimuth;
-			getAzimuthLabel().setText(temp);
 		}
 	}
 	
