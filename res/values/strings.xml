@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">NXT Controller Plus</string>
-    <string name="connectNXT">Connect NXT</string>
-    <string name="disconnectNXT">Disconnect NXT</string>
+    <string name="connectNXT">Connect</string>
+    <string name="disconnectNXT">Disconnect</string>
     <string name="closeLabel">Close</string>
     <string name="scanLabel">Click to scan</string>
     <string name="pairedDevicesLabel">Paired NXT devices:</string>
