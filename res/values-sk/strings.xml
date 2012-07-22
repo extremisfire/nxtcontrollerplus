@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">NXT Controller Plus</string>
+    <string name="connectNXT">Pripojiť</string>
+    <string name="disconnectNXT">Odpojiť</string>
+    <string name="closeLabel">Zavrieť</string>
+    <string name="scanLabel">Začni skenovať</string>
+    <string name="pairedDevicesLabel">Spárované NXT zar.:</string>
+    <string name="newFoundedDevicesLabel">NXT nájdenych</string>
+    <string name="scanCompleteLabel">Skenovanie dokončené</string>
+    <string name="ledONLabel">LED:ON</string>
+    <string name="ledOFFLabel">LED:OFF</string>
+    <string name="scanningLabel">Skenujem</string>
+    <string name="noSensorLabel">Žiadny senzor</string>
+    <string name="azimuthText">Azimut:</string>
+    <string name="distanceText">Vzdialenosť objektu:</string>
+    <string name="angleText">Uhol natočenia:</string>
+    <string name="noFoundedDevicesLabel">Žiadne nové NXT zar.</string>
+    <string name="selectDevice">Vyberte NXT zar.</string>
+    <string-array name="errorsMsg">
+        <item >Bluetooth nenájdený. Nemôžete používať túto aplikáciu bez Bluetooth.</item>
+        <item >BlueTooh nemohol byť aktivovaný. Skúste to manuálne. </item>
+        <item >Nepodarilo sa pripojiť k NXT zar. Skúste ho reštartovať.</item>  
+        <item >BlueTooth nie je aktivované. </item> 
+    </string-array>
+    <string-array name="infoMsg">
+        <item >Bluetooth úspešné aktivovaný. Môžete pripojiť NXT zar. kliknutím na "Pripojiť".</item>
+        <item >Prosím skontrolujte, či je všse NXT zar. zapnuté a či ma zapnuté Bluetooh.</item>  
+        <item >Pripojenie stratené. Pripájam znovu.</item>
+        <item >Nastavenia uložené. Klknite na "Pripojiť" znovu.</item>    
+        <item >Nastavenia neboli zmenené.</item>   
+    </string-array>
+    <string-array name="connectionStatues">
+        <item >Odpojený</item>
+        <item >Pripojený k:</item>
+        <item >Pripájam k:</item>
+        <item >Pripojenie zlyhalo</item>
+        <item >Pripojenie prerušené</item>
+    </string-array> 
+    <string-array name="controlModes">
+      <item>Dotykový mód</item>
+      <item>Akcelerometer</item>
+      <item>Režim "prenasledovateľ"</item> 
+    </string-array>
+    <string-array name="motorNames">
+      <item>Motor A</item>
+      <item>Motor B</item>
+      <item>Motor C</item>
+    </string-array>
+	<string name="selectLeftMotor">Vyberte ľavý motor:</string>
+	<string name="selectRightMotor">Vyberte pravý motor:</string>
+	<string name="selectPortOne">Vyberte senzor na porte 1:</string>
+	<string name="selectPortTwo">Vyberte senzor na porte 2:</string>
+	<string name="selectPortThird">Vyberte senzor na porte 3:</string>
+	<string name="selectPortFourth">Vyberte senzor na porte 4:</string>
+	<string name="saveButtonText">Uložiť</string>
+	<string name="settingsText">Nastavenia</string>
+    <string-array name="sensorNames">
+      <item>Dotykový senzor</item>
+      <item>Svetelný senzor</item>
+      <item>Zvukový senzor</item>
+      <item>Ultrasonický senzor</item>
+      <item>Kompas</item> 
+      <item>Bez senzora</item> 
+    </string-array>
+    <string name="touchedText">Stlačený</string>
+    <string name="notTouchedText">Nestlačený</string>
+    <string name="lightActiveText">Odraz svetla</string>
+    <string name="lightInActiveText">Vonk. svetlo</string>
+    <string name="loudnessText">Úroveň zvuku</string>
+    <color name="textBlack">#000</color>
+    <color name="deepBlue">#00008b</color>
+    <color name="bgColor">#808080</color>
+    <string name="batteryLevel">Batéria:</string>
+    <color name="white">#fff</color>
+</resources>

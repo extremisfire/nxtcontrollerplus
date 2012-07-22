@@ -63,6 +63,11 @@
       <item>Compass Sensor</item> 
       <item>No Sensor</item> 
     </string-array>
+    <string name="touchedText">Touched</string>
+    <string name="notTouchedText">Not Touched</string>
+    <string name="lightActiveText">Light Reflection</string>
+    <string name="lightInActiveText">Ambient Light</string>
+    <string name="loudnessText">Loudness</string>
     <color name="textBlack">#000</color>
     <color name="deepBlue">#00008b</color>
     <color name="bgColor">#808080</color>
