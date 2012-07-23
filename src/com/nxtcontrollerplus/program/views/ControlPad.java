@@ -185,7 +185,7 @@ public class ControlPad extends View implements SensorEventListener{
             	Log.d(MainActivity.TAG,"Lspeed:"+Byte.toString(leftSpeed));
             	Log.d(MainActivity.TAG,"Rspeed:"+Byte.toString(rightSpeed));
             	
-            	nxtCommnunicator.move2Motors(leftSpeed, rightSpeed);	
+            	nxtCommnunicator.move2Motors(leftSpeed, rightSpeed);
             }else if((action == MotionEvent.ACTION_UP) || (action == MotionEvent.ACTION_CANCEL)){
             	
             	controlPoint.setControlPoint(center.x,center.y);

@@ -2,30 +2,41 @@ package com.nxtcontrollerplus.program;
 
 import java.util.ArrayList;
 
+import android.os.Handler;
 import com.nxtcontrollerplus.enums.ActiveScreen;
+import com.nxtcontrollerplus.enums.ConnectionStatus;
+import com.nxtcontrollerplus.enums.nxtbuiltin.SensorType;
 import com.nxtcontrollerplus.program.btmessages.commands.GetBatteryLevel;
 import com.nxtcontrollerplus.program.btmessages.commands.GetInputValues;
 import com.nxtcontrollerplus.program.btmessages.commands.GetOutputState;
 import com.nxtcontrollerplus.program.btmessages.commands.LSRead;
+import com.nxtcontrollerplus.program.btmessages.commands.SetInputMode;
 import com.nxtcontrollerplus.program.sensors.I2CSensor;
 import com.nxtcontrollerplus.program.sensors.Sensor;
 import com.nxtcontrollerplus.program.sensors.UltrasonicSensor;
 import com.nxtcontrollerplus.program.utils.Converter;
 
+
 public class SensorManager{
 	
-	private ArrayList<Byte[]> firstScreenCommands = null;
-	private ArrayList<Byte[]> secondScreenCommands = null;
+	public static final int REFRESH_INTERVAL = 35; //ms 
+	
+	private ArrayList<Command> firstScreenCommands = null;
+	private ArrayList<Command> secondScreenCommands = null;
 	private ArrayList<Sensor> sensorList = null;
-	private SensorRefresher refresher = null;
-	private ActiveScreen activeScreen;
+	private ActiveScreen activeScreen = null;
+	private Handler sensorRefresherHandler = null;
 	
-	private NXTCommunicator nxtCommunicator = null;
-	
+	public Handler getSensorRefresherHandler() {
+		return sensorRefresherHandler;
+	}
+
+	public void setSensorRefresherHandler(Handler sensorRefresherHandler) {
+		this.sensorRefresherHandler = sensorRefresherHandler;
+	}
+
 	public void setActiveScreen(ActiveScreen activeScreen){
 		this.activeScreen = activeScreen;
-		stopReadingSensorData();
-		startReadingSensorData();
 	}
 
 	/**
@@ -34,12 +45,15 @@ public class SensorManager{
 	 */
 	private void setUpFirstScreenCommands(){
 		this.firstScreenCommands.clear();
-		firstScreenCommands.add(Converter.bytesArrayConverter(new GetBatteryLevel().getBytes()));
+		Command command = null;
+		command = new Command(Converter.bytesArrayConverter(new GetBatteryLevel().getBytes()), sensorRefresherHandler);
+		firstScreenCommands.add(command);
 		
 		for(Sensor s:sensorList){
 			if(!(s instanceof I2CSensor)){
 				GetInputValues giv = new GetInputValues(s.getPort());
-				firstScreenCommands.add(Converter.bytesArrayConverter(giv.getBytes()));
+				command = new Command(Converter.bytesArrayConverter(giv.getBytes()), sensorRefresherHandler);
+				firstScreenCommands.add(command);
 			}
 		}
 	}
@@ -50,6 +64,7 @@ public class SensorManager{
 	 */
 	private void setUpSecondScreenCommands(){
 		this.secondScreenCommands.clear();
+		Command command = null;
 		for(Sensor s:sensorList){
 			if(s instanceof I2CSensor){
 				
@@ -58,12 +73,14 @@ public class SensorManager{
 				LSRead lr = new LSRead(temp.getPort());
 				byte[] two = lr.getBytes();
 				byte[] merged = Converter.mergeByteArrays(one, two);
-				secondScreenCommands.add(Converter.bytesArrayConverter(merged));
+				command  = new Command(Converter.bytesArrayConverter(merged), sensorRefresherHandler);
+				secondScreenCommands.add(command);
 				
 				//if ultrasonic is connected then add we have rotation sensor data from third motor for radar
 				if(s instanceof UltrasonicSensor){
-					GetOutputState get = new GetOutputState(nxtCommunicator.getThirdMotor());
-					secondScreenCommands.add(Converter.bytesArrayConverter(get.getBytes()));
+					GetOutputState get = new GetOutputState(NXTCommunicator.getInstance().getThirdMotor());
+					command = new Command(Converter.bytesArrayConverter(get.getBytes()), sensorRefresherHandler);
+					secondScreenCommands.add(command);
 				}
 			}
 		}
@@ -72,6 +89,7 @@ public class SensorManager{
 	private void setUpAutoRefreshedCommands(){
 		setUpFirstScreenCommands();
 		setUpSecondScreenCommands();
+		setSensorRefresherHandler(NXTCommunicator.getInstance().getMessageHandler());
 	}
 	
 	public void addSensor(Sensor sensor){
@@ -90,6 +108,7 @@ public class SensorManager{
 		}else{
 			sensorList.set(found,sensor);
 		}
+		setUpAutoRefreshedCommands();
 	}
 	
 	public Sensor getDigitalSensor(byte inputPort){
@@ -100,7 +119,25 @@ public class SensorManager{
 		return null; 
 	}
 	
-	public synchronized ArrayList<I2CSensor> getI2CSensors(){
+	private void registerSensors(){
+		while(NXTCommunicator.getInstance().getState() != ConnectionStatus.CONNECTED);
+		for(Sensor s:sensorList){
+			s.initialize();
+		}
+	}
+	
+	public void unregisterSensors(){
+		byte[] temp = null;
+		SetInputMode sim = new SetInputMode((byte)0, SensorType.NO_SENSOR);
+		temp =sim.getBytes();
+		for(byte i = 1; i<4;i++){
+			sim = new SetInputMode(i, SensorType.NO_SENSOR);
+			temp = Converter.mergeByteArrays(temp, sim.getBytes());
+		}
+		NXTCommunicator.getInstance().write(temp);
+	}
+	
+	public ArrayList<I2CSensor> getI2CSensors(){
 		ArrayList<I2CSensor> temp = new ArrayList<I2CSensor>();
 		for(Sensor s:sensorList){
 			if(s instanceof I2CSensor)
@@ -110,27 +147,38 @@ public class SensorManager{
 	}
 	
 	public void startReadingSensorData(){
-		setUpAutoRefreshedCommands();
-		if(activeScreen.equals(ActiveScreen.First)){
-			refresher = new SensorRefresher(firstScreenCommands, sensorList);
-		}else if(activeScreen.equals(ActiveScreen.Second)){
-			refresher = new SensorRefresher(secondScreenCommands, sensorList);
-		}
-		refresher.start();
+		registerSensors();
+
+		if(activeScreen == ActiveScreen.First){
+			for(Command c:firstScreenCommands){
+				sensorRefresherHandler.postDelayed(c, REFRESH_INTERVAL);
+			}
+		}else if(activeScreen == ActiveScreen.Second){
+			for(Command c:secondScreenCommands){
+				sensorRefresherHandler.postDelayed(c, REFRESH_INTERVAL);
+			}
+		}	
 	}
 	
 	public void stopReadingSensorData(){
-		if(refresher != null){
-			refresher.unregisterSensors();
-			SensorRefresher.setRunning(false);
-			refresher = null;
-		}
+		unregisterSensors();
+		
+		if(activeScreen == ActiveScreen.First){
+			for(Command c:firstScreenCommands){
+				sensorRefresherHandler.removeCallbacks(c);
+			}
+		}else if(activeScreen == ActiveScreen.Second){
+			for(Command c:secondScreenCommands){
+				sensorRefresherHandler.removeCallbacks(c);
+			}
+		}	
 	}
 	
-	public SensorManager(NXTCommunicator nxtCommunicator){
-		this.nxtCommunicator = nxtCommunicator;
-		this.firstScreenCommands =  new ArrayList<Byte[]>();
-		this.secondScreenCommands =  new ArrayList<Byte[]>();
+
+	
+	public SensorManager(){
+		this.firstScreenCommands =  new ArrayList<Command>();
+		this.secondScreenCommands =  new ArrayList<Command>();
 		this.sensorList = new ArrayList<Sensor>();	
 		this.activeScreen = ActiveScreen.First;
 	}

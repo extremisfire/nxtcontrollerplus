@@ -2,8 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:android1="http://schemas.android.com/apk/res/android"
     android1:id="@+id/main"
-    android1:layout_width="wrap_content"
-    android1:layout_height="fill_parent"
+    android1:layout_width="match_parent"
+    android1:layout_height="match_parent"
     android1:background="@drawable/background_tile"
     android1:baselineAligned="false"
     android1:gravity="left"
@@ -207,21 +207,28 @@
                         android1:layout_width="180dp"
                         android1:layout_height="180dp" />
 
-                    <LinearLayout
-                        android1:id="@+id/seekBarWrap"
+                    <RelativeLayout
+                        android1:id="@+id/thirdMotorControl"
                         android1:layout_width="match_parent"
-                        android1:layout_height="wrap_content"
-                        android1:layout_weight="1"
-                        android1:orientation="vertical"
-                        android1:paddingBottom="5dp"
-                        android1:paddingRight="5dp"
-                        android1:paddingTop="20dp" >
+                        android1:layout_height="wrap_content" >
 
-                        <SeekBar
-                            android1:id="@+id/thirdMotorSeekBar"
-                            android1:layout_width="match_parent"
-                            android1:layout_height="match_parent" />
-                    </LinearLayout>
+                        <Button
+                            android1:id="@+id/moveLeft"
+                            style="?android:attr/buttonStyleSmall"
+                            android1:layout_width="wrap_content"
+                            android1:layout_height="wrap_content"
+                            android1:layout_alignParentLeft="true"
+                            android1:layout_alignParentTop="true"
+                            android1:background="@drawable/ic_left_arrow" />
+
+                        <Button
+                            android1:id="@+id/moveRight"
+                            android1:layout_width="wrap_content"
+                            android1:layout_height="wrap_content"
+                            android1:layout_alignParentRight="true"
+                            android1:layout_alignParentTop="true"
+                            android1:background="@drawable/ic_right_arrow" />
+                    </RelativeLayout>
                 </LinearLayout>
 
                 <LinearLayout
@@ -256,24 +263,22 @@
 
     <LinearLayout
         android1:id="@+id/rightPanel"
-        android1:layout_width="wrap_content"
+        android1:layout_width="match_parent"
         android1:layout_height="wrap_content"
         android1:gravity="right"
         android1:orientation="vertical"
         android1:paddingLeft="10dp" >
 
-        <LinearLayout
+        <RelativeLayout
             android1:id="@+id/controlsWrap"
             android1:layout_width="fill_parent"
             android1:layout_height="wrap_content"
-            android1:gravity="left|right"
-            android1:orientation="horizontal" >
+            android1:gravity="left|right" >
 
             <LinearLayout
                 android1:id="@+id/controls"
                 android1:layout_width="wrap_content"
                 android1:layout_height="wrap_content"
-                android1:layout_weight="0.6"
                 android1:gravity="left"
                 android1:orientation="vertical"
                 android1:paddingRight="10dp" >
@@ -307,7 +312,8 @@
                 android1:id="@+id/buttons"
                 android1:layout_width="wrap_content"
                 android1:layout_height="wrap_content"
-                android1:layout_weight="0.4"
+                android1:layout_alignParentRight="true"
+                android1:layout_alignParentTop="true"
                 android1:orientation="vertical" >
 
                 <Button
@@ -324,7 +330,8 @@
                     android1:text="@string/connectNXT"
                     android1:visibility="visible" />
             </LinearLayout>
-        </LinearLayout>
+
+        </RelativeLayout>
 
         <LinearLayout
             android1:id="@+id/controlPadWrapper"

@@ -37,6 +37,7 @@ import android.os.PowerManager;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
+import android.view.View.OnTouchListener;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -45,12 +46,11 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
-public class MainActivity extends Activity implements OnClickListener, SeekBar.OnSeekBarChangeListener,android.view.View.OnClickListener{
+public class MainActivity extends Activity implements OnClickListener,android.view.View.OnClickListener{
 
 	/* declaration constant values */
 	public static final String TAG = "nxtcontroller"; //debug tag for LogCat
@@ -72,8 +72,8 @@ public class MainActivity extends Activity implements OnClickListener, SeekBar.O
     private LinearLayout[] sensorViewWrappers; // position is the number of Port
     private SensorView[] sensorViews;
     
-    private Button connectButton,disconnectButton;
-    private SeekBar thirdMotorController;
+    private Button connectButton,disconnectButton, moveRight, moveLeft;
+
     private String[] errors,infos,connectionStatuses,controlModes; //message arrays
     
     private int connectionStatus;
@@ -105,8 +105,6 @@ public class MainActivity extends Activity implements OnClickListener, SeekBar.O
       
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
             try {
-            	if(getConnectionStatus() != ConnectionStatus.CONNECTED) return true;
-            	
                 if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH)
                 	return false;
                 
@@ -120,16 +118,19 @@ public class MainActivity extends Activity implements OnClickListener, SeekBar.O
                 	MainActivity.this.flipper.showPrevious();
                 }
                 if(getConnectionStatus() == ConnectionStatus.CONNECTED){
+            		nxtCommunicator.getSensorManager().stopReadingSensorData();
                 	View current = flipper.getCurrentView();
                 	if(current.getId() == firstLayout.getId()){
                 		nxtCommunicator.getSensorManager().setActiveScreen(ActiveScreen.First);
+                		
                 	}else{
                 		nxtCommunicator.getSensorManager().setActiveScreen(ActiveScreen.Second);
                 	}
+                	nxtCommunicator.getSensorManager().startReadingSensorData();
                 }
                 return true;
             } catch (Exception e) {}
-            return false;
+            return true;
         }
     };
     
@@ -349,9 +350,8 @@ public class MainActivity extends Activity implements OnClickListener, SeekBar.O
 	        disconnectButton = (Button) findViewById(R.id.disconnectButton);
 	        disconnectButton.setVisibility(View.GONE); 
 	        
-	        thirdMotorController = (SeekBar)findViewById(R.id.thirdMotorSeekBar);
-	        thirdMotorController.setMax(200);
-	        thirdMotorController.setProgress(100);
+	        moveLeft = (Button) findViewById(R.id.moveLeft);
+	        moveRight = (Button) findViewById(R.id.moveRight);
 	        
 	        flipper = (ViewFlipper)findViewById(R.id.flipper);
 	        firstLayout = (LinearLayout)findViewById(R.id.firstScreen);
@@ -378,13 +378,21 @@ public class MainActivity extends Activity implements OnClickListener, SeekBar.O
     
     private void setUpListeners(){
     	try{
-    		thirdMotorController.setOnSeekBarChangeListener(this);
     		
             connectButton.setOnClickListener(new View.OnClickListener()  {
                 public void onClick(View v) {
 	                startChooseDeviceActivity();
                 }
             });
+            disconnectButton.setOnClickListener(new View.OnClickListener()  {
+                public void onClick(View v) {
+                	disconnectNXT();
+                }
+            });
+            
+            moveRight.setOnTouchListener(moveRightOnTouchListener);
+            moveLeft.setOnTouchListener(moveLeftOnTouchListener);
+            
             disconnectButton.setOnClickListener(new View.OnClickListener()  {
                 public void onClick(View v) {
                 	disconnectNXT();
@@ -417,6 +425,7 @@ public class MainActivity extends Activity implements OnClickListener, SeekBar.O
         	setControlMode(ControlModes.TOUCHPAD_MODE);
     	}catch(Exception e){
     		setConnectionStatus(ConnectionStatus.CONNECTION_FAILED);
+    		disconnectNXT();
     		Log.e(TAG,"connectNXT error",e);
     	}
     }
@@ -628,35 +637,53 @@ public class MainActivity extends Activity implements OnClickListener, SeekBar.O
     	}
     	
     }
+    
+	public OnTouchListener moveRightOnTouchListener = new OnTouchListener() {		
+		public boolean onTouch(View v, MotionEvent event) {
+            int action = event.getAction();
 
-	public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-		final int zero = 100;
-		if(this.connectionStatus == ConnectionStatus.CONNECTED){
-			byte speed = (byte) (progress - zero);
-			nxtCommunicator.move3Motor((byte) (speed/2));
+            if ((action == MotionEvent.ACTION_DOWN)) {
+           		if(MainActivity.this.connectionStatus == ConnectionStatus.CONNECTED){
+        			byte speed = (byte) 20;
+        			nxtCommunicator.move3Motor(speed);
+        		}
+            }else if((action == MotionEvent.ACTION_UP) || (action == MotionEvent.ACTION_CANCEL)){
+           		if(MainActivity.this.connectionStatus == ConnectionStatus.CONNECTED){
+        			byte speed = (byte) 0;
+        			nxtCommunicator.move3Motor(speed);
+        		}
+            }
+			return true;
 		}
-	}
+    };
+    
+	public OnTouchListener moveLeftOnTouchListener = new OnTouchListener() {		
+		public boolean onTouch(View v, MotionEvent event) {
+            int action = event.getAction();
 
-	public void onStartTrackingTouch(SeekBar seekBar) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void onStopTrackingTouch(SeekBar seekBar) {
-		final int zero = 100;
-		if(this.connectionStatus == ConnectionStatus.CONNECTED){
-			byte speed = 0;
-			nxtCommunicator.move3Motor(speed);
+            if ((action == MotionEvent.ACTION_DOWN)) {
+           		if(MainActivity.this.connectionStatus == ConnectionStatus.CONNECTED){
+        			byte speed = (byte) -20;
+        			nxtCommunicator.move3Motor(speed);
+        		}
+            }else if((action == MotionEvent.ACTION_UP) || (action == MotionEvent.ACTION_CANCEL)){
+           		if(MainActivity.this.connectionStatus == ConnectionStatus.CONNECTED){
+        			byte speed = (byte) 0;
+        			nxtCommunicator.move3Motor(speed);
+        		}
+            }
+			return true;
 		}
-		seekBar.setProgress(zero);
-	}
-
-	public void onClick(DialogInterface dialog, int which) {
-		// TODO Auto-generated method stub
-	}
+    };
 
 	public void onClick(View arg0) {
 		// TODO Auto-generated method stub
 		
 	}
+
+	public void onClick(DialogInterface arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

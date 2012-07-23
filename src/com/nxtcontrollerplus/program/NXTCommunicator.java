@@ -71,7 +71,7 @@ public final class NXTCommunicator {
     
 	/* Getters and Setter declaration */
     
-	public synchronized void setState(int state) {
+	public void setState(int state) {
 		messageHandler.obtainMessage(TypeOfMessage.CONNECTION_STATUS, state).sendToTarget();
 	}
 
@@ -82,6 +82,10 @@ public final class NXTCommunicator {
 	public SensorManager getSensorManager() {
 		return sensorManager;
 	}
+	
+	public Handler getMessageHandler() {
+		return messageHandler;
+	}
 
 	public void setMessageHandler(Handler messageHandler) {
 		this.messageHandler = messageHandler;
@@ -91,7 +95,7 @@ public final class NXTCommunicator {
 		this.mainActivity = mainActivity;
 	}
 
-	public synchronized int getState(){
+	public int getState(){
 		return  mainActivity.getConnectionStatus();
 	}
 	
@@ -240,8 +244,8 @@ public final class NXTCommunicator {
 	}
 	
 	private NXTCommunicator(){
-		this.sensorManager = new SensorManager(this);
 		this.connectedSensors = new HashMap<Byte, Integer>();
+		this.sensorManager = new SensorManager();
 	}
 	
 	/**
@@ -331,7 +335,7 @@ public final class NXTCommunicator {
 
 	}
 	
-	public synchronized void disconnectFromNXT(){
+	public void disconnectFromNXT(){
 		sensorManager.stopReadingSensorData();
 		
         if (mConnectThread != null) {
@@ -465,6 +469,7 @@ public final class NXTCommunicator {
         private final BluetoothDevice mmDevice;
         
         public ConnectThread(BluetoothDevice device) {
+        	super("ConnectThread");
             mmDevice = device;
             BluetoothSocket tmp = null;
             try {
@@ -525,6 +530,7 @@ public final class NXTCommunicator {
         private final OutputStream mmOutStream;
 
         public ConnectedThread(BluetoothSocket socket) {
+        	super("ConnectedThread");
             Log.d(MainActivity.TAG, "create ConnectedThread");
             mmSocket = socket;
             InputStream tmpIn = null;

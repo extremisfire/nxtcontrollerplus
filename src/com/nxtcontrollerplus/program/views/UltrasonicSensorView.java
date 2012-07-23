@@ -70,7 +70,6 @@ public class UltrasonicSensorView extends SensorView{
 	
 	public UltrasonicSensorView(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		isInEditMode();
 		this.center = new Point();
 		this.paint = new Paint();
 		this.setOnTouchListener(turnRadarOnTouchListener);
@@ -150,6 +149,7 @@ public class UltrasonicSensorView extends SensorView{
             int action = event.getAction();
             if ((action == MotionEvent.ACTION_DOWN)) {
             	UltrasonicSensorView.this.clearRadar();
+            	return true;
             }
 			return true;
 		}
