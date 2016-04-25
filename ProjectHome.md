@@ -1,0 +1,1 @@
+This program allows control NXT robot via Bluetooth using touch screen a gsensor.
